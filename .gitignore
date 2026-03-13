@@ -24,6 +24,7 @@ ml/artifacts/scaler.pkl
 # ── Data (large files) ────────────────────────────────────────────────────────
 data/raw/
 data/processed/
+Ethereum Phishing Transaction Network/
 
 # ── Node / Hardhat ────────────────────────────────────────────────────────────
 chain/node_modules/

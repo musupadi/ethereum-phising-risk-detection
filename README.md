@@ -48,7 +48,7 @@ AI + Blockchain risk scoring system that:
 
 | Property | Value |
 |---|---|
-| Source | [XBlock – Ethereum Phishing Transaction Network](http://xblock.pro/ethereum/) |
+| Source | [Kaggle - Ethereum Phishing Transaction Network](https://www.kaggle.com/datasets/xblock/ethereum-phishing-transaction-network/data) (mirror of [XBlock](http://xblock.pro/ethereum/)) |
 | Format | NetworkX `MulDiGraph` (pickle) |
 | Nodes | 2,973,489 |
 | Edges | 13,551,303 |
