@@ -1,0 +1,46 @@
+[
+  {
+    "ratio": "1:5",
+    "model": "LogisticRegression",
+    "n_total": 6990,
+    "n_phishing": 1165,
+    "n_normal": 5825,
+    "accuracy": 0.9528,
+    "precision": 0.9034,
+    "recall": 0.8026,
+    "f1": 0.85
+  },
+  {
+    "ratio": "1:5",
+    "model": "RandomForest",
+    "n_total": 6990,
+    "n_phishing": 1165,
+    "n_normal": 5825,
+    "accuracy": 0.9771,
+    "precision": 0.9136,
+    "recall": 0.9528,
+    "f1": 0.9328
+  },
+  {
+    "ratio": "1:10",
+    "model": "LogisticRegression",
+    "n_total": 12815,
+    "n_phishing": 1165,
+    "n_normal": 11650,
+    "accuracy": 0.9504,
+    "precision": 0.75,
+    "recall": 0.6824,
+    "f1": 0.7146
+  },
+  {
+    "ratio": "1:10",
+    "model": "RandomForest",
+    "n_total": 12815,
+    "n_phishing": 1165,
+    "n_normal": 11650,
+    "accuracy": 0.9782,
+    "precision": 0.8831,
+    "recall": 0.8755,
+    "f1": 0.8793
+  }
+]
