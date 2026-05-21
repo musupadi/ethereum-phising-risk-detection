@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import torch; from torch_geometric.nn import SAGEConv; print\\('PyTorch:', torch.__version__\\); print\\('CUDA:', torch.cuda.is_available\\(\\)\\); print\\('SAGEConv OK'\\)\")",
+      "Bash(python *)"
+    ]
+  }
+}

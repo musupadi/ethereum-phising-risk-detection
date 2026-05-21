@@ -1,0 +1,12 @@
+{
+  "best_scenario": "muldigraph_plus_etherscan",
+  "best_model": "XGBoost",
+  "best_f1": 0.9102296450939458,
+  "note": "Scenario comparison uses schema-defined feature groups on a single shared split.",
+  "scenarios": {
+    "muldigraph_only": 19,
+    "muldigraph_plus_etherscan": 26,
+    "muldigraph_plus_bigquery": 29,
+    "muldigraph_plus_etherscan_plus_bigquery": 36
+  }
+}

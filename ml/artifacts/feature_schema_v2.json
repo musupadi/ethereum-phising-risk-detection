@@ -1,0 +1,27 @@
+{
+  "features": [
+    "in_degree",
+    "out_degree",
+    "unique_senders",
+    "unique_receivers",
+    "total_received",
+    "total_sent",
+    "avg_in_amount",
+    "avg_out_amount",
+    "max_in_amount",
+    "max_out_amount",
+    "min_in_amount",
+    "min_out_amount",
+    "std_in_amount",
+    "std_out_amount",
+    "in_out_ratio",
+    "sent_received_ratio",
+    "timestamp_spread_in",
+    "timestamp_spread_out"
+  ],
+  "label": "label",
+  "node_id": "node_id",
+  "best_model": "RandomForest",
+  "best_f1": 1.0,
+  "note": "V2 with improved GNN (train-only graph, class weighting)"
+}

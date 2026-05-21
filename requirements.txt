@@ -5,6 +5,14 @@ pandas>=2.2
 scikit-learn>=1.5
 joblib>=1.4
 matplotlib>=3.8
+xgboost>=2.0
+torch>=2.0
+torch-geometric>=2.4
+
+# ── External data APIs ─────────────────────────────────────────────────────────
+requests>=2.32
+python-dotenv>=1.0
+google-cloud-bigquery>=3.25
 
 # ── API ────────────────────────────────────────────────────────────────────────
 fastapi>=0.111

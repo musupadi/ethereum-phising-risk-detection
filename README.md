@@ -136,6 +136,171 @@ streamlit run app/streamlit_app.py
 
 UI: http://localhost:8501
 
+### Step 6 - Etherscan enrichment (real wallet metrics)
+
+This step appends real on-chain summary features (balance, tx count, activity proxies)
+for addresses in `data/raw/addresses.csv` to:
+- `data/raw/addresses_etherscan_enriched.csv`
+
+Run one batch manually:
+
+```bash
+python ml/enrich_real_addresses_etherscan.py
+```
+
+Recommended (simplest) workflow on Windows:
+1. Activate venv once.
+2. Put `ETHERSCAN_API_KEY`, `ETHERSCAN_REQUEST_DELAY`, and `ETHERSCAN_PER_RUN_LIMIT` in `.env`.
+3. Run `python ml/enrich_real_addresses_etherscan.py`.
+
+PowerShell activation example:
+
+```powershell
+cd /d C:\Kuliah\ethereum-phising-risk-detection
+.\.venv\Scripts\Activate.ps1
+python ml\enrich_real_addresses_etherscan.py
+```
+
+Control batch size and request pacing (recommended for free Etherscan key):
+
+```powershell
+# Windows PowerShell example
+cd /d C:\Kuliah\ethereum-phising-risk-detection
+$env:ETHERSCAN_PER_RUN_LIMIT='1000'
+$env:ETHERSCAN_REQUEST_DELAY='0.4'
+.\.venv\Scripts\python.exe ml\enrich_real_addresses_etherscan.py
+```
+
+Notes:
+- `ETHERSCAN_PER_RUN_LIMIT=0` means process all remaining addresses.
+- Script is resumable: it skips addresses already present in `addresses_etherscan_enriched.csv`.
+
+### Step 7 - BigQuery enrichment (additional transaction features)
+
+This optional step adds aggregate transaction features from BigQuery public Ethereum data
+for addresses in `data/raw/addresses.csv` to:
+- `data/raw/addresses_bigquery_enriched.csv`
+
+Required setup:
+- Create a Google Cloud project and enable BigQuery API.
+- Create service account credentials JSON and set `GOOGLE_APPLICATION_CREDENTIALS`.
+- Set your GCP project id in `BIGQUERY_PROJECT_ID`.
+- Grant IAM roles to the service account: `BigQuery Job User` (required for `bigquery.jobs.create`) and `BigQuery Data Viewer`.
+
+Run one batch manually:
+
+```powershell
+# Windows PowerShell example (use PowerShell, not Command Prompt)
+cd /d C:\Kuliah\ethereum-phising-risk-detection
+$env:GOOGLE_APPLICATION_CREDENTIALS='C:\path\to\service-account.json'
+$env:BIGQUERY_PROJECT_ID='your-gcp-project-id'
+$env:BIGQUERY_DAYS_WINDOW='90'
+$env:BIGQUERY_PER_RUN_LIMIT='1000'
+.\.venv\Scripts\python.exe ml\enrich_real_addresses_bigquery.py
+```
+
+Quick run (if venv is already active):
+
+```powershell
+python ml\enrich_real_addresses_bigquery.py
+```
+
+Quick run (without activating venv first):
+
+```powershell
+.\.venv\Scripts\python.exe ml\enrich_real_addresses_bigquery.py
+```
+
+Recommended (simplest) workflow on Windows:
+1. Activate venv once.
+2. Put `GOOGLE_APPLICATION_CREDENTIALS`, `BIGQUERY_PROJECT_ID`, `BIGQUERY_DAYS_WINDOW`, `BIGQUERY_PER_RUN_LIMIT`, and `BIGQUERY_CHUNK_SIZE` in `.env`.
+3. Run `python ml\enrich_real_addresses_bigquery.py`.
+
+```powershell
+cd /d C:\Kuliah\ethereum-phising-risk-detection
+.\.venv\Scripts\Activate.ps1
+python ml\enrich_real_addresses_bigquery.py
+```
+
+If you prefer Command Prompt (`cmd`), activate venv like this first:
+
+```bat
+cd /d C:\Kuliah\ethereum-phising-risk-detection
+.venv\Scripts\activate.bat
+python ml\enrich_real_addresses_bigquery.py
+```
+
+If you use Command Prompt (`cmd`), use this syntax instead:
+
+```bat
+cd /d C:\Kuliah\ethereum-phising-risk-detection
+set GOOGLE_APPLICATION_CREDENTIALS=C:\Kuliah\ethereum-phising-risk-detection\primal-library-239611-b6941382db9f.json
+set BIGQUERY_PROJECT_ID=primal-library-239611
+set BIGQUERY_DAYS_WINDOW=90
+set BIGQUERY_PER_RUN_LIMIT=1000
+.venv\Scripts\python.exe ml\enrich_real_addresses_bigquery.py
+```
+
+Command Prompt quick run (if venv already active):
+
+```bat
+python ml\enrich_real_addresses_bigquery.py
+```
+
+Notes:
+- `BIGQUERY_PER_RUN_LIMIT=0` means process all remaining addresses.
+- Script is resumable: it skips addresses already present in `addresses_bigquery_enriched.csv`.
+- `ml/build_hybrid_dataset.py` will auto-merge BigQuery features when this file exists.
+- Keep the service-account JSON private and never commit it to git.
+- In `cmd`, do not use `$env:...`; that syntax only works in PowerShell.
+
+### Step 8 - Build combined dataset and compare scenarios
+
+After Etherscan and BigQuery enrichment are available, rebuild the combined dataset:
+
+```bash
+python ml/build_hybrid_dataset.py
+```
+
+Then compare the four scenarios on the same split:
+
+```bash
+python ml/train_dataset_scenarios.py
+```
+
+Scenarios compared:
+- `muldigraph_only`
+- `muldigraph_plus_etherscan`
+- `muldigraph_plus_bigquery`
+- `muldigraph_plus_etherscan_plus_bigquery`
+
+Models compared in each scenario:
+- `LogisticRegression`
+- `RandomForest`
+- `XGBoost`
+- `GNN-GCN-V2`
+
+Outputs:
+- `ml/artifacts/dataset_scenarios_comparison.csv`
+- `ml/artifacts/dataset_scenarios_summary.json`
+
+### Step 9 - Daily one-click run (Windows)
+
+Use the provided launcher from repository root:
+
+```bat
+run_daily_etherscan.bat
+```
+
+For BigQuery enrichment:
+
+```bat
+run_daily_bigquery.bat
+```
+
+Launchers call `scripts/run_daily_etherscan_enrichment.ps1` or `scripts/run_daily_bigquery_enrichment.ps1` and write logs to:
+- `data/raw/logs/`
+
 ---
 
 ## API Reference
@@ -201,6 +366,11 @@ Returns on-chain stored record:
 | `MODEL_VERSION` | `rf-v1` | Version tag stored on-chain |
 | `API_HOST` | `0.0.0.0` | FastAPI host |
 | `API_PORT` | `8000` | FastAPI port |
+| `BIGQUERY_PROJECT_ID` | `` | GCP project used by BigQuery enrichment script |
+| `BIGQUERY_DAYS_WINDOW` | `90` | Lookback window in days for BigQuery tx aggregates |
+| `BIGQUERY_PER_RUN_LIMIT` | `0` | Max addresses per run (`0` = all pending) |
+| `BIGQUERY_CHUNK_SIZE` | `300` | Addresses per BigQuery query batch |
+| `GOOGLE_APPLICATION_CREDENTIALS` | `` | Path to GCP service-account JSON key |
 
 ---
 

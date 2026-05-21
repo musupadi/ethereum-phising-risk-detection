@@ -20,5 +20,7 @@
     "timestamp_spread_out"
   ],
   "label": "label",
-  "node_id": "node_id"
+  "node_id": "node_id",
+  "best_model": "LogisticRegression",
+  "best_f1": 1.0
 }

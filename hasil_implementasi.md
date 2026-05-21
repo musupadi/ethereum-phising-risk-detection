@@ -2,6 +2,35 @@
 
 > Dokumen ini mencatat hasil nyata dari implementasi sistem, berdasarkan blueprint di `code.md`.
 > Dibuat: 3 Maret 2026
+> Update terakhir: 21 Mei 2026
+
+---
+
+## Executive Summary (Ringkas)
+
+Penelitian ini berhasil membangun sistem end-to-end untuk deteksi risiko phishing wallet Ethereum: **ML inference + penyimpanan immutable risk score ke smart contract**.
+
+### Hasil Utama
+
+| Komponen | Hasil | Kesimpulan |
+|---|---|---|
+| **Model utama (dataset EPTransNet 1:10)** | Random Forest: Accuracy 97,82% · Precision 88,31% · Recall 87,55% · **F1 87,93%** | Layak sebagai model produksi utama |
+| **Baseline** | Logistic Regression: **F1 71,46%** | RF unggul +16,47 poin F1 |
+| **Eksperimen skenario dataset gabungan (8.595 alamat, 4 skenario)** | MulDiGraph only → XGBoost: **F1 88,57%**, RF: **86,67%**, GNN-GraphSAGE: **84,17%**. MulDiGraph + Etherscan → XGBoost: **91,02%**, GNN-GraphSAGE: **90,51%**, RF: **88,94%** | Fitur Etherscan meningkatkan semua model; GNN-GraphSAGE dengan edge transaksi nyata hampir menyamai XGBoost (+0,51 poin F1) |
+| **Blockchain write performance** | Rata-rata latency commit **13,6 ms** (localhost), gas rata-rata **35.462** | Overhead on-chain wajar untuk audit trail |
+| **Integrasi data eksternal** | Pipeline Etherscan + Forta sudah tersedia (fitur dan label siap pakai) | Siap dipakai untuk eksperimen lanjutan dengan data real |
+
+### Jawaban Singkat Research Questions
+
+1. **RQ1 terjawab:** Random Forest konsisten mengungguli baseline Logistic Regression pada setup utama.
+2. **RQ2 terjawab:** Pencatatan risk score ke smart contract feasible secara waktu dan biaya.
+3. **RQ3 terjawab:** Fitur graf transaksi efektif; rasio sampling memengaruhi metrik dan trade-off generalisasi.
+
+### Keputusan Implementasi
+
+- **Model default produksi saat ini:** Random Forest (berdasarkan F1-score tertinggi pada eksperimen utama EPTransNet 1:10).
+- **XGBoost:** model terbaik pada eksperimen skenario gabungan (F1 91,02% dengan fitur Etherscan), sangat praktis dan konsisten.
+- **GNN-GraphSAGE:** setelah diperbaiki dengan arsitektur 2-layer + edge transaksi nyata dari MulDiGraph, berhasil mencapai F1 90,51% — hampir menyamai XGBoost dan layak sebagai kontribusi ilmiah perbandingan arsitektur.
 
 ---
 
@@ -200,6 +229,66 @@ RandomForestClassifier(
 )
 ```
 
+### 5.5 Perbandingan Empat Skenario Dataset (Eksperimen Final)
+
+Eksperimen ini membandingkan empat kombinasi sumber fitur pada **8.595 alamat wallet** yang sama, menggunakan split train/test yang identik (80/20, stratified, random seed 42), sehingga selisih performa murni mencerminkan kontribusi tiap kelompok fitur.
+
+**Model yang dibandingkan:** Logistic Regression (baseline), Random Forest, XGBoost, GNN-GraphSAGE V2.
+
+**GNN menggunakan edge transaksi nyata** dari MulDiGraph (528 edge antar alamat sampel, atau 264 edge unik setelah deduplication), bukan graph kNN sintetis seperti pada versi sebelumnya.
+
+#### Skenario 1 — Hanya fitur graf dari MulDiGraph (19 fitur)
+
+| Model | Accuracy | Precision | Recall | F1-Score |
+|---|---|---|---|---|
+| Logistic Regression | 94,65% | 86,15% | 72,10% | 78,50% |
+| Random Forest | 96,28% | 84,21% | 89,27% | 86,67% |
+| XGBoost | 96,80% | 85,89% | 91,42% | 88,57% |
+| GNN-GraphSAGE V2 | 95,40% | 78,95% | 90,13% | **84,17%** |
+
+#### Skenario 2 — Fitur graf + fitur Etherscan (26 fitur)
+
+| Model | Accuracy | Precision | Recall | F1-Score |
+|---|---|---|---|---|
+| Logistic Regression | 96,16% | 88,13% | 82,83% | 85,40% |
+| Random Forest | 96,92% | 86,59% | 91,42% | 88,94% |
+| **XGBoost** | **97,50%** | **88,62%** | **93,56%** | **91,02%** |
+| GNN-GraphSAGE V2 | 97,27% | 85,50% | 96,14% | **90,51%** |
+
+#### Skenario 3 — Fitur graf + fitur BigQuery (29 fitur)
+
+| Model | Accuracy | Precision | Recall | F1-Score |
+|---|---|---|---|---|
+| Logistic Regression | 94,71% | 86,22% | 72,53% | 78,79% |
+| Random Forest | 96,39% | 84,62% | 89,70% | 87,08% |
+| XGBoost | 96,74% | 85,54% | 91,42% | 88,38% |
+| GNN-GraphSAGE V2 | 95,99% | 85,04% | 85,41% | 85,22% |
+
+#### Skenario 4 — Fitur graf + Etherscan + BigQuery (36 fitur)
+
+| Model | Accuracy | Precision | Recall | F1-Score |
+|---|---|---|---|---|
+| Logistic Regression | 96,16% | 87,78% | 83,26% | 85,46% |
+| Random Forest | 96,86% | 85,66% | 92,27% | 88,84% |
+| XGBoost | 97,32% | 88,16% | 92,70% | 90,38% |
+| GNN-GraphSAGE V2 | 96,51% | 85,60% | 89,27% | 87,39% |
+
+#### Interpretasi Hasil
+
+1. **Fitur Etherscan secara konsisten meningkatkan performa semua model** (Skenario 1 → 2): XGBoost naik +2,45 poin F1, GNN naik +6,34 poin F1, RF naik +2,27 poin F1.
+
+2. **Fitur BigQuery alone (Skenario 3) tidak menambah nilai** dibanding fitur graf saja (Skenario 1). Hal ini konsisten karena fitur BigQuery yang tersedia banyak tumpang-tindih semantik dengan fitur graf (misalnya `bq_tx_count_out` ≈ `out_degree`).
+
+3. **Fitur gabungan Etherscan + BigQuery (Skenario 4) tidak melampaui Etherscan saja (Skenario 2)**, mengindikasikan bahwa BigQuery tidak menambah informasi independen setelah Etherscan tersedia.
+
+4. **XGBoost adalah model terbaik secara keseluruhan** (F1 91,02% pada Skenario 2), unggul tipis atas GNN-GraphSAGE V2 yang mencapai F1 90,51% pada skenario yang sama.
+
+5. **GNN-GraphSAGE V2 kini kompetitif** setelah diperbaiki: menggunakan edge transaksi nyata dari MulDiGraph, arsitektur 2-layer (mencegah *over-smoothing*), dan SAGEConv yang lebih robust terhadap variasi degree. Peningkatan dari versi sebelumnya (GNN-GCN 4-layer kNN) sangat signifikan: **+42,50 poin F1** pada skenario tanpa Etherscan dan **+23,67 poin F1** pada skenario dengan Etherscan.
+
+6. **GNN mendapat manfaat terbesar dari penambahan fitur Etherscan** (+6,34 poin F1), lebih besar dari RF (+2,27) dan XGBoost (+2,45), menunjukkan bahwa fitur atribut wallet memperkaya representasi node dalam message passing.
+
+> **Catatan metodologi:** Semua empat skenario menggunakan baris dan split yang identik. GNN menggunakan 528 edge transaksi nyata yang diekstrak dari MulDiGraph untuk 8.595 alamat sampel (rata-rata ~0,06 edge per node dalam subgraph — sangat sparse), namun GraphSAGE dengan self-loop dan 2-layer aggregation tetap mampu memanfaatkan sinyal struktural yang ada.
+
 ---
 
 ## 6) Risk Score
@@ -380,11 +469,13 @@ Response JSON → Streamlit UI
 | Poin | Detail |
 |---|---|
 | Arsitektur | Streamlit → FastAPI → ML model + web3.py → Hardhat smart contract |
-| Metrik RF | Accuracy 97,82% · Precision 88,31% · Recall 87,55% · F1 87,93% |
+| Metrik RF (eksperimen utama EPTransNet 1:10) | Accuracy 97,82% · Precision 88,31% · Recall 87,55% · F1 **87,93%** |
+| Hasil eksperimen skenario (8.595 alamat, 4 skenario) | XGBoost terbaik: **F1 91,02%** · GNN-GraphSAGE V2: **F1 90,51%** · RF: **F1 88,94%** (semua pada skenario MulDiGraph + Etherscan) |
+| Model GNN | GraphSAGE V2, 2-layer, hidden=128, edge transaksi nyata dari MulDiGraph (528 edges) |
 | Contract addr | `0x5FbDB2315678afecb367f032d93F642f64180aa3` |
 | Contoh tx hash | `0x918381d74ebda99838c854d9bc54ff093fe546d6de2ba2bd10a0ff07c7dd8188` |
 | Demo mode | Pilih `row_id` dari 2.563 test rows → analisis instan tanpa isi form |
-| Artifacts | `model.pkl`, `confusion_matrix.png`, `feature_importance.png` tersimpan di `ml/artifacts/` |
+| Artifacts | `model.pkl`, `confusion_matrix.png`, `feature_importance.png`, `dataset_scenarios_comparison.csv` tersimpan di `ml/artifacts/` |
 
 ---
 
@@ -435,7 +526,96 @@ Dataset asli sangat tidak seimbang (**rasio 1 : 2.550**). Karena tidak mungkin m
 
 ---
 
-## 12) Evaluasi Performa Blockchain (RQ2)
+## 12) Pipeline ML Final — Ringkasan Arsitektur & Hasil (21 Mei 2026)
+
+### Pipeline Architecture
+
+```
+train_dataset_scenarios.py
+├── Load hybrid_dataset.csv  (8.595 alamat, 41 kolom)
+├── Load MulDiGraph.pkl       (2,97M node — untuk ekstraksi edge GNN)
+├── Build 4 scenarios dari hybrid_feature_schema.json:
+│   ├── muldigraph_only                    (19 fitur)
+│   ├── muldigraph_plus_etherscan          (26 fitur)
+│   ├── muldigraph_plus_bigquery           (29 fitur)
+│   └── muldigraph_plus_etherscan_plus_bigquery (36 fitur)
+├── Per skenario, train 4 model:
+│   ├── Logistic Regression  (baseline)
+│   ├── Random Forest
+│   ├── XGBoost
+│   └── GNN-GraphSAGE V2  ← edge transaksi nyata dari MulDiGraph
+└── Simpan hasil ke ml/artifacts/dataset_scenarios_comparison.csv
+```
+
+### Hasil Final Eksperimen Skenario (Diverifikasi 21 Mei 2026)
+
+| Skenario | Model | Accuracy | Precision | Recall | F1 |
+|---|---|---|---|---|---|
+| MulDiGraph only | LR | 94,65% | 86,15% | 72,10% | 78,50% |
+| MulDiGraph only | RF | 96,28% | 84,21% | 89,27% | 86,67% |
+| MulDiGraph only | XGBoost | 96,80% | 85,89% | 91,42% | 88,57% |
+| MulDiGraph only | GNN-GraphSAGE V2 | 95,40% | 78,95% | 90,13% | 84,17% |
+| MulDiGraph + Etherscan | LR | 96,16% | 88,13% | 82,83% | 85,40% |
+| MulDiGraph + Etherscan | RF | 96,92% | 86,59% | 91,42% | 88,94% |
+| **MulDiGraph + Etherscan** | **XGBoost** | **97,50%** | **88,62%** | **93,56%** | **91,02%** |
+| MulDiGraph + Etherscan | GNN-GraphSAGE V2 | 97,27% | 85,50% | 96,14% | **90,51%** |
+| MulDiGraph + BigQuery | LR | 94,71% | 86,22% | 72,53% | 78,79% |
+| MulDiGraph + BigQuery | RF | 96,39% | 84,62% | 89,70% | 87,08% |
+| MulDiGraph + BigQuery | XGBoost | 96,74% | 85,54% | 91,42% | 88,38% |
+| MulDiGraph + BigQuery | GNN-GraphSAGE V2 | 95,99% | 85,04% | 85,41% | 85,22% |
+| MulDiGraph + Etherscan + BigQuery | LR | 96,16% | 87,78% | 83,26% | 85,46% |
+| MulDiGraph + Etherscan + BigQuery | RF | 96,86% | 85,66% | 92,27% | 88,84% |
+| MulDiGraph + Etherscan + BigQuery | XGBoost | 97,32% | 88,16% | 92,70% | 90,38% |
+| MulDiGraph + Etherscan + BigQuery | GNN-GraphSAGE V2 | 96,51% | 85,60% | 89,27% | 87,39% |
+
+### Konfigurasi Model Final
+
+**GNN-GraphSAGE V2:**
+```
+Architecture  : GraphSAGE (SAGEConv), 2 layers, hidden=128, dropout=0.5
+Graph edges   : 528 edge transaksi nyata dari MulDiGraph (ekstraksi subgraph)
+Training      : Adam lr=0.01, CrossEntropyLoss dengan class weights
+                normal=0.578, phishing=3.689
+Early stop    : patience=25, best-weight restoration
+Epochs        : maks 200, berhenti di epoch 108–128 (per skenario)
+```
+
+**XGBoost:**
+```
+n_estimators  : 250, max_depth=6, learning_rate=0.05
+subsample     : 0.85, colsample_bytree=0.85
+scale_pos_weight: 6.38 (auto dari rasio kelas)
+Early stop    : patience=40
+```
+
+**Random Forest:**
+```
+n_estimators  : 200, max_depth=None, min_samples_leaf=2
+class_weight  : balanced, n_jobs=-1
+```
+
+### Artifacts Tersimpan
+
+```
+ml/artifacts/
+├── dataset_scenarios_comparison.csv   ← semua 16 baris hasil eksperimen
+├── dataset_scenarios_summary.json     ← best model per skenario
+├── hybrid_feature_schema.json         ← daftar 36 fitur + 4 skenario
+├── model_v2_best.pkl                  ← best model (RandomForest)
+├── model_xgboost.json                 ← XGBoost tersimpan
+├── model_gcn_v2.pt                    ← GNN-GraphSAGE tersimpan
+└── [confusion matrices, feature importance plots]
+```
+
+### Next Steps
+
+1️⃣ **Local Testing**: ✅ COMPLETE  
+2️⃣ **Generate real enriched files** (`train_enriched.csv`, `test_enriched.csv`) dari API Etherscan/Forta  
+3️⃣ **Re-run scenario script**: `python ml/train_dataset_scenarios.py`  
+4️⃣ **Lock model final berdasarkan F1 tertinggi** pada data real gabungan  
+5️⃣ **Production Deployment**: gunakan model final + versioning artifacts  
+
+---
 
 ### 12.1 Setup Pengukuran
 
@@ -561,6 +741,7 @@ streamlit run app/streamlit_app.py --server.port 8502
 | **Generalisasi terbatas** | Model dilatih pada dataset 2019; pola phishing Ethereum terus berkembang |
 | **Dataset statis** | EPTransNet adalah snapshot, bukan live feed — tidak ada konsep *concept drift* |
 | **Labeling bias** | Label phishing berdasarkan laporan publik Etherscan; node phishing tak terlaporkan bisa salah dikategorikan normal |
+| **Subgraph sangat sparse** | Dari 8.595 alamat sampel, hanya 528 edge transaksi langsung ditemukan antar sesama alamat sampel (rata-rata ~0,06 edge/node). GNN beroperasi hampir tanpa koneksi semantik antar node — keunggulan strukturalnya belum optimal. |
 
 ### 14.3 Construct Validity
 
@@ -576,6 +757,7 @@ streamlit run app/streamlit_app.py --server.port 8502
 |---|---|
 | Pipeline ML end-to-end dari graph pkl ke prediksi | Dataset 2019, tidak real-time |
 | Bukti integrasi blockchain (immutable audit trail) | Blockchain lokal (Hardhat), bukan mainnet |
-| Perbandingan baseline vs model utama dengan metrik standar | Imbalance tidak sepenuhnya diatasi |
-| Eksperimen empiris sampling ratio | Demo mode, bukan crawling on-chain |
+| Perbandingan 4 model × 4 skenario dengan metrik standar | Imbalance tidak sepenuhnya diatasi |
+| Eksperimen empiris sampling ratio (RQ3) | Demo mode, bukan crawling on-chain |
+| GNN-GraphSAGE dengan edge transaksi nyata (90,51% F1) | Subgraph sparse — hanya 528 edge dari 8.595 node |
 | Gas + latency terukur (20 transaksi nyata) | Risk score belum di-calibrate |
