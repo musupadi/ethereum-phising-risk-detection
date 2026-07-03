@@ -36,11 +36,17 @@ SIGNER_PRIVATE_KEY: str = os.getenv(
     "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
 )
 
-MODEL_VERSION: str = os.getenv("MODEL_VERSION", "rf-v1")
+MODEL_VERSION: str = os.getenv("MODEL_VERSION", "xgb-eth-v1")
 
 # ── ML ────────────────────────────────────────────────────────────────────────
 ARTIFACTS_DIR: Path = ROOT / "ml" / "artifacts"
-TEST_CSV: Path = ROOT / "data" / "processed" / "test.csv"
+# Production demo/lookup sources (XGBoost MulDiGraph+Etherscan, 26 features).
+# Falls back to the legacy 18-feature CSVs if the production demo set is absent.
+_PROD_DEMO: Path = ROOT / "data" / "processed" / "prod_demo.csv"
+_HYBRID: Path = ROOT / "data" / "processed" / "hybrid_dataset.csv"
+TEST_CSV: Path = _PROD_DEMO if _PROD_DEMO.exists() else ROOT / "data" / "processed" / "test.csv"
+LOOKUP_CSV: Path = _HYBRID if _HYBRID.exists() else TEST_CSV
+TRAIN_CSV: Path = ROOT / "data" / "processed" / "train.csv"
 
 # ── FastAPI ───────────────────────────────────────────────────────────────────
 API_HOST: str = os.getenv("API_HOST", "0.0.0.0")

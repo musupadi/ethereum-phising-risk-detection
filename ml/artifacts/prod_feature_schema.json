@@ -1,0 +1,40 @@
+{
+  "features": [
+    "in_degree",
+    "out_degree",
+    "unique_senders",
+    "unique_receivers",
+    "total_received",
+    "total_sent",
+    "avg_in_amount",
+    "avg_out_amount",
+    "max_in_amount",
+    "max_out_amount",
+    "min_in_amount",
+    "min_out_amount",
+    "std_in_amount",
+    "std_out_amount",
+    "in_out_ratio",
+    "sent_received_ratio",
+    "timestamp_spread_in",
+    "timestamp_spread_out",
+    "graph_present",
+    "created_at_ts",
+    "balance",
+    "transaction_count",
+    "activity_score",
+    "avg_tx_value",
+    "tx_frequency",
+    "unique_counterparties"
+  ],
+  "label": "label",
+  "node_id": "node_id",
+  "model_type": "xgboost",
+  "scenario": "muldigraph_plus_etherscan",
+  "metrics": {
+    "accuracy": 0.975,
+    "precision": 0.8862,
+    "recall": 0.9356,
+    "f1": 0.9102
+  }
+}

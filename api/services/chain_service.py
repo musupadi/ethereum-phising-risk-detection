@@ -107,6 +107,45 @@ def get_risk(wallet: str) -> dict:
     return {"risk_score": score, "timestamp": ts, "model_version": mv}
 
 
+def get_all_records() -> list:
+    """
+    Return every wallet ever scored on-chain (latest record per wallet),
+    reconstructed from the contract's `RiskUpdated` event log.
+
+    Returns a list of dicts {wallet, risk_score, timestamp, model_version},
+    sorted by timestamp (newest first). Empty list if chain disabled / no events.
+    """
+    if not CHAIN_ENABLED:
+        return []
+
+    _init()
+    try:
+        events = _contract.events.RiskUpdated().get_logs(from_block=0)
+    except Exception as exc:
+        log.warning("Could not read RiskUpdated events: %s", exc)
+        return []
+
+    latest: dict = {}
+    for ev in events:
+        a = ev["args"]
+        wallet = a["wallet"]
+        rec = {
+            "wallet": wallet,
+            "risk_score": int(a["riskScore"]),
+            "timestamp": int(a["timestamp"]),
+            "model_version": a.get("modelVersion", ""),
+            "block": ev["blockNumber"],
+        }
+        # keep the most recent update per wallet (highest block)
+        if wallet not in latest or rec["block"] >= latest[wallet]["block"]:
+            latest[wallet] = rec
+
+    records = sorted(latest.values(), key=lambda r: r["timestamp"], reverse=True)
+    for r in records:
+        r.pop("block", None)
+    return records
+
+
 def is_connected() -> bool:
     """Health-check: is the web3 provider reachable?"""
     if not CHAIN_ENABLED:

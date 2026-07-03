@@ -1,48 +1,70 @@
 """
 ml/predict.py
 -------------
-Inference helper: loads model.pkl + feature_schema.json and
-exposes predict_proba(features_dict) -> float (probability of phishing).
+Inference helper for the *production* model served by the API / Streamlit demo:
+XGBoost on the best thesis scenario (MulDiGraph + Etherscan, 26 features, F1 ≈ 91%).
+
+Loads:
+  - ml/artifacts/model_prod_xgb.json     (XGBoost booster)
+  - ml/artifacts/prod_feature_schema.json (26 ordered feature names)
+Falls back to the legacy Random Forest (model.pkl + feature_schema.json) if the
+production artifacts are missing, so older setups keep working.
+
+Generate the production artifacts with:  python ml/train_production_model.py
 """
 
 import json
 import logging
 from pathlib import Path
-from typing import Union
 
-import joblib
 import numpy as np
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
 ROOT = Path(__file__).resolve().parent.parent
 ARTIFACTS = ROOT / "ml" / "artifacts"
 
+PROD_MODEL = ARTIFACTS / "model_prod_xgb.json"
+PROD_SCHEMA = ARTIFACTS / "prod_feature_schema.json"
+LEGACY_MODEL = ARTIFACTS / "model.pkl"
+LEGACY_SCHEMA = ARTIFACTS / "feature_schema.json"
+
 log = logging.getLogger(__name__)
 
 # ── Module-level singletons (lazy-loaded) ──────────────────────────────────────
 _model = None
 _schema = None
+_kind = None  # "xgboost" | "sklearn"
 
 
 def _load():
-    global _model, _schema
-    if _model is None:
-        model_path = ARTIFACTS / "model.pkl"
-        schema_path = ARTIFACTS / "feature_schema.json"
+    global _model, _schema, _kind
+    if _model is not None:
+        return
 
-        if not model_path.exists():
-            raise FileNotFoundError(
-                f"Model not found at {model_path}. Run ml/train.py first."
-            )
-        if not schema_path.exists():
-            raise FileNotFoundError(
-                f"Feature schema not found at {schema_path}. Run ml/train.py first."
-            )
+    if PROD_MODEL.exists() and PROD_SCHEMA.exists():
+        import xgboost as xgb
 
-        _model = joblib.load(model_path)
-        with open(schema_path) as f:
-            _schema = json.load(f)
-        log.info("Model and schema loaded from %s", ARTIFACTS)
+        booster = xgb.Booster()
+        booster.load_model(str(PROD_MODEL))
+        _model = booster
+        _schema = json.loads(PROD_SCHEMA.read_text(encoding="utf-8"))
+        _kind = "xgboost"
+        log.info("Loaded production XGBoost model (%d features) from %s",
+                 len(_schema["features"]), PROD_MODEL)
+        return
+
+    # ── Fallback: legacy Random Forest ────────────────────────────────────────
+    import joblib
+
+    if not LEGACY_MODEL.exists() or not LEGACY_SCHEMA.exists():
+        raise FileNotFoundError(
+            f"No model found. Run `python ml/train_production_model.py` to create "
+            f"{PROD_MODEL.name}, or `python ml/train.py` for the legacy model."
+        )
+    _model = joblib.load(LEGACY_MODEL)
+    _schema = json.loads(LEGACY_SCHEMA.read_text(encoding="utf-8"))
+    _kind = "sklearn"
+    log.info("Loaded legacy sklearn model from %s", LEGACY_MODEL)
 
 
 def predict_proba(features: dict) -> float:
@@ -52,8 +74,8 @@ def predict_proba(features: dict) -> float:
     Parameters
     ----------
     features : dict
-        Keys must include (at least) the feature names listed in
-        ml/artifacts/feature_schema.json.  Missing keys default to 0.
+        Keys should include the feature names listed in the active schema.
+        Missing keys default to 0.
 
     Returns
     -------
@@ -62,9 +84,15 @@ def predict_proba(features: dict) -> float:
     """
     _load()
     feature_cols: list = _schema["features"]
-    row = np.array([[features.get(col, 0.0) for col in feature_cols]], dtype=float)
-    proba: float = float(_model.predict_proba(row)[0, 1])
-    return proba
+    row = np.array([[float(features.get(col, 0.0)) for col in feature_cols]], dtype=float)
+
+    if _kind == "xgboost":
+        import xgboost as xgb
+
+        dmatrix = xgb.DMatrix(row, feature_names=feature_cols)
+        return float(_model.predict(dmatrix)[0])
+
+    return float(_model.predict_proba(row)[0, 1])
 
 
 def risk_score(features: dict) -> int:

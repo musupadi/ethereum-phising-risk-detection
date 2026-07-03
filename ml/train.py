@@ -14,6 +14,7 @@ Outputs:
 
 import json
 import logging
+import os
 from pathlib import Path
 
 import joblib
@@ -38,6 +39,9 @@ ARTIFACTS = ROOT / "ml" / "artifacts"
 
 TRAIN_CSV = DATA_PROCESSED / "train.csv"
 TEST_CSV = DATA_PROCESSED / "test.csv"
+HYBRID_TRAIN_CSV = DATA_PROCESSED / "hybrid_train.csv"
+HYBRID_TEST_CSV = DATA_PROCESSED / "hybrid_test.csv"
+HYBRID_SCHEMA_JSON = ARTIFACTS / "hybrid_feature_schema.json"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,6 +49,45 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 log = logging.getLogger(__name__)
+
+
+def _looks_like_sample_dataset(df: pd.DataFrame) -> bool:
+    """Detect whether processed data appears to come from the synthetic sample generator."""
+    if len(df) <= 1000:
+        return True
+
+    if "node_id" not in df.columns:
+        return False
+
+    sample_prefixes = ("0x_normal_", "0x_phish_", "0x_ntest_", "0x_ptest_")
+    node_ids = df["node_id"].astype(str)
+    return node_ids.str.startswith(sample_prefixes).any()
+
+
+def _load_training_data() -> tuple[pd.DataFrame, pd.DataFrame, list[str], str]:
+    """Load training data for the *production* model.
+
+    Default = EPTransNet 1:10 graph features (18 features) — this is the model
+    documented in hasil_implementasi.md and served by the API/Streamlit demo.
+    Set env `USE_HYBRID=1` to instead train on the hybrid combined dataset
+    (graph + Etherscan/BigQuery, 36 features) for experimentation; note the
+    full 4-model × 4-scenario thesis comparison lives in
+    ml/train_dataset_scenarios.py, not here.
+    """
+    use_hybrid = os.getenv("USE_HYBRID", "0").strip().lower() in ("1", "true", "yes")
+    if use_hybrid and HYBRID_TRAIN_CSV.exists() and HYBRID_TEST_CSV.exists() and HYBRID_SCHEMA_JSON.exists():
+        train_df = pd.read_csv(HYBRID_TRAIN_CSV)
+        test_df = pd.read_csv(HYBRID_TEST_CSV)
+        with open(HYBRID_SCHEMA_JSON, "r", encoding="utf-8") as f:
+            schema = json.load(f)
+        feature_cols = [c for c in schema.get("features", []) if c in train_df.columns and c in test_df.columns]
+        return train_df, test_df, feature_cols, "hybrid"
+
+    train_df = pd.read_csv(TRAIN_CSV)
+    test_df = pd.read_csv(TEST_CSV)
+    drop_cols = {"label", "node_id"}
+    feature_cols = [c for c in train_df.columns if c not in drop_cols]
+    return train_df, test_df, feature_cols, "eptransnet"
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -64,13 +107,29 @@ def evaluate(name: str, y_true, y_pred, y_proba=None) -> dict:
 def plot_confusion_matrix(y_true, y_pred, title: str, save_path: Path):
     cm = confusion_matrix(y_true, y_pred)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Normal", "Phishing"])
-    fig, ax = plt.subplots(figsize=(5, 4))
-    disp.plot(ax=ax, colorbar=False, cmap="Blues")
+    fig, ax = plt.subplots(figsize=(5.5, 4.6))
+    disp.plot(ax=ax, colorbar=False, cmap="Blues", values_format="d")
     ax.set_title(title)
+    ax.set_xlabel("Predicted label")
+    ax.set_ylabel("True label")
     plt.tight_layout()
-    plt.savefig(save_path, dpi=150)
+    plt.savefig(save_path, dpi=200, bbox_inches="tight")
     plt.close(fig)
     log.info("Confusion matrix saved → %s", save_path)
+
+
+def plot_confusion_matrix_normalized(y_true, y_pred, title: str, save_path: Path):
+    cm = confusion_matrix(y_true, y_pred, normalize="true")
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Normal", "Phishing"])
+    fig, ax = plt.subplots(figsize=(5.5, 4.6))
+    disp.plot(ax=ax, colorbar=True, cmap="Blues", values_format=".2f")
+    ax.set_title(title)
+    ax.set_xlabel("Predicted label")
+    ax.set_ylabel("True label")
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    log.info("Normalized confusion matrix saved → %s", save_path)
 
 
 def plot_feature_importance(model, feature_names: list, save_path: Path):
@@ -99,16 +158,22 @@ def main():
 
     # ── Load data ──────────────────────────────────────────────────────────────
     log.info("Loading processed datasets…")
-    train_df = pd.read_csv(TRAIN_CSV)
-    test_df = pd.read_csv(TEST_CSV)
-
-    drop_cols = {"label", "node_id"}
-    feature_cols = [c for c in train_df.columns if c not in drop_cols]
+    train_df, test_df, feature_cols, dataset_source = _load_training_data()
 
     X_train = train_df[feature_cols].fillna(0).values
     y_train = train_df["label"].values
     X_test = test_df[feature_cols].fillna(0).values
     y_test = test_df["label"].values
+
+    if _looks_like_sample_dataset(train_df) or _looks_like_sample_dataset(test_df):
+        log.warning(
+            "Processed data looks like synthetic sample/debug data (small row count or sample node_id prefixes). "
+            "If you expect thesis results, regenerate data/processed from ml/preprocess.py using the real MulDiGraph dataset."
+        )
+    elif dataset_source == "hybrid":
+        log.info("Using HYBRID dataset (graph + Etherscan/BigQuery) from data/processed/hybrid_{train,test}.csv")
+    else:
+        log.info("Using EPTransNet 1:10 production dataset (18 graph features) from data/processed/{train,test}.csv")
 
     log.info("Train: %d  |  Test: %d  |  Features: %d", len(X_train), len(X_test), len(feature_cols))
     log.info("Train phishing ratio: %.2f%%", 100 * y_train.mean())
@@ -151,8 +216,16 @@ def main():
     print(classification_report(y_test, rf_pred, target_names=["Normal", "Phishing"]))
 
     # ── Plots ──────────────────────────────────────────────────────────────────
+    plot_confusion_matrix(y_test, lr_pred, "Logistic Regression – Confusion Matrix",
+                          ARTIFACTS / "confusion_matrix_lr.png")
+    plot_confusion_matrix_normalized(y_test, lr_pred,
+                                     "Logistic Regression – Normalized Confusion Matrix",
+                                     ARTIFACTS / "confusion_matrix_lr_normalized.png")
     plot_confusion_matrix(y_test, rf_pred, "Random Forest – Confusion Matrix",
-                          ARTIFACTS / "confusion_matrix.png")
+                          ARTIFACTS / "confusion_matrix_rf.png")
+    plot_confusion_matrix_normalized(y_test, rf_pred,
+                                     "Random Forest – Normalized Confusion Matrix",
+                                     ARTIFACTS / "confusion_matrix_rf_normalized.png")
     plot_feature_importance(rf, feature_cols, ARTIFACTS / "feature_importance.png")
 
     # ── Save artifacts ─────────────────────────────────────────────────────────

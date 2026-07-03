@@ -1,6 +1,0 @@
-model,accuracy,precision,recall,f1
-LogisticRegression,1.0,1.0,1.0,1.0
-RandomForest (Baseline),1.0,1.0,1.0,1.0
-XGBoost,0.9919354838709677,0.9473684210526315,1.0,0.972972972972973
-GNN-GCN,0.8548387096774194,0.0,0.0,0.0
-GNN-GAT,0.8548387096774194,0.0,0.0,0.0

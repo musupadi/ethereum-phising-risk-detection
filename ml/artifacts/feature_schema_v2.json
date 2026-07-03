@@ -1,5 +1,12 @@
 {
   "features": [
+    "created_at_ts",
+    "balance",
+    "transaction_count",
+    "activity_score",
+    "avg_tx_value",
+    "tx_frequency",
+    "unique_counterparties",
     "in_degree",
     "out_degree",
     "unique_senders",
@@ -17,11 +24,22 @@
     "in_out_ratio",
     "sent_received_ratio",
     "timestamp_spread_in",
-    "timestamp_spread_out"
+    "timestamp_spread_out",
+    "graph_present",
+    "bq_tx_count_out",
+    "bq_tx_count_in",
+    "bq_total_out_eth",
+    "bq_total_in_eth",
+    "bq_unique_to",
+    "bq_unique_from",
+    "bq_active_days_out",
+    "bq_active_days_in",
+    "bq_first_seen_ts",
+    "bq_last_seen_ts"
   ],
   "label": "label",
   "node_id": "node_id",
-  "best_model": "RandomForest",
-  "best_f1": 1.0,
+  "best_model": "XGBoost",
+  "best_f1": 0.9014675052410901,
   "note": "V2 with improved GNN (train-only graph, class weighting)"
 }

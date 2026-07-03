@@ -9,6 +9,7 @@ FastAPI application exposing:
 """
 
 import logging
+import re
 import sys
 from pathlib import Path
 
@@ -67,12 +68,24 @@ def demo_rows():
         raise HTTPException(status_code=503, detail=str(exc))
 
 
+@app.get("/records", tags=["risk"])
+def records():
+    """List every wallet scored on-chain (latest per wallet), from event logs."""
+    try:
+        recs = chain_service.get_all_records()
+        return {"count": len(recs), "records": recs}
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Chain read error: {exc}")
+
+
 @app.post("/analyze", response_model=AnalyzeResponse, tags=["risk"])
 def analyze(req: AnalyzeRequest):
     """
     Run ML phishing risk inference for a wallet address.
     - Provide `row_id` for fast demo mode (features loaded from test.csv).
     - Provide `features` dict for manual input.
+    - Provide only `wallet` to scan-by-address: features are looked up from the
+      dataset (train+test) automatically.
     On success, stores the result on-chain (if CHAIN_ENABLED=true).
     """
     # ── ML inference ──────────────────────────────────────────────────────────
@@ -82,10 +95,10 @@ def analyze(req: AnalyzeRequest):
         elif req.features:
             ml_result = ml_service.predict_from_features(req.features)
         else:
-            raise HTTPException(
-                status_code=422,
-                detail="Provide either 'row_id' or 'features' in the request body.",
-            )
+            # Scan-by-address: look up precomputed features for this wallet.
+            ml_result = ml_service.predict_from_address(req.wallet)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=exc.args[0] if exc.args else "Wallet not found.")
     except (FileNotFoundError, IndexError) as exc:
         raise HTTPException(status_code=404, detail=str(exc))
     except Exception as exc:
@@ -96,21 +109,28 @@ def analyze(req: AnalyzeRequest):
     risk_score: int = ml_result["risk_score"]
     risk_level: str = ml_result["risk_level"]
 
+    # Canonical wallet: for demo/scan the score belongs to the dataset wallet
+    # (node_id), NOT a free-typed label — so we report & store that real address.
+    node_id = str(ml_result.get("node_id", "") or "")
+    wallet = node_id if re.fullmatch(r"0x[0-9a-fA-F]{40}", node_id) else req.wallet
+
     # ── Chain write ───────────────────────────────────────────────────────────
     tx_hash = None
     if CHAIN_ENABLED:
         try:
-            tx_hash = chain_service.set_risk(req.wallet, risk_score, MODEL_VERSION)
+            tx_hash = chain_service.set_risk(wallet, risk_score, MODEL_VERSION)
         except Exception as exc:
             log.warning("Chain write failed (non-fatal): %s", exc)
             tx_hash = None
 
     return AnalyzeResponse(
-        wallet=req.wallet,
+        wallet=wallet,
         probability=round(probability, 6),
         risk_score=risk_score,
         risk_level=risk_level,
         tx_hash=tx_hash,
+        true_label=ml_result.get("true_label"),
+        dataset_split=ml_result.get("split"),
     )
 
 

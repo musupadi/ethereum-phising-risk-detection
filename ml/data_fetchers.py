@@ -2,7 +2,7 @@
 ml/data_fetchers.py
 -------------------
 Fetches wallet data from external APIs:
-- Etherscan: transaction counts, balance, wallet activity
+- Etherscan: transaction counts, balance, wallet activity, transaction edges
 - Forta Network: phishing/scam/exploit labels
 """
 
@@ -175,16 +175,25 @@ class EtherscanFetcher:
                     "tx_frequency": 0,
                     "unique_counterparties": 0,
                 }
-            
-            # Compute metrics
+
+            # NOTE (data-quality caveat): metrics below are derived from the most
+            # recent `offset` transactions only (sampling window, see params above),
+            # NOT the wallet's full history. Consequently `unique_counterparties`
+            # can legitimately exceed `transaction_count` (full count) for very
+            # active wallets. Documented as a limitation in hasil_implementasi.md §14.
+            addr_l = address.lower()
             values = [float(tx.get("value", 0)) / 1e18 for tx in txs]
             counterparties = set()
             for tx in txs:
-                if tx.get("to"):
-                    counterparties.add(tx.get("to"))
-                if tx.get("from"):
-                    counterparties.add(tx.get("from"))
-            
+                to_a = (tx.get("to") or "").lower()
+                from_a = (tx.get("from") or "").lower()
+                # Count the *other* party only — exclude the queried address itself
+                # so the metric is not inflated by self-references.
+                if to_a and to_a != addr_l:
+                    counterparties.add(to_a)
+                if from_a and from_a != addr_l:
+                    counterparties.add(from_a)
+
             return {
                 "activity_score": len(txs),
                 "avg_tx_value": sum(values) / len(values) if values else 0,
@@ -200,15 +209,141 @@ class EtherscanFetcher:
                 "unique_counterparties": 0,
             }
 
+    def _fetch_neighbors_for_action(self, address: str, action: str, max_pages: int) -> set[str]:
+        """
+        Fetch counterparty addresses for a single Etherscan account action.
+
+        Args:
+            address: Ethereum wallet address (queried account)
+            action: Etherscan account action — "txlist", "txlistinternal", or "tokentx"
+            max_pages: Max pages to fetch (each page = up to 10,000 records)
+
+        Returns:
+            Set of unique counterparty addresses (lowercase), excluding `address`.
+        """
+        address_lower = address.lower()
+        counterparties: set[str] = set()
+
+        for page in range(1, max_pages + 1):
+            time.sleep(self.request_delay)
+            params = {
+                "chainid": self.chain_id,
+                "module": "account",
+                "action": action,
+                "address": address,
+                "startblock": 0,
+                "endblock": 99999999,
+                "page": page,
+                "offset": 10000,
+                "sort": "asc",
+                "apikey": self.api_key,
+            }
+            try:
+                resp = requests.get(self.base_url, params=params, timeout=15)
+                resp.raise_for_status()
+                data = resp.json()
+                if data.get("status") != "1":
+                    break
+                records = data.get("result", [])
+                if not records:
+                    break
+                for tx in records:
+                    frm = (tx.get("from") or "").lower()
+                    to  = (tx.get("to")   or "").lower()
+                    if frm and frm != address_lower:
+                        counterparties.add(frm)
+                    if to and to != address_lower:
+                        counterparties.add(to)
+                if len(records) < 10000:
+                    break  # last page
+            except Exception as e:
+                log.error("Error fetching %s neighbors for %s (page %d): %s", action, address, page, e)
+                break
+
+        return counterparties
+
+    def get_transaction_neighbors(
+        self,
+        address: str,
+        max_pages: int = 3,
+        include_internal: bool = True,
+        include_tokens: bool = True,
+    ) -> List[str]:
+        """
+        Fetch counterparty addresses for GNN edge extraction.
+
+        Combines edges from multiple Etherscan endpoints so the resulting graph
+        captures more real relationships than normal ETH transfers alone:
+          - txlist          : normal (external) ETH transactions  (always)
+          - txlistinternal  : internal transactions via contracts (if include_internal)
+          - tokentx         : ERC-20 token transfers              (if include_tokens)
+
+        Each source fetches up to max_pages × 10,000 records and returns the
+        deduplicated set of `from`/`to` addresses, excluding the queried address.
+
+        Args:
+            address: Ethereum wallet address
+            max_pages: Max pages per source (each page = up to 10,000 records). Default 3.
+            include_internal: Also pull counterparties from internal transactions.
+            include_tokens: Also pull counterparties from ERC-20 token transfers.
+
+        Returns:
+            List of unique counterparty address strings (lowercase).
+        """
+        counterparties: set[str] = self._fetch_neighbors_for_action(address, "txlist", max_pages)
+        if include_internal:
+            counterparties |= self._fetch_neighbors_for_action(address, "txlistinternal", max_pages)
+        if include_tokens:
+            counterparties |= self._fetch_neighbors_for_action(address, "tokentx", max_pages)
+
+        return list(counterparties)
+
+    def get_created_at_ts(self, address: str) -> int:
+        """
+        Fetch the wallet "creation" time = timestamp of its earliest transaction.
+
+        Returns a unix epoch (seconds), or 0 if the address has no transactions /
+        the request fails. Previously this value was hard-coded to None (stored as
+        0), making `created_at_ts` a dead constant feature — fixed here so future
+        enrichment runs populate a real value.
+        """
+        time.sleep(self.request_delay)
+        params = {
+            "chainid": self.chain_id,
+            "module": "account",
+            "action": "txlist",
+            "address": address,
+            "startblock": 0,
+            "endblock": 99999999,
+            "page": 1,
+            "offset": 1,
+            "sort": "asc",  # oldest first → first element is the earliest tx
+            "apikey": self.api_key,
+        }
+        try:
+            resp = requests.get(self.base_url, params=params, timeout=10)
+            resp.raise_for_status()
+            data = resp.json()
+            if data.get("status") != "1":
+                return 0
+            result = data.get("result", [])
+            if not result:
+                return 0
+            return int(result[0].get("timeStamp", 0))
+        except Exception as e:
+            log.error("Error fetching created_at for %s: %s", address, e)
+            return 0
+
     def fetch_all(self, address: str) -> Dict:
         """Fetch all available data for a wallet."""
         log.info("Fetching Etherscan data for %s", address)
-        
+
         info = self.get_account_info(address)
         info["transaction_count"] = self.get_transaction_count(address)
+        info["created_at"] = self.get_created_at_ts(address)
         activity = self.get_wallet_activity(address)
         info.update(activity)
-        
+
         return info
 
 

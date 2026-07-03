@@ -32,6 +32,14 @@ class AnalyzeResponse(BaseModel):
     risk_score: int = Field(..., ge=0, le=100)
     risk_level: str = Field(..., example="HIGH")
     tx_hash: Optional[str] = Field(None, description="Chain tx hash, if CHAIN_ENABLED=true")
+    true_label: Optional[int] = Field(
+        None,
+        description="Ground-truth label from dataset (1=phishing, 0=normal) when the "
+                    "wallet is found in the dataset; null for manual feature input.",
+    )
+    dataset_split: Optional[str] = Field(
+        None, description="Which dataset split the wallet was found in (train/test), if any.",
+    )
 
 
 class RiskRecord(BaseModel):

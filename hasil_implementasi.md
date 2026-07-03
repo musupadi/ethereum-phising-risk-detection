@@ -14,9 +14,9 @@ Penelitian ini berhasil membangun sistem end-to-end untuk deteksi risiko phishin
 
 | Komponen | Hasil | Kesimpulan |
 |---|---|---|
-| **Model utama (dataset EPTransNet 1:10)** | Random Forest: Accuracy 97,82% · Precision 88,31% · Recall 87,55% · **F1 87,93%** | Layak sebagai model produksi utama |
+| **Model utama eksperimen EPTransNet 1:10** | Random Forest: Accuracy 97,82% · Precision 88,31% · Recall 87,55% · **F1 87,93%** | Baseline kuat; model **terbaik & yang di-deploy** adalah XGBoost (lihat baris skenario) |
 | **Baseline** | Logistic Regression: **F1 71,46%** | RF unggul +16,47 poin F1 |
-| **Eksperimen skenario dataset gabungan (8.595 alamat, 4 skenario)** | MulDiGraph only → XGBoost: **F1 88,57%**, RF: **86,67%**, GNN-GraphSAGE: **84,17%**. MulDiGraph + Etherscan → XGBoost: **91,02%**, GNN-GraphSAGE: **90,51%**, RF: **88,94%** | Fitur Etherscan meningkatkan semua model; GNN-GraphSAGE dengan edge transaksi nyata hampir menyamai XGBoost (+0,51 poin F1) |
+| **Eksperimen skenario dataset gabungan (8.595 alamat, 4 skenario)** | MulDiGraph only → XGBoost: **F1 88,57%**, RF: **86,85%**, GNN-GraphSAGE: **84,32%**. MulDiGraph + Etherscan → XGBoost: **91,02%**, GNN-GraphSAGE: **89,60%**, RF: **88,84%** | Fitur Etherscan meningkatkan semua model; GNN-GraphSAGE dengan edge transaksi nyata hampir menyamai XGBoost (+1,42 poin F1) |
 | **Blockchain write performance** | Rata-rata latency commit **13,6 ms** (localhost), gas rata-rata **35.462** | Overhead on-chain wajar untuk audit trail |
 | **Integrasi data eksternal** | Pipeline Etherscan + Forta sudah tersedia (fitur dan label siap pakai) | Siap dipakai untuk eksperimen lanjutan dengan data real |
 
@@ -28,9 +28,9 @@ Penelitian ini berhasil membangun sistem end-to-end untuk deteksi risiko phishin
 
 ### Keputusan Implementasi
 
-- **Model default produksi saat ini:** Random Forest (berdasarkan F1-score tertinggi pada eksperimen utama EPTransNet 1:10).
-- **XGBoost:** model terbaik pada eksperimen skenario gabungan (F1 91,02% dengan fitur Etherscan), sangat praktis dan konsisten.
-- **GNN-GraphSAGE:** setelah diperbaiki dengan arsitektur 2-layer + edge transaksi nyata dari MulDiGraph, berhasil mencapai F1 90,51% — hampir menyamai XGBoost dan layak sebagai kontribusi ilmiah perbandingan arsitektur.
+- **Model produksi yang di-deploy (API + Streamlit):** XGBoost pada skenario gabungan **MulDiGraph + Etherscan** (26 fitur, **F1 91,02%**) — model terbaik pada eksperimen. Untuk wallet yang ada di dataset, fitur Etherscan sudah ter-precompute sehingga inferensi tidak perlu memanggil API eksternal. Artefak: `ml/artifacts/model_prod_xgb.json` (dibuat oleh `ml/train_production_model.py`).
+- **Random Forest:** baseline kuat pada eksperimen utama EPTransNet 1:10 (F1 87,93%); tetap dilatih sebagai pembanding dan tersedia sebagai fallback inferensi.
+- **GNN-GraphSAGE:** setelah diperbaiki dengan arsitektur 2-layer + edge transaksi nyata dari MulDiGraph, berhasil mencapai F1 89,60% — hampir menyamai XGBoost dan layak sebagai kontribusi ilmiah perbandingan arsitektur.
 
 ---
 
@@ -81,9 +81,11 @@ ethereum-phising-risk-detection/
 │   ├── train.py                        ✅ selesai
 │   ├── predict.py                      ✅ selesai
 │   └── artifacts/
-│       ├── model.pkl                   ✅ Random Forest (joblib)
+│       ├── model_prod_xgb.json         ✅ XGBoost MulDiGraph+Etherscan (DI-DEPLOY, 26 fitur)
+│       ├── prod_feature_schema.json    ✅ 26 fitur (skenario terbaik)
+│       ├── model.pkl                   ✅ Random Forest baseline (joblib, fallback)
 │       ├── scaler.pkl                  ✅ StandardScaler (untuk LR)
-│       ├── feature_schema.json         ✅ 18 fitur
+│       ├── feature_schema.json         ✅ 18 fitur (baseline graf)
 │       ├── confusion_matrix.png        ✅ generated
 │       └── feature_importance.png      ✅ generated
 ├── api/
@@ -197,6 +199,21 @@ Setiap node diwakili oleh fitur agregat dari subgraph transaksinya:
 
 → **Random Forest dipilih sebagai model utama** (F1 +16,47 poin di atas baseline).
 
+> 📌 **[PLACEHOLDER GAMBAR — BAB 4]**
+> **File:** `ml/artifacts/thesis_cm_lr.png`
+> **Caption:** Gambar 4.X — Confusion Matrix Logistic Regression Baseline (EPTransNet 1:10, n=2.563)
+> *(Insert di Word pada bagian pembahasan model baseline — tunjukkan FN=74 sebagai kelemahan LR)*
+
+> 📌 **[PLACEHOLDER GAMBAR — BAB 4]**
+> **File:** `ml/artifacts/thesis_cm_xgboost.png`
+> **Caption:** Gambar 4.X — Confusion Matrix XGBoost pada Skenario Terbaik (MulDiGraph + Etherscan, n=1.719)
+> *(Insert di Word sebagai confusion matrix model terbaik berdasarkan F1)*
+
+> 📌 **[PLACEHOLDER GAMBAR — BAB 4]**
+> **File:** `ml/artifacts/thesis_cm_gnn.png`
+> **Caption:** Gambar 4.X — Confusion Matrix GNN-GraphSAGE V2 pada Skenario Terbaik (MulDiGraph + Etherscan, n=1.719)
+> *(Insert di Word berdampingan atau setelah confusion matrix XGBoost — highlight FN hanya 9)*
+
 ### 5.2 Classification Report — Random Forest
 
 ```
@@ -210,11 +227,28 @@ Setiap node diwakili oleh fitur agregat dari subgraph transaksinya:
 weighted avg       0.98      0.98      0.98      2563
 ```
 
-### 5.3 Analisis
-- Dari 233 node phishing di test set: **205 terdeteksi benar** (True Positive)
-- False Negative (phishing tidak terdeteksi): **~28 node**
-- False Positive (normal salah dikira phishing): **~27 node**
-- Model sangat bagus untuk kelas mayoritas (Normal F1 = 0.99)
+### 5.3 Analisis Confusion Matrix
+
+Perbandingan lengkap keempat model (skenario terbaik = MulDiGraph + Etherscan, kecuali LR & RF baseline dari EPTransNet 1:10):
+
+| Model | TN | FP | FN | TP | FN rate | FP rate |
+|---|---|---|---|---|---|---|
+| Logistic Regression (baseline, n=2563) | 2277 | 53 | 74 | 159 | **31,8%** | 2,3% |
+| Random Forest (baseline, n=2563) | 2303 | 27 | 28 | 205 | 12,0% | 1,2% |
+| **XGBoost** (Sc2, n=1719) | 1458 | 28 | 15 | 218 | **6,4%** | 1,9% |
+| **GNN-GraphSAGE V2** (Sc2, n=1719) | 1443 | 43 | **9** | 224 | **3,9%** | 2,9% |
+
+**Interpretasi untuk konteks keamanan (phishing detection):**
+- **FN (False Negative) lebih kritis** — phishing yang tidak terdeteksi = wallet korban tidak terlindungi
+- **GNN memiliki FN terendah (9 node, 3,9%)** → paling aman dari sisi recall, hanya 9 dari 233 phishing lolos
+- **XGBoost lebih seimbang** (FN=15, FP=28) → F1 tertinggi (91,02%), cocok sebagai model produksi
+- **GNN lebih agresif mendeteksi phishing** (FP=43 lebih tinggi dari XGBoost=28) → lebih banyak false alarm tapi lebih sedikit yang lolos
+- **Trade-off XGBoost vs GNN:** XGBoost unggul F1 overall, GNN unggul recall — untuk keamanan siber, keduanya layak dipertimbangkan tergantung toleransi false alarm sistem
+
+> 📌 **[PLACEHOLDER GAMBAR — BAB 4]**
+> **File:** `ml/artifacts/feature_importance.png`
+> **Caption:** Gambar 4.X — Feature Importance Random Forest (Top 15 Fitur Graf dari MulDiGraph)
+> *(Insert gambar di Word pada bagian analisis fitur/pembahasan RQ3)*
 
 ### 5.4 Konfigurasi Random Forest
 
@@ -242,18 +276,18 @@ Eksperimen ini membandingkan empat kombinasi sumber fitur pada **8.595 alamat wa
 | Model | Accuracy | Precision | Recall | F1-Score |
 |---|---|---|---|---|
 | Logistic Regression | 94,65% | 86,15% | 72,10% | 78,50% |
-| Random Forest | 96,28% | 84,21% | 89,27% | 86,67% |
+| Random Forest | 96,34% | 84,55% | 89,27% | 86,85% |
 | XGBoost | 96,80% | 85,89% | 91,42% | 88,57% |
-| GNN-GraphSAGE V2 | 95,40% | 78,95% | 90,13% | **84,17%** |
+| GNN-GraphSAGE V2 | 95,52% | 80,23% | 88,84% | **84,32%** |
 
 #### Skenario 2 — Fitur graf + fitur Etherscan (26 fitur)
 
 | Model | Accuracy | Precision | Recall | F1-Score |
 |---|---|---|---|---|
 | Logistic Regression | 96,16% | 88,13% | 82,83% | 85,40% |
-| Random Forest | 96,92% | 86,59% | 91,42% | 88,94% |
+| Random Forest | 96,92% | 87,19% | 90,56% | 88,84% |
 | **XGBoost** | **97,50%** | **88,62%** | **93,56%** | **91,02%** |
-| GNN-GraphSAGE V2 | 97,27% | 85,50% | 96,14% | **90,51%** |
+| GNN-GraphSAGE V2 | 96,97% | 83,90% | 96,14% | **89,60%** |
 
 #### Skenario 3 — Fitur graf + fitur BigQuery (29 fitur)
 
@@ -262,30 +296,50 @@ Eksperimen ini membandingkan empat kombinasi sumber fitur pada **8.595 alamat wa
 | Logistic Regression | 94,71% | 86,22% | 72,53% | 78,79% |
 | Random Forest | 96,39% | 84,62% | 89,70% | 87,08% |
 | XGBoost | 96,74% | 85,54% | 91,42% | 88,38% |
-| GNN-GraphSAGE V2 | 95,99% | 85,04% | 85,41% | 85,22% |
+| GNN-GraphSAGE V2 | 95,00% | 75,97% | 92,27% | 83,33% |
 
 #### Skenario 4 — Fitur graf + Etherscan + BigQuery (36 fitur)
 
 | Model | Accuracy | Precision | Recall | F1-Score |
 |---|---|---|---|---|
 | Logistic Regression | 96,16% | 87,78% | 83,26% | 85,46% |
-| Random Forest | 96,86% | 85,66% | 92,27% | 88,84% |
+| Random Forest | 97,15% | 87,70% | 91,85% | 89,73% |
 | XGBoost | 97,32% | 88,16% | 92,70% | 90,38% |
-| GNN-GraphSAGE V2 | 96,51% | 85,60% | 89,27% | 87,39% |
+| GNN-GraphSAGE V2 | 96,57% | 86,25% | 88,84% | 87,53% |
+
+> 📌 **[PLACEHOLDER GAMBAR — BAB 4]**
+> **File:** `ml/artifacts/thesis_f1_by_scenario.png`
+> **Caption:** Gambar 4.X — Perbandingan F1-Score Empat Model pada Empat Skenario Dataset
+> *(Insert gambar di Word setelah keempat tabel skenario di atas — gambar ini merangkum semua tabel dalam satu visualisasi grouped bar chart)*
+
+> 📌 **[PLACEHOLDER GAMBAR — BAB 4]**
+> **File:** `ml/artifacts/thesis_heatmap_f1.png`
+> **Caption:** Gambar 4.X — Heatmap F1-Score: Perbandingan Model × Skenario Dataset
+> *(Alternatif/pelengkap gambar di atas — heatmap lebih ringkas, cocok untuk versi singkat di BAB 4)*
 
 #### Interpretasi Hasil
 
-1. **Fitur Etherscan secara konsisten meningkatkan performa semua model** (Skenario 1 → 2): XGBoost naik +2,45 poin F1, GNN naik +6,34 poin F1, RF naik +2,27 poin F1.
+1. **Fitur Etherscan secara konsisten meningkatkan performa semua model** (Skenario 1 → 2): XGBoost naik +2,45 poin F1, GNN naik +5,28 poin F1, RF naik +1,99 poin F1.
 
 2. **Fitur BigQuery alone (Skenario 3) tidak menambah nilai** dibanding fitur graf saja (Skenario 1). Hal ini konsisten karena fitur BigQuery yang tersedia banyak tumpang-tindih semantik dengan fitur graf (misalnya `bq_tx_count_out` ≈ `out_degree`).
 
 3. **Fitur gabungan Etherscan + BigQuery (Skenario 4) tidak melampaui Etherscan saja (Skenario 2)**, mengindikasikan bahwa BigQuery tidak menambah informasi independen setelah Etherscan tersedia.
 
-4. **XGBoost adalah model terbaik secara keseluruhan** (F1 91,02% pada Skenario 2), unggul tipis atas GNN-GraphSAGE V2 yang mencapai F1 90,51% pada skenario yang sama.
+4. **XGBoost adalah model terbaik secara keseluruhan** (F1 91,02% pada Skenario 2), unggul tipis atas GNN-GraphSAGE V2 yang mencapai F1 89,60% pada skenario yang sama.
 
-5. **GNN-GraphSAGE V2 kini kompetitif** setelah diperbaiki: menggunakan edge transaksi nyata dari MulDiGraph, arsitektur 2-layer (mencegah *over-smoothing*), dan SAGEConv yang lebih robust terhadap variasi degree. Peningkatan dari versi sebelumnya (GNN-GCN 4-layer kNN) sangat signifikan: **+42,50 poin F1** pada skenario tanpa Etherscan dan **+23,67 poin F1** pada skenario dengan Etherscan.
+5. **GNN-GraphSAGE V2 kini kompetitif** setelah diperbaiki: menggunakan edge transaksi nyata dari MulDiGraph, arsitektur 2-layer (mencegah *over-smoothing*), dan SAGEConv yang lebih robust terhadap variasi degree. Peningkatan dari versi sebelumnya (GNN-GCN 4-layer kNN) sangat signifikan: **+42,50 poin F1** pada skenario tanpa Etherscan dan **+22,76 poin F1** pada skenario dengan Etherscan.
 
-6. **GNN mendapat manfaat terbesar dari penambahan fitur Etherscan** (+6,34 poin F1), lebih besar dari RF (+2,27) dan XGBoost (+2,45), menunjukkan bahwa fitur atribut wallet memperkaya representasi node dalam message passing.
+6. **GNN mendapat manfaat terbesar dari penambahan fitur Etherscan** (+5,28 poin F1), lebih besar dari XGBoost (+2,45) dan RF (+1,99), menunjukkan bahwa fitur atribut wallet memperkaya representasi node dalam message passing.
+
+> 📌 **[PLACEHOLDER GAMBAR — BAB 4]**
+> **File:** `ml/artifacts/thesis_best_scenario_metrics.png`
+> **Caption:** Gambar 4.X — Perbandingan Accuracy, Precision, Recall, dan F1-Score pada Skenario Terbaik (MulDiGraph + Etherscan, 26 Fitur)
+> *(Insert di Word pada sub-bagian pembahasan skenario terbaik)*
+
+> 📌 **[PLACEHOLDER GAMBAR — BAB 4]**
+> **File:** `ml/artifacts/thesis_etherscan_impact.png`
+> **Caption:** Gambar 4.X — Dampak Penambahan Fitur Etherscan terhadap F1-Score Semua Model (Skenario 1 → Skenario 2)
+> *(Insert di Word pada sub-bagian pembahasan kontribusi fitur Etherscan / jawaban RQ3)*
 
 > **Catatan metodologi:** Semua empat skenario menggunakan baris dan split yang identik. GNN menggunakan 528 edge transaksi nyata yang diekstrak dari MulDiGraph untuk 8.595 alamat sampel (rata-rata ~0,06 edge per node dalam subgraph — sangat sparse), namun GraphSAGE dengan self-loop dan 2-layer aggregation tetap mampu memanfaatkan sinyal struktural yang ada.
 
@@ -320,7 +374,7 @@ pragma solidity ^0.8.20;
 struct Record {
     uint16  riskScore;    // 0–100
     uint64  timestamp;    // unix epoch
-    string  modelVersion; // e.g. "rf-v1"
+    string  modelVersion; // e.g. "xgb-eth-v1"
 }
 
 mapping(address => Record) private _records;
@@ -338,7 +392,7 @@ event RiskUpdated(address indexed wallet, uint16 riskScore, uint64 timestamp, st
 | RPC URL | `http://127.0.0.1:8545` |
 | Contract Address | `0x5FbDB2315678afecb367f032d93F642f64180aa3` |
 | Deployer | `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` |
-| Model Version | `rf-v1` |
+| Model Version | `xgb-eth-v1` |
 
 ### 7.3 Bukti Deployment
 
@@ -379,43 +433,44 @@ event RiskUpdated(address indexed wallet, uint16 riskScore, uint64 timestamp, st
 
 ### 8.3 Uji Endpoint `/analyze`
 
-**Request:**
+**Request (Scan by Address — fitur diambil dari dataset):**
 ```json
 POST /analyze
 {
-  "wallet": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-  "row_id": 0
+  "wallet": "0x4dad23689bef624af5d1757a56135901c915fcfd"
 }
 ```
 
-**Response:**
+**Response (model XGBoost MulDiGraph + Etherscan):**
 ```json
 {
-  "wallet": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-  "probability": 0.000008,
-  "risk_score": 0,
-  "risk_level": "LOW",
-  "tx_hash": "0x918381d74ebda99838c854d9bc54ff093fe546d6de2ba2bd10a0ff07c7dd8188"
+  "wallet": "0x4dad23689bef624af5d1757a56135901c915fcfd",
+  "probability": 0.999801,
+  "risk_score": 100,
+  "risk_level": "HIGH",
+  "tx_hash": "c7c8069430427b1e8f482c49b9d26d1b0eb359f5a18f210160b8257d27de099c",
+  "true_label": 1,
+  "dataset_split": "dataset"
 }
 ```
 
-→ **tx_hash nyata** yang tercatat di blockchain lokal Hardhat.
+→ **tx_hash nyata** yang tercatat di blockchain lokal Hardhat. `true_label: 1` mengonfirmasi wallet ini memang phishing menurut dataset (prediksi cocok).
 
 ### 8.4 Uji Endpoint `GET /risk/{wallet}`
 
-**Request:** `GET /risk/0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`
+**Request:** `GET /risk/0x4dad23689bef624af5d1757a56135901c915fcfd`
 
 **Response (data dibaca langsung dari smart contract):**
 ```json
 {
-  "wallet": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-  "risk_score": 0,
-  "timestamp": 1772591377,
-  "model_version": "rf-v1"
+  "wallet": "0x4dad23689bef624af5d1757a56135901c915fcfd",
+  "risk_score": 100,
+  "timestamp": 1782465140,
+  "model_version": "xgb-eth-v1"
 }
 ```
 
-> **Catatan timestamp:** `1772591377` decode menjadi **2026-03-04 02:29:37 UTC** — valid dan sesuai tanggal eksperimen (3–4 Maret 2026). Hardhat menggunakan `block.timestamp = system clock` pada node lokal, sehingga timestamp benar-benar mencerminkan waktu nyata saat transaksi dikirim. Bukan timestamp masa depan.
+> **Catatan:** `model_version: "xgb-eth-v1"` menandakan model produksi = XGBoost (MulDiGraph + Etherscan). `timestamp` mengikuti `block.timestamp` Hardhat (= system clock node lokal), jadi mencerminkan waktu nyata saat transaksi dikirim.
 
 ---
 
@@ -424,25 +479,25 @@ POST /analyze
 ```
 User (Streamlit)
      │
-     │  row_id + wallet
+     │  wallet (Scan by Address) / row_id (Demo)
      ▼
 FastAPI /analyze
      │
-     ├──► ml_service.predict_from_row(row_id)
+     ├──► ml_service.predict_from_address(wallet)   # lookup fitur 26-dim dari dataset
      │         │
      │         ▼
-     │    ml/artifacts/model.pkl
-     │    → RandomForest.predict_proba()
-     │    → probability = 0.000008
-     │    → risk_score  = 0
-     │    → risk_level  = "LOW"
+     │    ml/artifacts/model_prod_xgb.json
+     │    → XGBoost.predict() (MulDiGraph + Etherscan)
+     │    → probability = 0.999801
+     │    → risk_score  = 100
+     │    → risk_level  = "HIGH"
      │
      └──► chain_service.set_risk(wallet, score)
                │
                ▼
           web3.py → Hardhat RPC (localhost:8545)
-          → RiskRegistry.setRisk(wallet, 0, "rf-v1")
-          → tx_hash: 0x918381d7...
+          → RiskRegistry.setRisk(wallet, 100, "xgb-eth-v1")
+          → tx_hash: c7c80694...
      │
      ▼
 Response JSON → Streamlit UI
@@ -469,13 +524,14 @@ Response JSON → Streamlit UI
 | Poin | Detail |
 |---|---|
 | Arsitektur | Streamlit → FastAPI → ML model + web3.py → Hardhat smart contract |
-| Metrik RF (eksperimen utama EPTransNet 1:10) | Accuracy 97,82% · Precision 88,31% · Recall 87,55% · F1 **87,93%** |
-| Hasil eksperimen skenario (8.595 alamat, 4 skenario) | XGBoost terbaik: **F1 91,02%** · GNN-GraphSAGE V2: **F1 90,51%** · RF: **F1 88,94%** (semua pada skenario MulDiGraph + Etherscan) |
+| **Model produksi (di-deploy)** | **XGBoost (MulDiGraph + Etherscan, 26 fitur), F1 91,02%** — `model_prod_xgb.json`, model_version `xgb-eth-v1` |
+| Metrik RF (baseline eksperimen EPTransNet 1:10) | Accuracy 97,82% · Precision 88,31% · Recall 87,55% · F1 **87,93%** |
+| Hasil eksperimen skenario (8.595 alamat, 4 skenario) | XGBoost terbaik: **F1 91,02%** · GNN-GraphSAGE V2: **F1 89,60%** · RF: **F1 88,84%** (semua pada skenario MulDiGraph + Etherscan) |
 | Model GNN | GraphSAGE V2, 2-layer, hidden=128, edge transaksi nyata dari MulDiGraph (528 edges) |
 | Contract addr | `0x5FbDB2315678afecb367f032d93F642f64180aa3` |
-| Contoh tx hash | `0x918381d74ebda99838c854d9bc54ff093fe546d6de2ba2bd10a0ff07c7dd8188` |
-| Demo mode | Pilih `row_id` dari 2.563 test rows → analisis instan tanpa isi form |
-| Artifacts | `model.pkl`, `confusion_matrix.png`, `feature_importance.png`, `dataset_scenarios_comparison.csv` tersimpan di `ml/artifacts/` |
+| Contoh tx hash | `c7c8069430427b1e8f482c49b9d26d1b0eb359f5a18f210160b8257d27de099c` |
+| Mode aplikasi | **Scan by Address** (tempel wallet dataset), **Demo** (`row_id` dari 1.719 held-out), **Manual** (isi fitur) |
+| Artifacts | `model_prod_xgb.json`, `model.pkl`, `dataset_scenarios_comparison.csv`, `confusion_matrix.png`, `feature_importance.png` di `ml/artifacts/` |
 
 ---
 
@@ -526,7 +582,7 @@ Dataset asli sangat tidak seimbang (**rasio 1 : 2.550**). Karena tidak mungkin m
 
 ---
 
-## 12) Pipeline ML Final — Ringkasan Arsitektur & Hasil (21 Mei 2026)
+## 12) Pipeline ML Final — Ringkasan Arsitektur & Hasil (Update: 3 Juni 2026)
 
 ### Pipeline Architecture
 
@@ -547,26 +603,26 @@ train_dataset_scenarios.py
 └── Simpan hasil ke ml/artifacts/dataset_scenarios_comparison.csv
 ```
 
-### Hasil Final Eksperimen Skenario (Diverifikasi 21 Mei 2026)
+### Hasil Final Eksperimen Skenario (Diverifikasi 3 Juni 2026)
 
 | Skenario | Model | Accuracy | Precision | Recall | F1 |
 |---|---|---|---|---|---|
 | MulDiGraph only | LR | 94,65% | 86,15% | 72,10% | 78,50% |
-| MulDiGraph only | RF | 96,28% | 84,21% | 89,27% | 86,67% |
+| MulDiGraph only | RF | 96,34% | 84,55% | 89,27% | 86,85% |
 | MulDiGraph only | XGBoost | 96,80% | 85,89% | 91,42% | 88,57% |
-| MulDiGraph only | GNN-GraphSAGE V2 | 95,40% | 78,95% | 90,13% | 84,17% |
+| MulDiGraph only | GNN-GraphSAGE V2 | 95,52% | 80,23% | 88,84% | 84,32% |
 | MulDiGraph + Etherscan | LR | 96,16% | 88,13% | 82,83% | 85,40% |
-| MulDiGraph + Etherscan | RF | 96,92% | 86,59% | 91,42% | 88,94% |
+| MulDiGraph + Etherscan | RF | 96,92% | 87,19% | 90,56% | 88,84% |
 | **MulDiGraph + Etherscan** | **XGBoost** | **97,50%** | **88,62%** | **93,56%** | **91,02%** |
-| MulDiGraph + Etherscan | GNN-GraphSAGE V2 | 97,27% | 85,50% | 96,14% | **90,51%** |
+| MulDiGraph + Etherscan | GNN-GraphSAGE V2 | 96,97% | 83,90% | 96,14% | **89,60%** |
 | MulDiGraph + BigQuery | LR | 94,71% | 86,22% | 72,53% | 78,79% |
 | MulDiGraph + BigQuery | RF | 96,39% | 84,62% | 89,70% | 87,08% |
 | MulDiGraph + BigQuery | XGBoost | 96,74% | 85,54% | 91,42% | 88,38% |
-| MulDiGraph + BigQuery | GNN-GraphSAGE V2 | 95,99% | 85,04% | 85,41% | 85,22% |
+| MulDiGraph + BigQuery | GNN-GraphSAGE V2 | 95,00% | 75,97% | 92,27% | 83,33% |
 | MulDiGraph + Etherscan + BigQuery | LR | 96,16% | 87,78% | 83,26% | 85,46% |
-| MulDiGraph + Etherscan + BigQuery | RF | 96,86% | 85,66% | 92,27% | 88,84% |
+| MulDiGraph + Etherscan + BigQuery | RF | 97,15% | 87,70% | 91,85% | 89,73% |
 | MulDiGraph + Etherscan + BigQuery | XGBoost | 97,32% | 88,16% | 92,70% | 90,38% |
-| MulDiGraph + Etherscan + BigQuery | GNN-GraphSAGE V2 | 96,51% | 85,60% | 89,27% | 87,39% |
+| MulDiGraph + Etherscan + BigQuery | GNN-GraphSAGE V2 | 96,57% | 86,25% | 88,84% | 87,53% |
 
 ### Konfigurasi Model Final
 
@@ -577,7 +633,12 @@ Graph edges   : 528 edge transaksi nyata dari MulDiGraph (ekstraksi subgraph)
 Training      : Adam lr=0.01, CrossEntropyLoss dengan class weights
                 normal=0.578, phishing=3.689
 Early stop    : patience=25, best-weight restoration
-Epochs        : maks 200, berhenti di epoch 108–128 (per skenario)
+Epochs        : maks 200, berhenti di epoch 90–118 (per skenario)
+Training loss : konvergen di 0.12–0.23 (CrossEntropyLoss, tergantung skenario fitur)
+              Sc1 (MulDiGraph only)          : ~0.145 (ep 90)
+              Sc2 (+ Etherscan)              : ~0.121 (ep 94)  ← loss terendah
+              Sc3 (+ BigQuery)               : ~0.234 (ep 98)
+              Sc4 (+ Etherscan + BigQuery)   : ~0.164 (ep 118)
 ```
 
 **XGBoost:**
@@ -655,8 +716,8 @@ Dilakukan **20 transaksi** `setRisk()` ke kontrak `RiskRegistry` yang ter-deploy
 
 - **Latency 13,6 ms rata-rata** sangat rendah untuk konteks localhost. Pada jaringan publik (Ethereum mainnet), latency akan 12–15 detik (1 block). Untuk Polygon atau chain L2, latency bisa 1–3 detik.
 - **Gas ~35.462 unit** sangat konsisten (stdev = 5). Konsistensi ini karena `SSTORE` pertama ke slot baru memiliki biaya tetap. Variasi kecil terjadi karena panjang string `modelVersion` dan kondisi slot (write vs overwrite).
-- Untuk konteks **Ethereum mainnet** (harga gas ~10 Gwei, ETH ~$3.000 saat penulisan), gas cost per transaksi ≈ **35.462 × 10 × 10⁻⁹ ETH × $3.000 ≈ $0,001** — sangat terjangkau.
-- **Kesimpulan RQ2:** Overhead blockchain untuk mencatat satu risk score adalah **~14ms (lokal) / ~12 detik (mainnet)** dengan biaya gas yang dapat diabaikan. Overhead ini **wajar** untuk use case audit trail keamanan.
+- Pengujian ini masih dilakukan pada **Hardhat localhost**. Biaya aktual di jaringan publik akan bergantung pada gas price, kondisi jaringan, dan biaya eksekusi saat transaksi dikirim.
+- **Kesimpulan RQ2:** Overhead blockchain untuk mencatat satu risk score adalah **~14ms (lokal)** dengan gas yang stabil dan wajar untuk use case audit trail keamanan.
 
 ---
 
@@ -751,7 +812,24 @@ streamlit run app/streamlit_app.py --server.port 8502
 | **Blockchain lokal** | Hardhat localhost ≠ jaringan publik. Latency dan gas cost nyata akan berbeda. |
 | **Risk score linear** | `round(p × 100)` adalah mapping sederhana; tidak mempertimbangkan calibration probabilistik model RF |
 
-### 14.4 Ringkasan Kontribusi vs Keterbatasan
+### 14.4 Kualitas Data Fitur Eksternal (Etherscan & BigQuery)
+
+Audit kualitas data terhadap 8.595 alamat sampel mengungkap beberapa keterbatasan pada fitur eksternal yang perlu dicatat secara jujur:
+
+**Fitur Etherscan (coverage 99,6% — layak dipakai, dengan catatan):**
+
+| Catatan | Detail | Mitigasi / Status |
+|---|---|---|
+| `created_at_ts` konstan nol | Pada run eksperimen, kolom ini tidak terisi (selalu 0) sehingga menjadi *dead feature* tanpa kontribusi ke model. Karena varians nol, fitur ini **tidak memengaruhi metrik** RF/XGBoost/LR yang dilaporkan. | Kode enrichment (`ml/data_fetchers.py`) telah diperbaiki agar mengambil timestamp transaksi pertama untuk run berikutnya. |
+| `unique_counterparties > transaction_count` pada ~32% baris | Bukan korupsi acak, melainkan **beda basis hitung**: `transaction_count` dihitung dari seluruh tx normal (cap 10.000), sedangkan `unique_counterparties`, `avg_tx_value`, `tx_frequency`, dan `activity_score` dihitung hanya dari **100 transaksi terbaru** (jendela sampling) dan sempat menyertakan alamat itu sendiri. | Inkonsistensi self-count diperbaiki di kode; keterbatasan jendela 100-tx didokumentasikan di sini. |
+| `transaction_count` ter-cap 10.000 | 5 alamat sangat aktif nilainya terpotong oleh limit halaman API Etherscan. | Dampak minor; dicatat sebagai keterbatasan pengukuran. |
+| 35 baris (0,41%) gagal fetch | Di-imputasi nol (missing menyamar sebagai nilai nol). | Dampak kecil terhadap distribusi; dicatat. |
+
+**Fitur BigQuery (coverage 0,93% — keterbatasan signifikan):**
+
+Hanya 80 dari 8.595 alamat (0,93%) yang benar-benar memiliki data BigQuery; 8.515 baris di-imputasi nol sehingga seluruh 10 fitur `bq_*` praktis konstan-nol. Karena itu Skenario 3 (graf + BigQuery) tidak menambah nilai dibanding Skenario 1 — penyebab utamanya adalah **coverage yang sangat rendah dan jendela waktu berbeda** (graf MulDiGraph 2019 vs sebagian data BigQuery yang lebih baru), bukan semata tumpang-tindih semantik. Selain itu, dari 80 baris ber-data tersebut 79 berlabel normal dan hanya 1 phishing, sehingga keberadaan data BigQuery sedikit terkorelasi dengan label (potensi bias yang, untungnya, berdampak kecil karena hampir semua baris bernilai nol). Fitur BigQuery tetap dipertahankan dalam pelaporan sebagai bagian dari eksperimen, namun **tidak direkomendasikan sebagai sumber fitur produksi** sampai coverage-nya diperbaiki.
+
+### 14.5 Ringkasan Kontribusi vs Keterbatasan
 
 | ✅ Kontribusi | ⚠️ Keterbatasan |
 |---|---|
@@ -759,5 +837,53 @@ streamlit run app/streamlit_app.py --server.port 8502
 | Bukti integrasi blockchain (immutable audit trail) | Blockchain lokal (Hardhat), bukan mainnet |
 | Perbandingan 4 model × 4 skenario dengan metrik standar | Imbalance tidak sepenuhnya diatasi |
 | Eksperimen empiris sampling ratio (RQ3) | Demo mode, bukan crawling on-chain |
-| GNN-GraphSAGE dengan edge transaksi nyata (90,51% F1) | Subgraph sparse — hanya 528 edge dari 8.595 node |
+| GNN-GraphSAGE dengan edge transaksi nyata (89,60% F1) | Subgraph sparse — hanya 528 edge dari 8.595 node |
 | Gas + latency terukur (20 transaksi nyata) | Risk score belum di-calibrate |
+
+---
+
+## 15) Penguatan Akademik yang Disarankan
+
+Bagian ini dirangkum sebagai penguatan tesis bila masih ada waktu sebelum sidang. Tujuannya bukan sekadar menaikkan skor, tetapi membuat hasil lebih stabil, fair, dan lebih sulit dibantah secara metodologis.
+
+### 15.1 Prioritas Utama
+
+1. **Tambahkan evaluasi imbalance-aware**: PR-AUC, ROC-AUC, confusion matrix, dan false negative rate untuk melengkapi accuracy, precision, recall, serta F1.
+2. **Lakukan threshold tuning** untuk XGBoost dan GNN, misalnya pada threshold 0.3 sampai 0.7, agar F1 terbaik tidak bergantung pada ambang default 0.5.
+3. **Validasi multi-random-seed** dengan beberapa split, misalnya 7, 21, 42, 99, dan 123, lalu laporkan rata-rata serta standar deviasi F1.
+4. **Perkuat interpretasi XGBoost** lewat feature importance dan SHAP untuk menjelaskan mengapa fitur Etherscan konsisten meningkatkan performa.
+5. **Rapikan narasi blockchain** sebagai audit trail immutable, bukan sebagai klaim biaya mainnet yang presisi, karena pengujian utama masih pada Hardhat localhost.
+
+### 15.2 Penguatan Eksperimen GNN
+
+Karena performa GNN-GraphSAGE V2 sudah kompetitif tetapi masih sedikit di bawah XGBoost pada skenario terbaik, fokus akademik yang paling kuat adalah menjelaskan batasannya secara empiris.
+
+| Eksperimen | Tujuan |
+|---|---|
+| Edge asli antar sampled node | Menjadi baseline GNN saat ini |
+| Edge 1-hop neighborhood tambahan | Menguji apakah graph yang lebih padat meningkatkan performa |
+| Edge berarah transaksi | Membedakan sinyal incoming dan outgoing |
+| Edge berbobot nilai transaksi | Menguji apakah transaksi besar lebih informatif |
+| Edge berbobot frekuensi transaksi | Menguji pengaruh intensitas interaksi antar wallet |
+| GAT dibanding GraphSAGE | Melihat apakah attention membantu memilih neighbor yang lebih relevan |
+
+Narasi yang aman secara akademik adalah bahwa performa GNN sangat dipengaruhi oleh kepadatan dan kualitas struktur graph. Pada dataset ini subgraph yang dipakai masih sangat sparse, sehingga keunggulan struktural GNN belum sepenuhnya maksimal.
+
+### 15.3 Kalibrasi Risk Score
+
+Formula saat ini tetap sederhana dan mudah dioperasikan:
+
+```text
+risk_score = round(P(phishing) × 100)
+```
+
+Namun, untuk versi tesis yang lebih matang, risk score sebaiknya dipertimbangkan bersama metode kalibrasi probabilitas seperti Platt Scaling atau Isotonic Regression. Ini membuat skor lebih defensible ketika dipakai sebagai masukan smart contract.
+
+### 15.4 Narasi Sidang yang Disarankan
+
+Jika penguji menanyakan mengapa XGBoost masih unggul tipis dari GNN, jawaban yang paling kuat adalah:
+
+- XGBoost bekerja sangat baik pada fitur tabular yang sudah diekstrak.
+- GNN-GraphSAGE V2 sudah kompetitif setelah menggunakan edge transaksi nyata dan arsitektur 2-layer.
+- Keterbatasan utama GNN bukan pada idenya, tetapi pada sparsity graph: subgraph yang digunakan masih sangat jarang, sehingga sinyal struktural belum optimal.
+- Penambahan fitur Etherscan memberi kenaikan yang besar pada semua model, menunjukkan bahwa atribut wallet eksternal memang membawa informasi yang tidak sepenuhnya tercermin dari graph EPTransNet saja.
