@@ -66,9 +66,13 @@ def _row_features(row) -> Dict[str, float]:
     return out
 
 
+# Berapa banyak fitur teratas yang disertakan sebagai penjelasan asal skor (SHAP).
+_EXPLAIN_TOP = 5
+
+
 def predict_from_features(features: Dict[str, Any]) -> dict:
     """Run ML inference for an explicit feature dict."""
-    return predict_full(features)
+    return predict_full(features, explain_top=_EXPLAIN_TOP)
 
 
 def predict_from_row(row_id: int) -> dict:
@@ -82,7 +86,7 @@ def predict_from_row(row_id: int) -> dict:
 
     row = df.iloc[row_id]
     features = _row_features(row)
-    result = predict_full(features)
+    result = predict_full(features, explain_top=_EXPLAIN_TOP)
     result["features"] = features
     result["true_label"] = int(row.get("label", -1))
     result["node_id"] = str(row.get("node_id", ""))
@@ -111,7 +115,7 @@ def predict_from_address(wallet: str) -> dict:
         )
     row = df.loc[key]
     features = _row_features(row)
-    result = predict_full(features)
+    result = predict_full(features, explain_top=_EXPLAIN_TOP)
     result["features"] = features
     result["true_label"] = int(row.get("label", -1))
     result["node_id"] = str(row.get("node_id", wallet))

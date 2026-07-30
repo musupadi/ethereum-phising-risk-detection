@@ -1,0 +1,328 @@
+{
+  "scenario": "muldigraph_plus_etherscan (clean, created_at_ts dibuang)",
+  "n_features_input": 25,
+  "scale_pos_weight": 6.378,
+  "importance_ranking": [
+    {
+      "feature": "unique_senders",
+      "xgb_n": 0.39640000462532043,
+      "rf_n": 0.18101,
+      "combined": 0.2887
+    },
+    {
+      "feature": "in_degree",
+      "xgb_n": 0.13547000288963318,
+      "rf_n": 0.09959,
+      "combined": 0.11753
+    },
+    {
+      "feature": "timestamp_spread_in",
+      "xgb_n": 0.08038999885320663,
+      "rf_n": 0.08387,
+      "combined": 0.08213
+    },
+    {
+      "feature": "sent_received_ratio",
+      "xgb_n": 0.05302000045776367,
+      "rf_n": 0.06466,
+      "combined": 0.05884
+    },
+    {
+      "feature": "total_sent",
+      "xgb_n": 0.05922999978065491,
+      "rf_n": 0.05328,
+      "combined": 0.05626
+    },
+    {
+      "feature": "max_out_amount",
+      "xgb_n": 0.07214999943971634,
+      "rf_n": 0.03241,
+      "combined": 0.05228
+    },
+    {
+      "feature": "total_received",
+      "xgb_n": 0.011359999887645245,
+      "rf_n": 0.08645,
+      "combined": 0.0489
+    },
+    {
+      "feature": "max_in_amount",
+      "xgb_n": 0.011309999972581863,
+      "rf_n": 0.07122,
+      "combined": 0.04126
+    },
+    {
+      "feature": "std_in_amount",
+      "xgb_n": 0.004550000187009573,
+      "rf_n": 0.06856,
+      "combined": 0.03655
+    },
+    {
+      "feature": "avg_out_amount",
+      "xgb_n": 0.015359999611973763,
+      "rf_n": 0.04534,
+      "combined": 0.03035
+    },
+    {
+      "feature": "avg_in_amount",
+      "xgb_n": 0.015650000423192978,
+      "rf_n": 0.0424,
+      "combined": 0.02902
+    },
+    {
+      "feature": "in_out_ratio",
+      "xgb_n": 0.01940000057220459,
+      "rf_n": 0.03317,
+      "combined": 0.02629
+    },
+    {
+      "feature": "transaction_count",
+      "xgb_n": 0.017829999327659607,
+      "rf_n": 0.01497,
+      "combined": 0.0164
+    },
+    {
+      "feature": "out_degree",
+      "xgb_n": 0.012430000118911266,
+      "rf_n": 0.01565,
+      "combined": 0.01404
+    },
+    {
+      "feature": "unique_receivers",
+      "xgb_n": 0.014709999784827232,
+      "rf_n": 0.01303,
+      "combined": 0.01387
+    },
+    {
+      "feature": "min_in_amount",
+      "xgb_n": 0.008089999668300152,
+      "rf_n": 0.01865,
+      "combined": 0.01337
+    },
+    {
+      "feature": "unique_counterparties",
+      "xgb_n": 0.01489999983459711,
+      "rf_n": 0.01016,
+      "combined": 0.01253
+    },
+    {
+      "feature": "activity_score",
+      "xgb_n": 0.009730000048875809,
+      "rf_n": 0.01297,
+      "combined": 0.01135
+    },
+    {
+      "feature": "tx_frequency",
+      "xgb_n": 0.01056000031530857,
+      "rf_n": 0.01166,
+      "combined": 0.01111
+    },
+    {
+      "feature": "avg_tx_value",
+      "xgb_n": 0.00848000030964613,
+      "rf_n": 0.01136,
+      "combined": 0.00992
+    },
+    {
+      "feature": "min_out_amount",
+      "xgb_n": 0.005350000225007534,
+      "rf_n": 0.01441,
+      "combined": 0.00988
+    },
+    {
+      "feature": "timestamp_spread_out",
+      "xgb_n": 0.008340000174939632,
+      "rf_n": 0.00552,
+      "combined": 0.00693
+    },
+    {
+      "feature": "balance",
+      "xgb_n": 0.006670000031590462,
+      "rf_n": 0.00658,
+      "combined": 0.00663
+    },
+    {
+      "feature": "std_out_amount",
+      "xgb_n": 0.008620000444352627,
+      "rf_n": 0.00306,
+      "combined": 0.00584
+    },
+    {
+      "feature": "graph_present",
+      "xgb_n": 0.0,
+      "rf_n": 0.0,
+      "combined": 0.0
+    }
+  ],
+  "correlation_threshold": 0.95,
+  "dropped_by_correlation": [
+    "in_degree",
+    "tx_frequency"
+  ],
+  "experiments": {
+    "full_25": {
+      "features": [
+        "unique_senders",
+        "in_degree",
+        "timestamp_spread_in",
+        "sent_received_ratio",
+        "total_sent",
+        "max_out_amount",
+        "total_received",
+        "max_in_amount",
+        "std_in_amount",
+        "avg_out_amount",
+        "avg_in_amount",
+        "in_out_ratio",
+        "transaction_count",
+        "out_degree",
+        "unique_receivers",
+        "min_in_amount",
+        "unique_counterparties",
+        "activity_score",
+        "tx_frequency",
+        "avg_tx_value",
+        "min_out_amount",
+        "timestamp_spread_out",
+        "balance",
+        "std_out_amount",
+        "graph_present"
+      ],
+      "n_features": 25,
+      "accuracy": 0.9697,
+      "precision": 0.8635,
+      "recall": 0.9227,
+      "f1": 0.8921
+    },
+    "corr_pruned": {
+      "features": [
+        "unique_senders",
+        "timestamp_spread_in",
+        "sent_received_ratio",
+        "total_sent",
+        "max_out_amount",
+        "total_received",
+        "max_in_amount",
+        "std_in_amount",
+        "avg_out_amount",
+        "avg_in_amount",
+        "in_out_ratio",
+        "transaction_count",
+        "out_degree",
+        "unique_receivers",
+        "min_in_amount",
+        "unique_counterparties",
+        "activity_score",
+        "avg_tx_value",
+        "min_out_amount",
+        "timestamp_spread_out",
+        "balance",
+        "std_out_amount",
+        "graph_present"
+      ],
+      "n_features": 23,
+      "accuracy": 0.9686,
+      "precision": 0.8594,
+      "recall": 0.9185,
+      "f1": 0.888
+    },
+    "top_20": {
+      "features": [
+        "unique_senders",
+        "in_degree",
+        "timestamp_spread_in",
+        "sent_received_ratio",
+        "total_sent",
+        "max_out_amount",
+        "total_received",
+        "max_in_amount",
+        "std_in_amount",
+        "avg_out_amount",
+        "avg_in_amount",
+        "in_out_ratio",
+        "transaction_count",
+        "out_degree",
+        "unique_receivers",
+        "min_in_amount",
+        "unique_counterparties",
+        "activity_score",
+        "tx_frequency",
+        "avg_tx_value"
+      ],
+      "n_features": 20,
+      "accuracy": 0.9703,
+      "precision": 0.8583,
+      "recall": 0.9356,
+      "f1": 0.8953
+    },
+    "top_18": {
+      "features": [
+        "unique_senders",
+        "in_degree",
+        "timestamp_spread_in",
+        "sent_received_ratio",
+        "total_sent",
+        "max_out_amount",
+        "total_received",
+        "max_in_amount",
+        "std_in_amount",
+        "avg_out_amount",
+        "avg_in_amount",
+        "in_out_ratio",
+        "transaction_count",
+        "out_degree",
+        "unique_receivers",
+        "min_in_amount",
+        "unique_counterparties",
+        "activity_score"
+      ],
+      "n_features": 18,
+      "accuracy": 0.9703,
+      "precision": 0.8611,
+      "recall": 0.9313,
+      "f1": 0.8948
+    },
+    "top_15": {
+      "features": [
+        "unique_senders",
+        "in_degree",
+        "timestamp_spread_in",
+        "sent_received_ratio",
+        "total_sent",
+        "max_out_amount",
+        "total_received",
+        "max_in_amount",
+        "std_in_amount",
+        "avg_out_amount",
+        "avg_in_amount",
+        "in_out_ratio",
+        "transaction_count",
+        "out_degree",
+        "unique_receivers"
+      ],
+      "n_features": 15,
+      "accuracy": 0.9703,
+      "precision": 0.8555,
+      "recall": 0.9399,
+      "f1": 0.8957
+    }
+  },
+  "best_by_f1": "top_15",
+  "recommended_features": [
+    "unique_senders",
+    "in_degree",
+    "timestamp_spread_in",
+    "sent_received_ratio",
+    "total_sent",
+    "max_out_amount",
+    "total_received",
+    "max_in_amount",
+    "std_in_amount",
+    "avg_out_amount",
+    "avg_in_amount",
+    "in_out_ratio",
+    "transaction_count",
+    "out_degree",
+    "unique_receivers"
+  ]
+}

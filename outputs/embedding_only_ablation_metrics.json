@@ -1,0 +1,202 @@
+{
+  "experiment": "GraphSAGE Embedding + XGBoost (No Etherscan Ablation)",
+  "purpose": "separate the XGBoost-head effect from the Etherscan-branch effect in late fusion V2",
+  "encoder": {
+    "retrained": false,
+    "checkpoint": "models/graphsage_encoder_for_fusion_v2.pt",
+    "identity_verified_against": "outputs/late_fusion_metrics_v2.json",
+    "embedding_dimension": 128,
+    "input_features": 19
+  },
+  "split": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "stratified": true,
+    "n_train": 6876,
+    "n_test": 1719,
+    "n_train_phishing": 932,
+    "n_test_phishing": 233
+  },
+  "edge_audit": {
+    "edge_sources_used": [
+      "MulDiGraph.pkl (EPTransNet)"
+    ],
+    "edge_sources_excluded": [
+      "data/raw/etherscan_edges.csv (Etherscan-derived edges) - excluded by V2 design"
+    ],
+    "muldigraph_addresses_found": 8595,
+    "dataset_addresses_total": 8595,
+    "raw_directed_edge_entries": 528,
+    "unique_directed_edges": 264,
+    "edges_train_train": 150,
+    "edges_train_test": 95,
+    "edges_test_test": 19,
+    "self_loops_added_by_pyg_builder": 8595,
+    "note": "raw_directed_edge_entries counts every (successor/predecessor) hit and so double-counts each edge once from each endpoint; unique_directed_edges is the deduplicated set actually passed to the GNN. V1 reported 528 raw MulDiGraph entries + 126 Etherscan entries; V2 uses the MulDiGraph entries only."
+  },
+  "models": {
+    "xgboost_scenario2": {
+      "Model": "XGBoost tabular (Scenario 2)",
+      "Input": "26 tabular features (19 graph + 7 Etherscan)",
+      "Accuracy": 0.9749854566608493,
+      "Precision": 0.8861788617886179,
+      "Recall": 0.9356223175965666,
+      "F1": 0.9102296450939458,
+      "ROC-AUC": 0.9948041520572554,
+      "PR-AUC": 0.9701142579566242,
+      "TN": 1458,
+      "FP": 28,
+      "FN": 15,
+      "TP": 218
+    },
+    "graphsage_graph_only": {
+      "Model": "GraphSAGE graph-only (leakage-controlled)",
+      "Input": "19 graph features + 264 EPTransNet edges",
+      "Accuracy": 0.9488074461896452,
+      "Precision": 0.7865612648221344,
+      "Recall": 0.8540772532188842,
+      "F1": 0.8189300411522634,
+      "ROC-AUC": 0.971428612688382,
+      "PR-AUC": 0.8879936208787067,
+      "TN": 1432,
+      "FP": 54,
+      "FN": 34,
+      "TP": 199
+    },
+    "embedding_only_xgboost_ablation": {
+      "Model": "GraphSAGE Embedding + XGBoost (No Etherscan Ablation)",
+      "Input": "128-d graph embedding only (no Etherscan)",
+      "Accuracy": 0.9470622454915648,
+      "Precision": 0.7649253731343284,
+      "Recall": 0.8798283261802575,
+      "F1": 0.8183632734530938,
+      "ROC-AUC": 0.9820051525251416,
+      "PR-AUC": 0.9222457670008908,
+      "TN": 1423,
+      "FP": 63,
+      "FN": 28,
+      "TP": 205
+    },
+    "late_fusion_v2": {
+      "Model": "GraphSAGE-Etherscan Late Fusion V2",
+      "Input": "128-d graph embedding || 7 scaled Etherscan features = 135-d",
+      "Accuracy": 0.9668411867364747,
+      "Precision": 0.8492063492063492,
+      "Recall": 0.9184549356223176,
+      "F1": 0.8824742268041237,
+      "ROC-AUC": 0.9916257025514241,
+      "PR-AUC": 0.9528855889861982,
+      "TN": 1448,
+      "FP": 38,
+      "FN": 19,
+      "TP": 214
+    }
+  },
+  "attribution_pp": {
+    "xgboost_head_swap": -0.056676769916963465,
+    "etherscan_branch": 6.41109533510299,
+    "total_over_graphsage_baseline": 6.354418565186027,
+    "gap_to_xgboost_scenario2": -9.186637164085198
+  },
+  "interpretation_rule": {
+    "threshold_pp": 1.0,
+    "embedding_only_close_to_late_fusion": false,
+    "verdict": "Embedding-only XGBoost reaches F1 81.84%, which is materially lower than late fusion V2 (88.25%) by 6.41 pp. **The Etherscan branch contributes measurable additional value beyond the classifier swap.** Of the +6.35 pp total gain over the graph-only baseline, -0.06 pp is attributable to replacing the linear head with XGBoost and +6.41 pp to the seven Etherscan features."
+  },
+  "gain_report": {
+    "features_used_by_trees": 128,
+    "top_features": [
+      {
+        "feature": "sage_emb_89",
+        "gain": 736.4585571289062,
+        "share": 0.2952221506215701
+      },
+      {
+        "feature": "sage_emb_75",
+        "gain": 315.1663818359375,
+        "share": 0.1263398953662214
+      },
+      {
+        "feature": "sage_emb_107",
+        "gain": 301.7484130859375,
+        "share": 0.12096107051178406
+      },
+      {
+        "feature": "sage_emb_19",
+        "gain": 60.787662506103516,
+        "share": 0.024367785916253396
+      },
+      {
+        "feature": "sage_emb_127",
+        "gain": 59.6980094909668,
+        "share": 0.0239309796581877
+      },
+      {
+        "feature": "sage_emb_4",
+        "gain": 39.55269241333008,
+        "share": 0.015855380868489123
+      },
+      {
+        "feature": "sage_emb_79",
+        "gain": 37.24303436279297,
+        "share": 0.014929514490429457
+      },
+      {
+        "feature": "sage_emb_98",
+        "gain": 32.51803970336914,
+        "share": 0.013035418656349312
+      },
+      {
+        "feature": "sage_emb_43",
+        "gain": 29.277639389038086,
+        "share": 0.011736448143465203
+      },
+      {
+        "feature": "sage_emb_124",
+        "gain": 23.75537109375,
+        "share": 0.009522751382577542
+      },
+      {
+        "feature": "sage_emb_5",
+        "gain": 23.08152961730957,
+        "share": 0.009252630371792766
+      },
+      {
+        "feature": "sage_emb_125",
+        "gain": 22.785919189453125,
+        "share": 0.009134129818824561
+      },
+      {
+        "feature": "sage_emb_64",
+        "gain": 20.855758666992188,
+        "share": 0.008360391588791297
+      },
+      {
+        "feature": "sage_emb_119",
+        "gain": 20.181230545043945,
+        "share": 0.0080899953242783
+      },
+      {
+        "feature": "sage_emb_41",
+        "gain": 18.12909507751465,
+        "share": 0.007267361327801078
+      }
+    ]
+  },
+  "leakage_and_alignment_checks": [
+    "split reproduced identically to V2 (train=6876, test=1719, random_state=42)",
+    "topology reproduced identically to V2 (264 unique MulDiGraph edges; etherscan_edges.csv not read)",
+    "graph-feature StandardScaler fitted on TRAIN rows only (same as V2)",
+    "GraphSAGE encoder loaded from the saved V2 checkpoint; not retrained, eval mode (BatchNorm running stats frozen)",
+    "loaded encoder reproduces V2's GraphSAGE test metrics exactly -> identical encoder state confirmed",
+    "embedding = final SAGEConv->BatchNorm->ReLU output (pre-head, 128-d); logits/probabilities not used",
+    "no Etherscan feature enters this model - embedding is the only input",
+    "XGBoost trained on TRAIN embeddings only; inner validation split drawn from TRAIN; test scored once"
+  ],
+  "seeds": {
+    "numpy": 42,
+    "torch": 42,
+    "sklearn_random_state": 42
+  },
+  "device": "cpu"
+}

@@ -1,0 +1,82 @@
+{
+  "dataset": "hybrid_dataset_clean.csv",
+  "features": [
+    "unique_senders",
+    "in_degree",
+    "timestamp_spread_in",
+    "sent_received_ratio",
+    "total_sent",
+    "max_out_amount",
+    "total_received",
+    "max_in_amount",
+    "std_in_amount",
+    "avg_out_amount",
+    "avg_in_amount",
+    "in_out_ratio",
+    "transaction_count",
+    "out_degree",
+    "unique_receivers",
+    "min_in_amount",
+    "unique_counterparties",
+    "activity_score",
+    "tx_frequency",
+    "avg_tx_value"
+  ],
+  "n_features": 20,
+  "test_size": 1719,
+  "n_phishing_test": 233,
+  "train_original_balance": "5944:932",
+  "note": "Resampling hanya pada train (anti-leakage); test asli. Model resampling memakai scale_pos_weight=1 agar tidak dobel-koreksi imbalance.",
+  "results": {
+    "scale_pos_weight": {
+      "accuracy": 0.9732,
+      "precision": 0.861,
+      "recall": 0.9571,
+      "f1": 0.9065,
+      "roc_auc": 0.9942,
+      "pr_auc": 0.9646
+    },
+    "SMOTE": {
+      "accuracy": 0.9732,
+      "precision": 0.8667,
+      "recall": 0.9485,
+      "f1": 0.9057,
+      "roc_auc": 0.9941,
+      "pr_auc": 0.9641,
+      "train_size_after": 11888,
+      "balance_after": "5944:5944"
+    },
+    "BorderlineSMOTE": {
+      "accuracy": 0.9715,
+      "precision": 0.8651,
+      "recall": 0.9356,
+      "f1": 0.899,
+      "roc_auc": 0.9937,
+      "pr_auc": 0.9598,
+      "train_size_after": 11888,
+      "balance_after": "5944:5944"
+    },
+    "SMOTETomek": {
+      "accuracy": 0.9738,
+      "precision": 0.8615,
+      "recall": 0.9614,
+      "f1": 0.9087,
+      "roc_auc": 0.9942,
+      "pr_auc": 0.9632,
+      "train_size_after": 11306,
+      "balance_after": "5653:5653"
+    },
+    "RandomOverSampler": {
+      "accuracy": 0.9738,
+      "precision": 0.8643,
+      "recall": 0.9571,
+      "f1": 0.9084,
+      "roc_auc": 0.9943,
+      "pr_auc": 0.9655,
+      "train_size_after": 11888,
+      "balance_after": "5944:5944"
+    }
+  },
+  "best_by_f1": "SMOTETomek",
+  "conclusion": "'SMOTETomek' memberikan F1 tertinggi (0.9087). Dibandingkan dengan hasil di xgb_tuning_results.json untuk keputusan akhir."
+}

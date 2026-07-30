@@ -3,6 +3,7 @@ networkx>=3.3
 numpy>=1.26
 pandas>=2.2
 scikit-learn>=1.5
+imbalanced-learn>=0.12   # SMOTE/oversampling (smote_experiment.py, catatan #8)
 joblib>=1.4
 matplotlib>=3.8
 xgboost>=2.0
@@ -29,3 +30,4 @@ requests>=2.32
 # ── Dev / notebook ────────────────────────────────────────────────────────────
 jupyter>=1.0
 ipykernel>=6.29
+seaborn>=0.13

@@ -1,0 +1,145 @@
+{
+  "source": "hybrid_dataset.csv",
+  "rows_input": 8595,
+  "cols_input": 41,
+  "duplicates_removed": 0,
+  "constant_features_dropped": [
+    "created_at_ts"
+  ],
+  "nan_in_features": 0,
+  "negative_value_columns": {},
+  "low_activity_rows_kept": 3,
+  "cap_percentiles": {
+    "low": 0.01,
+    "high": 0.99
+  },
+  "cap_thresholds": {
+    "balance": {
+      "p1": 0.0,
+      "p99": 1.6354029990736925,
+      "n_clipped": 86
+    },
+    "transaction_count": {
+      "p1": 1.0,
+      "p99": 667.7799999999934,
+      "n_clipped": 149
+    },
+    "activity_score": {
+      "p1": 1.0,
+      "p99": 100.0,
+      "n_clipped": 60
+    },
+    "avg_tx_value": {
+      "p1": 0.0,
+      "p99": 88.27572768810043,
+      "n_clipped": 86
+    },
+    "tx_frequency": {
+      "p1": 0.0333333333333333,
+      "p99": 3.333333333333333,
+      "n_clipped": 60
+    },
+    "unique_counterparties": {
+      "p1": 1.0,
+      "p99": 81.0,
+      "n_clipped": 141
+    },
+    "in_degree": {
+      "p1": 0.0,
+      "p99": 83.11999999999898,
+      "n_clipped": 86
+    },
+    "out_degree": {
+      "p1": 0.0,
+      "p99": 82.0,
+      "n_clipped": 85
+    },
+    "unique_senders": {
+      "p1": 0.0,
+      "p99": 61.05999999999949,
+      "n_clipped": 86
+    },
+    "unique_receivers": {
+      "p1": 0.0,
+      "p99": 44.05999999999949,
+      "n_clipped": 86
+    },
+    "total_received": {
+      "p1": 0.0,
+      "p99": 301.2623924054698,
+      "n_clipped": 86
+    },
+    "total_sent": {
+      "p1": 0.0,
+      "p99": 210.40348249386528,
+      "n_clipped": 86
+    },
+    "avg_in_amount": {
+      "p1": 0.0,
+      "p99": 47.76186738040753,
+      "n_clipped": 86
+    },
+    "avg_out_amount": {
+      "p1": 0.0,
+      "p99": 39.55945333929521,
+      "n_clipped": 86
+    },
+    "max_in_amount": {
+      "p1": 0.0,
+      "p99": 115.16505026659901,
+      "n_clipped": 86
+    },
+    "max_out_amount": {
+      "p1": 0.0,
+      "p99": 103.79930849590312,
+      "n_clipped": 86
+    },
+    "min_in_amount": {
+      "p1": 0.0,
+      "p99": 24.560129530599767,
+      "n_clipped": 86
+    },
+    "min_out_amount": {
+      "p1": 0.0,
+      "p99": 28.392924669799978,
+      "n_clipped": 86
+    },
+    "std_in_amount": {
+      "p1": 0.0,
+      "p99": 20.33527780526388,
+      "n_clipped": 86
+    },
+    "std_out_amount": {
+      "p1": 0.0,
+      "p99": 19.856909097400333,
+      "n_clipped": 86
+    },
+    "in_out_ratio": {
+      "p1": 0.0,
+      "p99": 16.0,
+      "n_clipped": 84
+    },
+    "sent_received_ratio": {
+      "p1": 0.0,
+      "p99": 27012985454.391136,
+      "n_clipped": 86
+    },
+    "timestamp_spread_in": {
+      "p1": 0.0,
+      "p99": 18229786.339999974,
+      "n_clipped": 86
+    },
+    "timestamp_spread_out": {
+      "p1": 0.0,
+      "p99": 26899881.35999996,
+      "n_clipped": 86
+    }
+  },
+  "total_values_clipped": 2127,
+  "rows_output": 8595,
+  "feature_count_after": 35,
+  "label_distribution": {
+    "0": 7430,
+    "1": 1165
+  }
+}

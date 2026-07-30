@@ -1,0 +1,742 @@
+{
+  "gap1_merge_audit": {
+    "total_addresses": 8595,
+    "phishing": 1165,
+    "normal": 7430,
+    "matched_muldigraph": 8595,
+    "unmatched_muldigraph": 0,
+    "matched_etherscan": 12812,
+    "failed_etherscan": 3,
+    "etherscan_coverage_pct": 99.98,
+    "matched_bigquery": 80,
+    "bigquery_coverage_pct": 0.93,
+    "note": "Semua baris berasal dari daftar alamat yang sama (EPTransNet); penggabungan dilakukan by-address (lowercased). Tidak ada baris ganda yang tercipta dari merge (0 duplikat)."
+  },
+  "gap4_descriptive_stats": [
+    {
+      "feature": "unique_senders",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 5.1222,
+      "q3": 1.0,
+      "max": 8371.0,
+      "std": 110.4013,
+      "n_outlier_iqr": 980,
+      "pct_outlier": 11.4
+    },
+    {
+      "feature": "in_degree",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 7.9261,
+      "q3": 1.0,
+      "max": 11066.0,
+      "std": 176.6853,
+      "n_outlier_iqr": 1288,
+      "pct_outlier": 15.0
+    },
+    {
+      "feature": "timestamp_spread_in",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 709127.6465,
+      "q3": 0.0,
+      "max": 57492528.0,
+      "std": 3376422.1402,
+      "n_outlier_iqr": 1763,
+      "pct_outlier": 20.5
+    },
+    {
+      "feature": "sent_received_ratio",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 2689420685.2739,
+      "q3": 0.9997,
+      "max": 4255000000000.0,
+      "std": 56568125228.5799,
+      "n_outlier_iqr": 1579,
+      "pct_outlier": 18.4
+    },
+    {
+      "feature": "total_sent",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 17.4468,
+      "q3": 0.3902,
+      "max": 24985.7515,
+      "std": 375.7982,
+      "n_outlier_iqr": 1837,
+      "pct_outlier": 21.4
+    },
+    {
+      "feature": "max_out_amount",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 9.8129,
+      "q3": 0.3,
+      "max": 24984.6696,
+      "std": 281.5659,
+      "n_outlier_iqr": 1809,
+      "pct_outlier": 21.0
+    },
+    {
+      "feature": "total_received",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 22.2323,
+      "q3": 0.7169,
+      "max": 27068.5479,
+      "std": 437.0446,
+      "n_outlier_iqr": 1713,
+      "pct_outlier": 19.9
+    },
+    {
+      "feature": "max_in_amount",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 10.1954,
+      "q3": 0.5682,
+      "max": 13000.0,
+      "std": 208.1393,
+      "n_outlier_iqr": 1590,
+      "pct_outlier": 18.5
+    },
+    {
+      "feature": "std_in_amount",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 1.6652,
+      "q3": 0.0,
+      "max": 3905.5392,
+      "std": 44.3162,
+      "n_outlier_iqr": 1704,
+      "pct_outlier": 19.8
+    },
+    {
+      "feature": "avg_out_amount",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 2.7762,
+      "q3": 0.1807,
+      "max": 1995.4761,
+      "std": 29.7075,
+      "n_outlier_iqr": 1795,
+      "pct_outlier": 20.9
+    },
+    {
+      "feature": "avg_in_amount",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 4.2869,
+      "q3": 0.419,
+      "max": 6247.0,
+      "std": 92.7963,
+      "n_outlier_iqr": 1359,
+      "pct_outlier": 15.8
+    },
+    {
+      "feature": "in_out_ratio",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 3.3505,
+      "q3": 1.0,
+      "max": 11066.0,
+      "std": 127.8383,
+      "n_outlier_iqr": 660,
+      "pct_outlier": 7.7
+    },
+    {
+      "feature": "transaction_count",
+      "min": 0.0,
+      "q1": 3.0,
+      "median": 8.0,
+      "mean": 51.0185,
+      "q3": 26.0,
+      "max": 10000.0,
+      "std": 309.76,
+      "n_outlier_iqr": 1132,
+      "pct_outlier": 13.2
+    },
+    {
+      "feature": "out_degree",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 1.0,
+      "mean": 5.4045,
+      "q3": 2.0,
+      "max": 2574.0,
+      "std": 44.1493,
+      "n_outlier_iqr": 903,
+      "pct_outlier": 10.5
+    },
+    {
+      "feature": "unique_receivers",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 1.0,
+      "mean": 2.6492,
+      "q3": 1.0,
+      "max": 573.0,
+      "std": 13.7193,
+      "n_outlier_iqr": 1085,
+      "pct_outlier": 12.6
+    },
+    {
+      "feature": "min_in_amount",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 3.1184,
+      "q3": 0.0611,
+      "max": 6247.0,
+      "std": 88.8062,
+      "n_outlier_iqr": 1747,
+      "pct_outlier": 20.3
+    },
+    {
+      "feature": "unique_counterparties",
+      "min": 0.0,
+      "q1": 3.0,
+      "median": 6.0,
+      "mean": 12.5262,
+      "q3": 14.0,
+      "max": 101.0,
+      "std": 15.5241,
+      "n_outlier_iqr": 897,
+      "pct_outlier": 10.4
+    },
+    {
+      "feature": "activity_score",
+      "min": 0.0,
+      "q1": 3.0,
+      "median": 8.0,
+      "mean": 22.4933,
+      "q3": 26.0,
+      "max": 100.0,
+      "std": 30.0221,
+      "n_outlier_iqr": 1137,
+      "pct_outlier": 13.2
+    },
+    {
+      "feature": "tx_frequency",
+      "min": 0.0,
+      "q1": 0.1,
+      "median": 0.2667,
+      "mean": 0.7498,
+      "q3": 0.8667,
+      "max": 3.3333,
+      "std": 1.0007,
+      "n_outlier_iqr": 1137,
+      "pct_outlier": 13.2
+    },
+    {
+      "feature": "avg_tx_value",
+      "min": 0.0,
+      "q1": 0.0033,
+      "median": 0.2229,
+      "mean": 6.1959,
+      "q3": 1.3434,
+      "max": 4000.3997,
+      "std": 73.9181,
+      "n_outlier_iqr": 1087,
+      "pct_outlier": 12.6
+    },
+    {
+      "feature": "min_out_amount",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 1.8555,
+      "q3": 0.0046,
+      "max": 1995.4761,
+      "std": 26.1416,
+      "n_outlier_iqr": 2046,
+      "pct_outlier": 23.8
+    },
+    {
+      "feature": "timestamp_spread_out",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 1828255.2951,
+      "q3": 144853.5,
+      "max": 66627072.0,
+      "std": 5408744.5883,
+      "n_outlier_iqr": 1964,
+      "pct_outlier": 22.9
+    },
+    {
+      "feature": "balance",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 0.5233,
+      "q3": 0.0013,
+      "max": 2576.3536,
+      "std": 28.3343,
+      "n_outlier_iqr": 1738,
+      "pct_outlier": 20.2
+    },
+    {
+      "feature": "std_out_amount",
+      "min": 0.0,
+      "q1": 0.0,
+      "median": 0.0,
+      "mean": 1.6671,
+      "q3": 0.0,
+      "max": 3497.8507,
+      "std": 41.9508,
+      "n_outlier_iqr": 1474,
+      "pct_outlier": 17.1
+    },
+    {
+      "feature": "graph_present",
+      "min": 1.0,
+      "q1": 1.0,
+      "median": 1.0,
+      "mean": 1.0,
+      "q3": 1.0,
+      "max": 1.0,
+      "std": 0.0,
+      "n_outlier_iqr": 0,
+      "pct_outlier": 0.0
+    }
+  ],
+  "gap5_feature_audit": [
+    {
+      "feature": "unique_senders",
+      "source": "MulDiGraph",
+      "coverage_pct": 45.8,
+      "variance": 12188.458,
+      "imp_xgb": 0.3964,
+      "imp_rf": 0.181,
+      "max_abs_corr": 0.93,
+      "corr_with": "in_degree",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "in_degree",
+      "source": "MulDiGraph",
+      "coverage_pct": 45.8,
+      "variance": 31217.7112,
+      "imp_xgb": 0.1355,
+      "imp_rf": 0.0996,
+      "max_abs_corr": 0.93,
+      "corr_with": "unique_senders",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "timestamp_spread_in",
+      "source": "MulDiGraph",
+      "coverage_pct": 20.5,
+      "variance": 11400226469122.328,
+      "imp_xgb": 0.0804,
+      "imp_rf": 0.0839,
+      "max_abs_corr": 0.411,
+      "corr_with": "timestamp_spread_out",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "sent_received_ratio",
+      "source": "MulDiGraph",
+      "coverage_pct": 34.2,
+      "variance": 3.1999527918762936e+21,
+      "imp_xgb": 0.053,
+      "imp_rf": 0.0647,
+      "max_abs_corr": 0.35,
+      "corr_with": "avg_out_amount",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "total_sent",
+      "source": "MulDiGraph",
+      "coverage_pct": 34.2,
+      "variance": 141224.2802,
+      "imp_xgb": 0.0592,
+      "imp_rf": 0.0533,
+      "max_abs_corr": 0.824,
+      "corr_with": "max_out_amount",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "max_out_amount",
+      "source": "MulDiGraph",
+      "coverage_pct": 34.2,
+      "variance": 79279.3513,
+      "imp_xgb": 0.0721,
+      "imp_rf": 0.0324,
+      "max_abs_corr": 0.972,
+      "corr_with": "std_out_amount",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "total_received",
+      "source": "MulDiGraph",
+      "coverage_pct": 44.4,
+      "variance": 191007.9781,
+      "imp_xgb": 0.0114,
+      "imp_rf": 0.0864,
+      "max_abs_corr": 0.885,
+      "corr_with": "max_in_amount",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "max_in_amount",
+      "source": "MulDiGraph",
+      "coverage_pct": 44.4,
+      "variance": 43321.9678,
+      "imp_xgb": 0.0113,
+      "imp_rf": 0.0712,
+      "max_abs_corr": 0.885,
+      "corr_with": "total_received",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "std_in_amount",
+      "source": "MulDiGraph",
+      "coverage_pct": 19.8,
+      "variance": 1963.9259,
+      "imp_xgb": 0.0046,
+      "imp_rf": 0.0686,
+      "max_abs_corr": 0.739,
+      "corr_with": "max_in_amount",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "avg_out_amount",
+      "source": "MulDiGraph",
+      "coverage_pct": 34.2,
+      "variance": 882.5346,
+      "imp_xgb": 0.0154,
+      "imp_rf": 0.0453,
+      "max_abs_corr": 0.887,
+      "corr_with": "min_out_amount",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "avg_in_amount",
+      "source": "MulDiGraph",
+      "coverage_pct": 44.4,
+      "variance": 8611.1468,
+      "imp_xgb": 0.0157,
+      "imp_rf": 0.0424,
+      "max_abs_corr": 0.959,
+      "corr_with": "min_in_amount",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "in_out_ratio",
+      "source": "MulDiGraph",
+      "coverage_pct": 45.8,
+      "variance": 16342.6293,
+      "imp_xgb": 0.0194,
+      "imp_rf": 0.0332,
+      "max_abs_corr": 0.809,
+      "corr_with": "in_degree",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "transaction_count",
+      "source": "Etherscan",
+      "coverage_pct": 99.3,
+      "variance": 95951.2863,
+      "imp_xgb": 0.0178,
+      "imp_rf": 0.015,
+      "max_abs_corr": 0.548,
+      "corr_with": "in_degree",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "out_degree",
+      "source": "MulDiGraph",
+      "coverage_pct": 74.3,
+      "variance": 1949.1592,
+      "imp_xgb": 0.0124,
+      "imp_rf": 0.0157,
+      "max_abs_corr": 0.538,
+      "corr_with": "unique_receivers",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "unique_receivers",
+      "source": "MulDiGraph",
+      "coverage_pct": 74.3,
+      "variance": 188.2194,
+      "imp_xgb": 0.0147,
+      "imp_rf": 0.013,
+      "max_abs_corr": 0.538,
+      "corr_with": "out_degree",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "min_in_amount",
+      "source": "MulDiGraph",
+      "coverage_pct": 42.6,
+      "variance": 7886.5358,
+      "imp_xgb": 0.0081,
+      "imp_rf": 0.0186,
+      "max_abs_corr": 0.959,
+      "corr_with": "avg_in_amount",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "unique_counterparties",
+      "source": "Etherscan",
+      "coverage_pct": 99.3,
+      "variance": 240.9971,
+      "imp_xgb": 0.0149,
+      "imp_rf": 0.0102,
+      "max_abs_corr": 0.778,
+      "corr_with": "tx_frequency",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "activity_score",
+      "source": "Etherscan",
+      "coverage_pct": 99.3,
+      "variance": 901.3238,
+      "imp_xgb": 0.0097,
+      "imp_rf": 0.013,
+      "max_abs_corr": 1.0,
+      "corr_with": "tx_frequency",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "tx_frequency",
+      "source": "Etherscan",
+      "coverage_pct": 99.3,
+      "variance": 1.0015,
+      "imp_xgb": 0.0106,
+      "imp_rf": 0.0117,
+      "max_abs_corr": 1.0,
+      "corr_with": "activity_score",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "avg_tx_value",
+      "source": "Etherscan",
+      "coverage_pct": 98.1,
+      "variance": 5463.89,
+      "imp_xgb": 0.0085,
+      "imp_rf": 0.0114,
+      "max_abs_corr": 0.273,
+      "corr_with": "avg_in_amount",
+      "decision": "DIPAKAI (top-20)"
+    },
+    {
+      "feature": "min_out_amount",
+      "source": "MulDiGraph",
+      "coverage_pct": 26.8,
+      "variance": 683.3812,
+      "imp_xgb": 0.0054,
+      "imp_rf": 0.0144,
+      "max_abs_corr": 0.887,
+      "corr_with": "avg_out_amount",
+      "decision": "CADANGAN (di luar top-20)"
+    },
+    {
+      "feature": "timestamp_spread_out",
+      "source": "MulDiGraph",
+      "coverage_pct": 32.8,
+      "variance": 29254518021668.332,
+      "imp_xgb": 0.0083,
+      "imp_rf": 0.0055,
+      "max_abs_corr": 0.437,
+      "corr_with": "activity_score",
+      "decision": "CADANGAN (di luar top-20)"
+    },
+    {
+      "feature": "balance",
+      "source": "Etherscan",
+      "coverage_pct": 55.6,
+      "variance": 802.831,
+      "imp_xgb": 0.0067,
+      "imp_rf": 0.0066,
+      "max_abs_corr": 0.041,
+      "corr_with": "unique_counterparties",
+      "decision": "CADANGAN (di luar top-20)"
+    },
+    {
+      "feature": "std_out_amount",
+      "source": "MulDiGraph",
+      "coverage_pct": 17.1,
+      "variance": 1759.8682,
+      "imp_xgb": 0.0086,
+      "imp_rf": 0.0031,
+      "max_abs_corr": 0.972,
+      "corr_with": "max_out_amount",
+      "decision": "CADANGAN (di luar top-20)"
+    },
+    {
+      "feature": "graph_present",
+      "source": "MulDiGraph",
+      "coverage_pct": 100.0,
+      "variance": 0.0,
+      "imp_xgb": 0.0,
+      "imp_rf": 0.0,
+      "max_abs_corr": 0.0,
+      "corr_with": "graph_present",
+      "decision": "DIBUANG (importance ~0)"
+    }
+  ],
+  "gap6_11_missingness": {
+    "etherscan_failed_fetch": 3,
+    "etherscan_failed_pct": 0.02,
+    "bigquery_missing": 8515,
+    "bigquery_missing_pct": 99.07,
+    "nan_in_final_hybrid": 0,
+    "per_column": [
+      {
+        "column": "balance",
+        "source": "Etherscan",
+        "missing_before_fill": 3,
+        "pct_missing": 0.02,
+        "policy": "zero-fill (imputasi nol)"
+      },
+      {
+        "column": "transaction_count",
+        "source": "Etherscan",
+        "missing_before_fill": 3,
+        "pct_missing": 0.02,
+        "policy": "zero-fill (imputasi nol)"
+      },
+      {
+        "column": "activity_score",
+        "source": "Etherscan",
+        "missing_before_fill": 3,
+        "pct_missing": 0.02,
+        "policy": "zero-fill (imputasi nol)"
+      },
+      {
+        "column": "avg_tx_value",
+        "source": "Etherscan",
+        "missing_before_fill": 3,
+        "pct_missing": 0.02,
+        "policy": "zero-fill (imputasi nol)"
+      },
+      {
+        "column": "tx_frequency",
+        "source": "Etherscan",
+        "missing_before_fill": 3,
+        "pct_missing": 0.02,
+        "policy": "zero-fill (imputasi nol)"
+      },
+      {
+        "column": "unique_counterparties",
+        "source": "Etherscan",
+        "missing_before_fill": 3,
+        "pct_missing": 0.02,
+        "policy": "zero-fill (imputasi nol)"
+      },
+      {
+        "column": "bq_tx_count_out",
+        "source": "BigQuery",
+        "missing_before_fill": 8515,
+        "pct_missing": 99.07,
+        "policy": "zero-fill (coverage sangat rendah, tidak dipakai produksi)"
+      },
+      {
+        "column": "bq_tx_count_in",
+        "source": "BigQuery",
+        "missing_before_fill": 8515,
+        "pct_missing": 99.07,
+        "policy": "zero-fill (coverage sangat rendah, tidak dipakai produksi)"
+      },
+      {
+        "column": "bq_total_out_eth",
+        "source": "BigQuery",
+        "missing_before_fill": 8515,
+        "pct_missing": 99.07,
+        "policy": "zero-fill (coverage sangat rendah, tidak dipakai produksi)"
+      },
+      {
+        "column": "bq_total_in_eth",
+        "source": "BigQuery",
+        "missing_before_fill": 8515,
+        "pct_missing": 99.07,
+        "policy": "zero-fill (coverage sangat rendah, tidak dipakai produksi)"
+      },
+      {
+        "column": "bq_unique_to",
+        "source": "BigQuery",
+        "missing_before_fill": 8515,
+        "pct_missing": 99.07,
+        "policy": "zero-fill (coverage sangat rendah, tidak dipakai produksi)"
+      },
+      {
+        "column": "bq_unique_from",
+        "source": "BigQuery",
+        "missing_before_fill": 8515,
+        "pct_missing": 99.07,
+        "policy": "zero-fill (coverage sangat rendah, tidak dipakai produksi)"
+      },
+      {
+        "column": "bq_active_days_out",
+        "source": "BigQuery",
+        "missing_before_fill": 8515,
+        "pct_missing": 99.07,
+        "policy": "zero-fill (coverage sangat rendah, tidak dipakai produksi)"
+      },
+      {
+        "column": "bq_active_days_in",
+        "source": "BigQuery",
+        "missing_before_fill": 8515,
+        "pct_missing": 99.07,
+        "policy": "zero-fill (coverage sangat rendah, tidak dipakai produksi)"
+      },
+      {
+        "column": "bq_first_seen_ts",
+        "source": "BigQuery",
+        "missing_before_fill": 8515,
+        "pct_missing": 99.07,
+        "policy": "zero-fill (coverage sangat rendah, tidak dipakai produksi)"
+      },
+      {
+        "column": "bq_last_seen_ts",
+        "source": "BigQuery",
+        "missing_before_fill": 8515,
+        "pct_missing": 99.07,
+        "policy": "zero-fill (coverage sangat rendah, tidak dipakai produksi)"
+      }
+    ],
+    "dead_feature": {
+      "column": "created_at_ts",
+      "constant_value": 0,
+      "nunique": 1,
+      "policy": "DIBUANG (varians nol, tidak informatif)"
+    },
+    "note": "NaN di hybrid final = 0 KARENA nilai kosong dari API sudah di-zero-fill saat build_hybrid_dataset. Tabel ini menampilkan kondisi SEBELUM zero-fill."
+  },
+  "gap7_salah_input": {
+    "negative_values": "tidak ada",
+    "inf_values": 0,
+    "nan_values": 0,
+    "duplicate_addresses": 0,
+    "created_at_ts_zero_rows": 8595,
+    "extreme_ratio_div_by_zero": {
+      "sent_received_ratio": {
+        "max": 4255000000000.0,
+        "n_gt_1e6": 1455,
+        "note": "nilai sangat besar => indikasi pembagi mendekati nol"
+      },
+      "in_out_ratio": {
+        "max": 11066.0,
+        "n_gt_1e6": 0,
+        "note": "nilai sangat besar => indikasi pembagi mendekati nol"
+      }
+    },
+    "conclusion": "Tidak ada nilai negatif, inf, NaN, atau alamat duplikat. Satu-satunya anomali struktural: created_at_ts konstan 0 (timestamp gagal terisi) -> dibuang; rasio ekstrem berasal dari pembagi mendekati nol -> ditangani via capping p1-p99."
+  }
+}

@@ -26,11 +26,24 @@ class AnalyzeRequest(BaseModel):
     )
 
 
+class FeatureContribution(BaseModel):
+    feature: str
+    value: float
+    contribution: float = Field(
+        ..., description="SHAP contribution to the phishing log-odds (+ raises risk, - lowers it).",
+    )
+
+
 class AnalyzeResponse(BaseModel):
     wallet: str
     probability: float = Field(..., ge=0.0, le=1.0)
     risk_score: int = Field(..., ge=0, le=100)
     risk_level: str = Field(..., example="HIGH")
+    is_phishing: bool = Field(..., description="Binary verdict: probability >= 0.5.")
+    verdict: str = Field(..., example="Phishing", description="'Phishing' or 'Bukan Phishing'.")
+    top_contributors: Optional[list[FeatureContribution]] = Field(
+        None, description="Top features driving the score (SHAP), explaining where the score comes from.",
+    )
     tx_hash: Optional[str] = Field(None, description="Chain tx hash, if CHAIN_ENABLED=true")
     true_label: Optional[int] = Field(
         None,

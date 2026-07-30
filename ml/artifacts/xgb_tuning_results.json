@@ -1,0 +1,93 @@
+{
+  "dataset": "hybrid_dataset_clean.csv",
+  "n_rows": 8595,
+  "features": [
+    "unique_senders",
+    "in_degree",
+    "timestamp_spread_in",
+    "sent_received_ratio",
+    "total_sent",
+    "max_out_amount",
+    "total_received",
+    "max_in_amount",
+    "std_in_amount",
+    "avg_out_amount",
+    "avg_in_amount",
+    "in_out_ratio",
+    "transaction_count",
+    "out_degree",
+    "unique_receivers",
+    "min_in_amount",
+    "unique_counterparties",
+    "activity_score",
+    "tx_frequency",
+    "avg_tx_value"
+  ],
+  "n_features": 20,
+  "cv": "StratifiedKFold(5), scoring=f1, RandomizedSearchCV(n_iter=60)",
+  "scale_pos_weight_full": 6.378,
+  "baseline_old_params": {
+    "threshold": 0.5,
+    "accuracy": 0.9732,
+    "precision": 0.8725,
+    "recall": 0.9399,
+    "f1": 0.905
+  },
+  "best_params": {
+    "colsample_bytree": 0.7016654596278955,
+    "gamma": 0.14764529420946937,
+    "learning_rate": 0.0712846452053341,
+    "max_depth": 3,
+    "min_child_weight": 1,
+    "n_estimators": 448,
+    "reg_lambda": 2.626732990730356,
+    "subsample": 0.8211279907631631
+  },
+  "cv_best_f1": 0.9295,
+  "tuned_threshold_val": 0.7407,
+  "tuned_test_thr_default": {
+    "threshold": 0.5,
+    "accuracy": 0.9732,
+    "precision": 0.861,
+    "recall": 0.9571,
+    "f1": 0.9065
+  },
+  "tuned_test_thr_tuned": {
+    "threshold": 0.7407,
+    "accuracy": 0.9721,
+    "precision": 0.8807,
+    "recall": 0.9185,
+    "f1": 0.8992
+  },
+  "imbalance_comparison": {
+    "undersampling_1to5": {
+      "threshold": 0.5,
+      "accuracy": 0.9715,
+      "precision": 0.877,
+      "recall": 0.9185,
+      "f1": 0.8973
+    },
+    "scale_pos_weight": {
+      "threshold": 0.5,
+      "accuracy": 0.9732,
+      "precision": 0.861,
+      "recall": 0.9571,
+      "f1": 0.9065
+    },
+    "sample_weight": {
+      "threshold": 0.5,
+      "accuracy": 0.9727,
+      "precision": 0.8577,
+      "recall": 0.9571,
+      "f1": 0.9047
+    }
+  },
+  "best_imbalance_strategy": "scale_pos_weight",
+  "target": {
+    "goal_f1": 0.95,
+    "min_f1": 0.85,
+    "achieved_f1": 0.9065,
+    "meets_goal": false,
+    "meets_min": true
+  }
+}

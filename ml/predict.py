@@ -110,21 +110,61 @@ def risk_level(score: int) -> str:
         return "HIGH"
 
 
-def predict_full(features: dict) -> dict:
+# Ambang keputusan biner (catatan bimbingan poin 17): proba >= 0.5 -> Phishing.
+DECISION_THRESHOLD = 0.5
+
+
+def explain(features: dict, top_n: int = 5) -> list[dict]:
     """
-    Convenience wrapper – returns probability, risk_score and risk_level.
+    Penjelasan asal skor (catatan bimbingan poin 15): kontribusi tiap fitur terhadap
+    proba phishing memakai nilai SHAP bawaan XGBoost (`pred_contribs=True`, tanpa perlu
+    paket shap eksternal). Mengembalikan `top_n` fitur dengan kontribusi terbesar
+    (nilai positif menaikkan risiko, negatif menurunkan).
+
+    Untuk model legacy sklearn (tanpa SHAP bawaan) mengembalikan list kosong.
+    """
+    _load()
+    if _kind != "xgboost":
+        return []
+
+    import xgboost as xgb
+
+    feature_cols: list = _schema["features"]
+    row = np.array([[float(features.get(col, 0.0)) for col in feature_cols]], dtype=float)
+    dmatrix = xgb.DMatrix(row, feature_names=feature_cols)
+    # pred_contribs -> [n_samples, n_features + 1]; kolom terakhir = bias
+    contribs = _model.predict(dmatrix, pred_contribs=True)[0]
+    pairs = [
+        {"feature": feature_cols[i], "value": float(row[0, i]), "contribution": float(contribs[i])}
+        for i in range(len(feature_cols))
+    ]
+    pairs.sort(key=lambda d: abs(d["contribution"]), reverse=True)
+    return pairs[:top_n]
+
+
+def predict_full(features: dict, explain_top: int = 0) -> dict:
+    """
+    Convenience wrapper – returns probability, risk_score, risk_level, dan keputusan
+    biner (is_phishing / verdict). Bila `explain_top > 0`, sertakan kontribusi fitur.
 
     Returns
     -------
-    dict with keys: probability, risk_score, risk_level
+    dict with keys: probability, risk_score, risk_level, is_phishing, verdict
+    (dan `top_contributors` bila explain_top > 0).
     """
     prob = predict_proba(features)
     score = round(prob * 100)
-    return {
+    is_phishing = prob >= DECISION_THRESHOLD
+    result = {
         "probability": prob,
         "risk_score": score,
         "risk_level": risk_level(score),
+        "is_phishing": bool(is_phishing),
+        "verdict": "Phishing" if is_phishing else "Bukan Phishing",
     }
+    if explain_top:
+        result["top_contributors"] = explain(features, top_n=explain_top)
+    return result
 
 
 # ── Quick smoke-test ───────────────────────────────────────────────────────────

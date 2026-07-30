@@ -1,0 +1,90 @@
+{
+  "experiment": "GraphSAGE-Etherscan Late Fusion",
+  "fusion_type": "embedding-level late fusion (graph-tabular)",
+  "scenario": "muldigraph_plus_etherscan",
+  "split": {
+    "test_size": 0.2,
+    "random_state": 42,
+    "stratified": true,
+    "n_train": 6876,
+    "n_test": 1719,
+    "n_train_phishing": 932,
+    "n_test_phishing": 233
+  },
+  "dimensions": {
+    "graphsage_embedding_dimension": 128,
+    "etherscan_feature_count": 7,
+    "fused_vector_dimension": 135,
+    "etherscan_features": [
+      "created_at_ts",
+      "balance",
+      "transaction_count",
+      "activity_score",
+      "avg_tx_value",
+      "tx_frequency",
+      "unique_counterparties"
+    ],
+    "graph_feature_count": 19,
+    "scenario2_tabular_feature_count": 26
+  },
+  "late_fusion": {
+    "Model": "GraphSAGE-Etherscan Late Fusion",
+    "Accuracy": 0.9726585223967423,
+    "Precision": 0.872,
+    "Recall": 0.9356223175965666,
+    "F1-score": 0.9026915113871635,
+    "ROC-AUC": 0.9921253588572022,
+    "PR-AUC": 0.9592271562073302,
+    "TN": 1454,
+    "FP": 32,
+    "FN": 15,
+    "TP": 218
+  },
+  "baselines": {
+    "xgboost_scenario2": {
+      "Model": "XGBoost tabular (Scenario 2)",
+      "Accuracy": 0.9749854566608493,
+      "Precision": 0.8861788617886179,
+      "Recall": 0.9356223175965666,
+      "F1-score": 0.9102296450939458,
+      "ROC-AUC": 0.9948041520572554,
+      "PR-AUC": 0.9701142579566242,
+      "TN": 1458,
+      "FP": 28,
+      "FN": 15,
+      "TP": 218
+    },
+    "graphsage_scenario2": {
+      "Model": "GraphSAGE (Scenario 2)",
+      "Accuracy": 0.9697498545666084,
+      "Precision": 0.8389513108614233,
+      "Recall": 0.9613733905579399,
+      "F1-score": 0.896,
+      "ROC-AUC": 0.9861468123082966,
+      "PR-AUC": 0.9225439643838902,
+      "TN": 1443,
+      "FP": 43,
+      "FN": 9,
+      "TP": 224
+    }
+  },
+  "alignment_and_leakage_checks": [
+    "train/test wallet sets disjoint (|train|=6876, |test|=1719)",
+    "all 8595 wallet_address values unique and lowercased",
+    "train + test rows account for every dataset wallet (no wallet added/dropped)",
+    "GraphSAGE input StandardScaler fitted on TRAIN rows only",
+    "GraphSAGE early stopping used a train-internal val slice (fit=5500, val=1376); test nodes excluded from loss and model selection",
+    "embeddings taken from the last SAGEConv->BatchNorm->ReLU output (pre-head, 128-d); logits/probabilities not used",
+    "graph node order == [train wallets..., test wallets...]; embedding rows aligned by position",
+    "missing Etherscan values zero-filled (same as Scenario 2 preprocessing)",
+    "Etherscan StandardScaler fitted on TRAIN rows only, then applied to TEST",
+    "embedding rows, Etherscan rows, labels and split indices refer to the same wallet in the same order"
+  ],
+  "seeds": {
+    "numpy": 42,
+    "torch": 42,
+    "sklearn_random_state": 42
+  },
+  "device": "cpu",
+  "edges_used": 654
+}

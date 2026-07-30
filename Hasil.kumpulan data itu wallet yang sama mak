@@ -1,0 +1,24 @@
+1.kumpulan data itu wallet yang sama maka dihapus bandingakan dengan muldigraph dan etherscan 
+2.Tuning Parameter dari XGBoost apakah bisa di tuning Parameter buat XGboost dan terapkan apakah nilainya bisa lebih bagus dari 91 % 
+3.harusnya dibuat seleksi dari 25 fitur itu harusnya bisa dihapus ebebrapa fitur supaya mendapatkan nilai yang lebih bagus coba pake 20 Fitur yang dipake seharusnya ada metode seleksi fitur karena fitur kalo banyak coba pake Gradient Boosting dan Random Fitur 
+4.Deteksi Outlayer saat pre Processing misalnya total akun ada transaksi berapa point lebih dari rata2 statsitsk dan deksriptif liat masing2 data berapa minnya dan berapa maxnya kalo terlalu jauh dari Rata2 kan seharunya Outlier missal dia ada balance 100 juta tapi dia missal transaksi lebih sering segitu
+5.Seluruh Fitur yang ada di Fitur2 ini seharusnya pelajari dan liat apakah berguna atau engga buat fitur kita 
+6.periksa seluruh record2 transaksi mana yang kosong kalo dihapus kenapa ? dan kalua tidak dihapus kenapa ? dan data harus clean dan tidak ada noise 
+7.data salah input bisa terjadi dan periksa buat jadi Outlayer
+8.Harusnya data Balance dan Inbalance ditampilkan seluruhnya an kenapa harus pakai Undersampling bukan Oversampling dan lain2
+9.Fitur Engineering : 
+10.Scaling : 
+11.Pastikan data kosong kosong tolong di check dlu dari 25 kolom missal yang keisi cuma 4 gitu nanti kita hapus2kan dlu atau ada yang kosong 1-2 field nanti kita ambil saja dan biasanya diambil nilai rata2 dari field beri tau di paper bahwa saya melakukan itu 
+12.Kalo boosting harusnya buat mendeteksi data yang yang tidak Undersampling seharusnya XGBoost bisa mendeteksi data yang Unbalance bisa pakai Buging Boosting
+13.buat sekenario untuk XGBoost dan GNN yang berfokus untuk 
+14.Hasil Kinerja ROC nya ada ga dan bisa ga dipake untuk data binary bisa ga Sperti dataku atau AUC untuk Model
+15.Model itu harusnya jelas darimana pendapatan scorenya berdasarkan data dari 25 fitur yang importance tadi yang dipelajari dari Machine Learning harusnya kan klasifikasi dari 0 ke 1 bagaimana cara mengubah risk dan risk berdasarkan score tolong dituliskan 
+16.harusnya kalo modelnya bagus disimpan dan di deploy baru nanti hasilnya di masukin data model akan mendeteksi bahwa data tersebut phising atau tidak phising
+17.di kategorikan saja Phising atau Tidak Phising 
+18.Deployment Model terbaik yang sudah mendapatkan Min 95 % keatas untuk F1 Score kalau bisa Min 85 
+
+
+Harus dipastikand ata2 RAW itu yang digabungkan memastikan data nya itu jangan ada noise dan clean fitur fitur yang ada juga dipastikan sama 
+IMPORTANT : 
+data centris itu data yang dirapihkan kalo fiturnya banyak yang penting2 yang mana dari 25 Fitur itu tampilkan mana yang terlalu tinggi atau tidak rata2 jumlah akun contoh jumlah balance 10 juta lalu ada 1 yang 100 juta cara batasinnya bagaimana 
+nanti tampikan di graph dlu 8596 dari Hybrid dataset mana yang paling jauh nanti di perbaiki kalo cuma 1 yang aneh bisa dibuang kalao ada banyak maka di proesesa bisa ambil 

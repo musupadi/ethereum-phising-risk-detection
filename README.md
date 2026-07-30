@@ -1,3 +1,16 @@
+# Terminal 1 — Hardhat node
+cd chain ; npx hardhat node
+
+# Terminal 2 — deploy kontrak (setelah node siap)
+cd chain ; npx hardhat run scripts/deploy.ts --network localhost
+
+# Terminal 3 — API (chain aktif)
+$env:CHAIN_ENABLED = "true"
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+
+# Terminal 4 — UI
+streamlit run app/streamlit_app.py --server.port 8502
+
 # Ethereum Phishing Risk Registry
 
 AI + Blockchain risk scoring system that:

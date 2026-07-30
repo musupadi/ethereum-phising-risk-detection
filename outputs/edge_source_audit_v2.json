@@ -1,0 +1,17 @@
+{
+  "edge_sources_used": [
+    "MulDiGraph.pkl (EPTransNet)"
+  ],
+  "edge_sources_excluded": [
+    "data/raw/etherscan_edges.csv (Etherscan-derived edges) - excluded by V2 design"
+  ],
+  "muldigraph_addresses_found": 8595,
+  "dataset_addresses_total": 8595,
+  "raw_directed_edge_entries": 528,
+  "unique_directed_edges": 264,
+  "edges_train_train": 150,
+  "edges_train_test": 95,
+  "edges_test_test": 19,
+  "self_loops_added_by_pyg_builder": 8595,
+  "note": "raw_directed_edge_entries counts every (successor/predecessor) hit and so double-counts each edge once from each endpoint; unique_directed_edges is the deduplicated set actually passed to the GNN. V1 reported 528 raw MulDiGraph entries + 126 Etherscan entries; V2 uses the MulDiGraph entries only."
+}

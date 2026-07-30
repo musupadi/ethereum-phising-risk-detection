@@ -1,0 +1,7 @@
+,,pred_normal,pred_phishing
+XGBoost_Scenario2,actual_normal,1458,28
+XGBoost_Scenario2,actual_phishing,15,218
+GraphSAGE_graph_only,actual_normal,1432,54
+GraphSAGE_graph_only,actual_phishing,34,199
+LateFusion_V2,actual_normal,1448,38
+LateFusion_V2,actual_phishing,19,214
