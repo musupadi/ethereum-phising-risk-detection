@@ -14,10 +14,10 @@ df = pd.read_csv(ARTIFACTS / "dataset_scenarios_comparison.csv")
 
 # Clean up names for display
 SCENARIO_LABELS = {
-    "muldigraph_only": "MulDiGraph Only\n(19 fitur)",
-    "muldigraph_plus_etherscan": "MulDiGraph +\nEtherscan (26 fitur)",
-    "muldigraph_plus_bigquery": "MulDiGraph +\nBigQuery (29 fitur)",
-    "muldigraph_plus_etherscan_plus_bigquery": "MulDiGraph + Etherscan\n+ BigQuery (36 fitur)",
+    "muldigraph_only": "MulDiGraph Only\n(18 fitur)",
+    "muldigraph_plus_etherscan": "MulDiGraph +\nEtherscan (25 fitur)",
+    "muldigraph_plus_bigquery": "MulDiGraph +\nBigQuery (28 fitur)",
+    "muldigraph_plus_etherscan_plus_bigquery": "MulDiGraph + Etherscan\n+ BigQuery (35 fitur)",
 }
 MODEL_LABELS = {
     "LogisticRegression": "Logistic Regression",
@@ -128,7 +128,7 @@ def fig_best_scenario_metrics():
     ax.set_xticks(x)
     ax.set_xticklabels(metric_labels, fontsize=11)
     ax.set_ylabel("Score (%)", fontsize=11)
-    ax.set_title("Performa Model pada Skenario Terbaik\n(MulDiGraph + Etherscan, 26 fitur)", fontsize=12, fontweight="bold")
+    ax.set_title("Performa Model pada Skenario Terbaik\n(MulDiGraph + Etherscan, 25 fitur)", fontsize=12, fontweight="bold")
     ax.set_ylim(78, 103)
     ax.yaxis.grid(True, alpha=0.4)
     ax.set_axisbelow(True)

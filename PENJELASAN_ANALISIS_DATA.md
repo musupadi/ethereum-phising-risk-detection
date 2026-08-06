@@ -7,6 +7,16 @@
 > **Update 2026-07-11:** seluruh tindakan yang direncanakan di sini **sudah dikerjakan** dan
 > hasilnya sudah diverifikasi (run ulang). Tiap bagian di bawah kini ditandai statusnya, dan
 > hasil lengkapnya terdokumentasi di `hasil_implementasi.md §16`.
+>
+> ⚠️ **Update 2026-08-06 — angka di dokumen ini sudah usang.** Pengecekan ini dilakukan pada
+> `hybrid_dataset.csv` versi **8.595 baris × 26 fitur**. Dataset kini dibangun ulang menjadi
+> **12.815 baris (1:10) × 25 fitur** (`graph_present` dikeluarkan dari daftar predictor menjadi
+> kolom audit). Angka yang berubah antara lain: total baris, imbalance (1:6,4 → **1:10**),
+> jumlah nilai di-capping (2.127 → **3.202**), dan coverage BigQuery (0,93% → **0,98%**).
+> **Versi terkini dari seluruh analisis ini ada di `hasil_implementasi.md` §16 dan §17**, yang
+> sudah dijalankan ulang pada dataset baru — rujuk ke sana, bukan ke angka di bawah.
+> Kesimpulan kualitatifnya tidak berubah: 0 duplikat, 0 NaN, 0 nilai negatif, sebaran skewed
+> kanan, nol bersifat struktural.
 
 ---
 

@@ -24,7 +24,7 @@ ml/artifacts/scaler.pkl
 # ── Data ──────────────────────────────────────────────────────────────────────
 # The raw EPTransNet graph is large + third-party: never re-upload it. Everything
 # else under data/ (Etherscan/BigQuery enrichment CSVs, the derived hybrid dataset,
-# train/test splits) is committed so the 8,595-wallet population is reproducible
+# train/test splits) is committed so the 12,815-wallet 1:10 population is reproducible
 # without redistributing the raw graph.
 data/raw/MulDiGraph.pkl
 data/raw/*.pkl

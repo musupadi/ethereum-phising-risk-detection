@@ -4,6 +4,16 @@
 > Dijalankan: 29 Juli 2026 · Skrip: `experiments/run_embedding_only_ablation.py`
 > Status: eksperimen baru bersufiks `_ablation` — artefak V1 dan V2 tidak tersentuh.
 
+> ⚠️ **ANGKA DI DOKUMEN INI SUDAH USANG (per 6 Agustus 2026).** Seluruh eksperimen di sini
+> dijalankan pada populasi **8.595 wallet** dengan baseline **XGBoost 26 fitur, F1 91,02%**.
+> Kedua acuan itu sudah tidak berlaku: `graph_present` dikeluarkan dari daftar fitur (menjadi
+> **25 fitur**) dan eksperimen utama kini memakai dataset **1:10 penuh, 12.815 wallet**, dengan
+> baseline **F1 89,11%** (lihat `hasil_implementasi.md` §5.5). Jalur late-fusion/ablasi **belum**
+> dijalankan ulang pada dataset baru. **Jangan kutip angka di dokumen ini ke naskah tesis**
+> sampai `experiments/run_embedding_only_ablation.py` dijalankan ulang; kesimpulan kualitatifnya
+> (topologi terlalu jarang → embedding graf kalah dari fitur tabular) kemungkinan besar tetap
+> berlaku, bahkan menguat, karena kerapatan edge justru turun pada dataset yang lebih besar.
+
 ---
 
 ## 1. Ringkasan Eksekutif

@@ -6,7 +6,7 @@ tuning yang sudah dilakukan pada XGBoost. Grid atas: hidden_dim, num_layers,
 learning_rate, dropout.
 
 Konsisten dengan `evaluate_roc.py` / `train_dataset_scenarios.py`:
-  - skenario : muldigraph_plus_etherscan (26 fitur)
+  - skenario : muldigraph_plus_etherscan (25 fitur; `graph_present` = kolom audit, bukan predictor)
   - split    : test 20% (random_state=42, stratified), identik
   - edge     : edge transaksi nyata dari MulDiGraph (diekstrak SEKALI, dipakai ulang)
   - protokol : sama dengan perbandingan tesis (agar hasil bisa dibandingkan langsung)
@@ -50,6 +50,23 @@ LAYERS = [2, 3]
 LR = [0.005, 0.01, 0.02]
 DROPOUT = [0.3, 0.5]
 SEEDS = [42, 7]  # rata-rata 2 seed untuk menstabilkan peringkat (GNN non-deterministik)
+
+
+def _xgboost_reference_f1() -> float | None:
+    """F1 XGBoost produksi sebagai pembanding, dibaca dari artefak agar selalu mutakhir.
+
+    Urutan sumber: roc_auc_report.json (protokol identik dgn tuning ini) lalu
+    prod_feature_schema.json. Mengembalikan None kalau keduanya belum ada.
+    """
+    for name, path in (("XGBoost", ARTIFACTS / "roc_auc_report.json"),
+                       ("metrics", ARTIFACTS / "prod_feature_schema.json")):
+        try:
+            blob = json.loads(path.read_text(encoding="utf-8"))
+            return float(blob[name]["f1"])
+        except (OSError, KeyError, ValueError, TypeError):
+            continue
+    log.warning("F1 XGBoost pembanding tidak ditemukan; field diisi null.")
+    return None
 
 
 def summ(y_true, y_pred, proba) -> dict:
@@ -134,7 +151,8 @@ def main() -> None:
         "best_config": best,
         "improvement_f1": round(best["f1_mean"] - baseline["f1_mean"], 4) if baseline else None,
         "all_results_sorted": results,
-        "xgboost_reference_f1": 0.9102,
+        # Dibaca dari artefak, bukan di-hardcode, supaya tidak basi saat model produksi dilatih ulang.
+        "xgboost_reference_f1": _xgboost_reference_f1(),
     }
     OUT.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     log.info("Best: hidden=%d layers=%d lr=%.3f drop=%.1f F1=%.4f | baseline F1=%.4f | -> %s",

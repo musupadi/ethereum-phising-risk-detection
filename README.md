@@ -82,12 +82,12 @@ streamlit run app/streamlit_app.py --server.port 8502
 
 ➡️ Buka **http://localhost:8502** · API docs: **http://localhost:8000/docs**
 
-> Detail lengkap + cek kesehatan ada di bagian [Menjalankan Aplikasi (Quick Start)](#menjalankan-aplikasi-quick-start--windows-powershell) di bawah. Aplikasi live memakai **model terbaik tesis: XGBoost (MulDiGraph + Etherscan, 25 fitur, F1 91,02%)** — buat ulang artefaknya dengan `python ml/train_production_model.py`.
+> Detail lengkap + cek kesehatan ada di bagian [Menjalankan Aplikasi (Quick Start)](#menjalankan-aplikasi-quick-start--windows-powershell) di bawah. Aplikasi live memakai **model terbaik tesis: XGBoost (MulDiGraph + Etherscan, 25 fitur, F1 89,11%)** — buat ulang artefaknya dengan `python ml/train_production_model.py`.
 
 ### 🧪 Contoh wallet untuk membuktikan sistem jalan
 
 Aplikasi punya **3 mode input** (pilih di sidebar):
-- **🎲 Demo (row_id)** — pilih nomor baris held-out (`prod_demo.csv`, 1.719 wallet), fitur & alamat terisi otomatis.
+- **🎲 Demo (row_id)** — pilih nomor baris held-out (`prod_demo.csv`, 2.563 wallet), fitur & alamat terisi otomatis.
 - **🔎 Scan by Address** — **tempel alamat wallet dataset**, sistem mencari fitur 25-dim-nya (18 graf + 7 Etherscan) lalu memprediksi. Hasil **tervalidasi** (ada ground-truth). Mode utama yang direkomendasikan.
 - **✍️ Manual** — isi 18 fitur graf sendiri (fitur Etherscan = 0; untuk wallet di luar dataset).
 
@@ -119,7 +119,7 @@ curl -X POST http://localhost:8000/analyze -H "Content-Type: application/json" -
 curl http://localhost:8000/risk/0x4dad23689bef624af5d1757a56135901c915fcfd
 ```
 
-> Phishing terdeteksi **HIGH (100)** dan normal **LOW (0)** → sistem bekerja sesuai harapan. Mode Demo `row_id` valid 0–1718 (1.719 baris held-out).
+> Phishing terdeteksi **HIGH (100)** dan normal **LOW (0)** → sistem bekerja sesuai harapan. Mode Demo `row_id` valid 0–2562 (2.563 baris held-out).
 
 **Mode Manual (isi fitur sendiri):** default form memakai profil **wallet normal nyata** sehingga sekali klik Analyze hasilnya **LOW**. Untuk melihat **HIGH**, ubah pola jadi mirip phishing (mis. turunkan `in_degree`/amount, naikkan `in_out_ratio`). Skor manual juga **tetap ditulis ke smart contract** selama API berjalan pada Mode B (`CHAIN_ENABLED=true`) — kalau hasil tidak masuk on-chain, pastikan API tidak dijalankan dengan `CHAIN_ENABLED=false`.
 
@@ -201,7 +201,7 @@ npm install
 
 ## Menjalankan Aplikasi (Quick Start — Windows PowerShell)
 
-Frontend **Streamlit** memanggil **FastAPI** (`:8000`), yang menjalankan model produksi **XGBoost (MulDiGraph + Etherscan, 25 fitur, F1 91,02%)** — `ml/artifacts/model_prod_xgb.json` — dan opsional menulis skor ke **smart contract**. Artefak model sudah tersedia, jadi tidak perlu training ulang untuk demo (regenerasi: `python ml/train_production_model.py`).
+Frontend **Streamlit** memanggil **FastAPI** (`:8000`), yang menjalankan model produksi **XGBoost (MulDiGraph + Etherscan, 25 fitur, F1 89,11%)** — `ml/artifacts/model_prod_xgb.json` — dan opsional menulis skor ke **smart contract**. Artefak model sudah tersedia, jadi tidak perlu training ulang untuk demo (regenerasi: `python ml/train_production_model.py`).
 
 > Prasyarat: `pip install -r requirements.txt` sudah dijalankan. Tiap blok di bawah dijalankan di terminal terpisah.
 
@@ -314,7 +314,7 @@ Bila dinyalakan, `POST /analyze` punya dua jalur:
 
 | Wallet | Model | Fitur | Dicatat on-chain? |
 |---|---|---|---|
-| Ada di `hybrid_dataset.csv` (8.595 alamat) | **Model tesis** `ml/artifacts/model_prod_xgb.json` — XGBoost 25 fitur, F1 91,02% | precomputed | ✅ ya |
+| Ada di `hybrid_dataset.csv` (12.815 alamat) | **Model tesis** `ml/artifacts/model_prod_xgb.json` — XGBoost 25 fitur, F1 89,11% | precomputed | ✅ ya |
 | Di luar dataset | **Model perluasan** `new_system/artifacts/model_live_xgb.json` | diambil live dari Etherscan | ❌ tidak pernah |
 
 Hasil mode live selalu ditandai `out_of_distribution: true` dan disertai `warning`.

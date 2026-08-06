@@ -8,16 +8,18 @@ from sklearn.metrics import ConfusionMatrixDisplay
 
 ARTIFACTS = Path(__file__).resolve().parent / "artifacts"
 
-# Numbers from run today (MulDiGraph + Etherscan, n=1719 test)
+# Numbers from the 1:10 run (12.815 alamat; skenario MulDiGraph + Etherscan, n=2563 test).
+# XGBoost & GNN diambil dari ml/artifacts/dataset_scenarios_comparison.csv (run 6 Agustus 2026);
+# LR & RF adalah baseline EPTransNet 1:10 (§5.3).
 CMS = {
     "xgboost": {
-        "cm": np.array([[1458, 28], [15, 218]]),
-        "title": "XGBoost – Confusion Matrix\n(Skenario MulDiGraph + Etherscan, n=1.719)",
+        "cm": np.array([[2288, 42], [12, 221]]),
+        "title": "XGBoost – Confusion Matrix\n(Skenario MulDiGraph + Etherscan, n=2.563)",
         "fname": "thesis_cm_xgboost.png",
     },
     "gnn": {
-        "cm": np.array([[1443, 43], [9, 224]]),
-        "title": "GNN-GraphSAGE V2 – Confusion Matrix\n(Skenario MulDiGraph + Etherscan, n=1.719)",
+        "cm": np.array([[2271, 59], [13, 220]]),
+        "title": "GNN-GraphSAGE V2 – Confusion Matrix\n(Skenario MulDiGraph + Etherscan, n=2.563)",
         "fname": "thesis_cm_gnn.png",
     },
     "rf": {

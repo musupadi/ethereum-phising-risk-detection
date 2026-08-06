@@ -5,7 +5,7 @@ Fetch transaction edges between hybrid-dataset addresses using Etherscan txlist.
 
 For each address in hybrid_dataset.csv, this script queries Etherscan for normal
 transactions, internal transactions, and ERC-20 token transfers, then records
-every counterparty that is ALSO in the 8595-node hybrid dataset. The resulting
+every counterparty that is ALSO in the hybrid dataset (12,815 nodes at 1:10). The resulting
 edge list supplements the sparse MulDiGraph edges used by GNN-GraphSAGE V2.
 
 Output:
@@ -70,7 +70,7 @@ def main() -> None:
         print("Run ml/build_hybrid_dataset.py first.")
         return
 
-    # Load all 8595 node addresses
+    # Load every node address in the hybrid dataset
     df = pd.read_csv(HYBRID_CSV)
     all_addresses = set(df["node_id"].astype(str).str.lower())
     address_list  = sorted(all_addresses)  # deterministic order

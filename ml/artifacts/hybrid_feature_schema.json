@@ -36,7 +36,9 @@
     "bq_first_seen_ts",
     "bq_last_seen_ts"
   ],
-  "audit_columns": ["graph_present"],
+  "audit_columns": [
+    "graph_present"
+  ],
   "feature_groups": {
     "graph": [
       "in_degree",
@@ -200,7 +202,7 @@
   "node_id": "node_id",
   "dataset": "hybrid_graph_plus_etherscan_with_optional_bigquery",
   "normal_ratio": 0,
-  "rows_full": 8595,
-  "rows_final": 8595,
+  "rows_full": 12815,
+  "rows_final": 12815,
   "bigquery_enrichment_used": true
 }

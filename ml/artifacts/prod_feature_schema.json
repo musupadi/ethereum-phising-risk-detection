@@ -26,17 +26,17 @@
     "tx_frequency",
     "unique_counterparties"
   ],
-  "audit_columns": ["graph_present"],
+  "audit_columns": [
+    "graph_present"
+  ],
   "label": "label",
   "node_id": "node_id",
   "model_type": "xgboost",
   "scenario": "muldigraph_plus_etherscan",
   "metrics": {
-    "accuracy": 0.975,
-    "precision": 0.8862,
-    "recall": 0.9356,
-    "f1": 0.9102
-  },
-  "stale_pending_retrain": true,
-  "retrain_note": "features trimmed from 26 to 25 (graph_present moved to audit_columns) on 2026-08-06; model_prod_xgb.json and the metrics above still reflect the old 26-feature booster. Run `python ml/build_hybrid_dataset.py && python ml/train_production_model.py` with the real MulDiGraph.pkl + enrichment CSVs to regenerate both, then remove this field."
+    "accuracy": 0.9789,
+    "precision": 0.8403,
+    "recall": 0.9485,
+    "f1": 0.8911
+  }
 }

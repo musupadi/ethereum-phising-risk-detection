@@ -6,77 +6,77 @@
     "timestamp_spread_in",
     "sent_received_ratio",
     "total_sent",
-    "max_out_amount",
+    "std_in_amount",
+    "in_out_ratio",
+    "avg_in_amount",
     "total_received",
     "max_in_amount",
-    "std_in_amount",
     "avg_out_amount",
-    "avg_in_amount",
-    "in_out_ratio",
+    "max_out_amount",
     "transaction_count",
-    "out_degree",
     "unique_receivers",
     "min_in_amount",
-    "unique_counterparties",
+    "out_degree",
     "activity_score",
-    "tx_frequency",
-    "avg_tx_value"
+    "unique_counterparties",
+    "avg_tx_value",
+    "tx_frequency"
   ],
   "n_features": 20,
-  "test_size": 1719,
+  "test_size": 2563,
   "n_phishing_test": 233,
-  "train_original_balance": "5944:932",
+  "train_original_balance": "9320:932",
   "note": "Resampling hanya pada train (anti-leakage); test asli. Model resampling memakai scale_pos_weight=1 agar tidak dobel-koreksi imbalance.",
   "results": {
     "scale_pos_weight": {
-      "accuracy": 0.9732,
+      "accuracy": 0.9797,
+      "precision": 0.8494,
+      "recall": 0.9442,
+      "f1": 0.8943,
+      "roc_auc": 0.9941,
+      "pr_auc": 0.9598
+    },
+    "SMOTE": {
+      "accuracy": 0.9778,
+      "precision": 0.8359,
+      "recall": 0.9399,
+      "f1": 0.8848,
+      "roc_auc": 0.993,
+      "pr_auc": 0.9495,
+      "train_size_after": 18640,
+      "balance_after": "9320:9320"
+    },
+    "BorderlineSMOTE": {
+      "accuracy": 0.9821,
       "precision": 0.861,
       "recall": 0.9571,
       "f1": 0.9065,
-      "roc_auc": 0.9942,
-      "pr_auc": 0.9646
-    },
-    "SMOTE": {
-      "accuracy": 0.9732,
-      "precision": 0.8667,
-      "recall": 0.9485,
-      "f1": 0.9057,
-      "roc_auc": 0.9941,
-      "pr_auc": 0.9641,
-      "train_size_after": 11888,
-      "balance_after": "5944:5944"
-    },
-    "BorderlineSMOTE": {
-      "accuracy": 0.9715,
-      "precision": 0.8651,
-      "recall": 0.9356,
-      "f1": 0.899,
-      "roc_auc": 0.9937,
-      "pr_auc": 0.9598,
-      "train_size_after": 11888,
-      "balance_after": "5944:5944"
+      "roc_auc": 0.9944,
+      "pr_auc": 0.9543,
+      "train_size_after": 18640,
+      "balance_after": "9320:9320"
     },
     "SMOTETomek": {
-      "accuracy": 0.9738,
-      "precision": 0.8615,
-      "recall": 0.9614,
-      "f1": 0.9087,
-      "roc_auc": 0.9942,
-      "pr_auc": 0.9632,
-      "train_size_after": 11306,
-      "balance_after": "5653:5653"
+      "accuracy": 0.977,
+      "precision": 0.8271,
+      "recall": 0.9442,
+      "f1": 0.8818,
+      "roc_auc": 0.9927,
+      "pr_auc": 0.9484,
+      "train_size_after": 17876,
+      "balance_after": "8938:8938"
     },
     "RandomOverSampler": {
-      "accuracy": 0.9738,
-      "precision": 0.8643,
-      "recall": 0.9571,
-      "f1": 0.9084,
-      "roc_auc": 0.9943,
-      "pr_auc": 0.9655,
-      "train_size_after": 11888,
-      "balance_after": "5944:5944"
+      "accuracy": 0.9813,
+      "precision": 0.8571,
+      "recall": 0.9528,
+      "f1": 0.9024,
+      "roc_auc": 0.9944,
+      "pr_auc": 0.9615,
+      "train_size_after": 18640,
+      "balance_after": "9320:9320"
     }
   },
-  "best_by_f1": "SMOTETomek",
-  "conclusion": "'SMOTETomek' memberikan F1 tertinggi (0.9087). Dibandingkan dengan hasil di xgb_tuning_results.json untuk keputusan akhir."
+  "best_by_f1": "BorderlineSMOTE",
+  "conclusion": "'BorderlineSMOTE' memberikan F1 tertinggi (0.9065). Dibandingkan dengan hasil di xgb_tuning_results.json untuk keputusan akhir."
 }

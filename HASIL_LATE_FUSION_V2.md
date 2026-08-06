@@ -4,6 +4,15 @@
 > Dijalankan: 29 Juli 2026 · Skrip: `experiments/run_graphsage_etherscan_late_fusion_v2.py`
 > Status: eksperimen baru — tidak mengubah metrik, artefak, maupun kesimpulan tesis yang sudah ada.
 
+> ⚠️ **ANGKA DI DOKUMEN INI SUDAH USANG (per 6 Agustus 2026).** Dijalankan pada populasi
+> **8.595 wallet** (split 6.876/1.719) dengan baseline **XGBoost 26 fitur, F1 91,02%** — termasuk
+> `assert` yang mengunci reproduksi ke angka tersebut. Eksperimen utama kini memakai dataset
+> **1:10 penuh (12.815 wallet, split 10.252/2.563)** dan skema **25 fitur** dengan baseline
+> **F1 89,11%** (lihat `hasil_implementasi.md` §5.5). Konsekuensinya
+> `experiments/run_graphsage_etherscan_late_fusion_v2.py` **akan gagal di `assert`-nya** bila
+> dijalankan pada dataset baru — nilai acuan di skrip perlu diperbarui lebih dulu. **Jangan kutip
+> angka di dokumen ini ke naskah tesis** sampai eksperimen dijalankan ulang.
+
 ---
 
 ## 1. Ringkasan Eksekutif
