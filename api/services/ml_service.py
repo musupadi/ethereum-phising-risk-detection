@@ -51,8 +51,11 @@ def _load_lookup_df() -> pd.DataFrame:
 
 
 # Non-feature / string metadata columns that must never be fed to the model.
+# graph_present is a join-quality audit flag (MulDiGraph coverage), not a
+# predictor — the schema already excludes it, but it's dropped here too so a
+# manual-mode feature dict can never sneak it in.
 _META_COLS = {"label", "node_id", "address", "class_name", "source_dataset",
-              "error", "_split", "_addr"}
+              "error", "_split", "_addr", "graph_present"}
 
 
 def _row_features(row) -> Dict[str, float]:
@@ -97,7 +100,7 @@ def predict_from_row(row_id: int) -> dict:
 
 def _predict_live(wallet: str) -> dict:
     """
-    Mode scan live: wallet TIDAK ada di dataset, jadi ke-26 fiturnya dihitung
+    Mode scan live: wallet TIDAK ada di dataset, jadi ke-25 fiturnya dihitung
     langsung dari Etherscan lalu dinilai oleh MODEL PRODUKSI YANG SAMA.
 
     Tidak ada model kedua dan tidak ada pelatihan ulang di sini — yang berganti

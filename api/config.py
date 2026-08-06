@@ -50,7 +50,8 @@ MODEL_VERSION: str = os.getenv("MODEL_VERSION", "xgb-eth-v1")
 
 # ── ML ────────────────────────────────────────────────────────────────────────
 ARTIFACTS_DIR: Path = ROOT / "ml" / "artifacts"
-# Production demo/lookup sources (XGBoost MulDiGraph+Etherscan, 26 features).
+# Production demo/lookup sources (XGBoost MulDiGraph+Etherscan, 25 features;
+# graph_present is a join-quality audit column, not a predictor).
 # Falls back to the legacy 18-feature CSVs if the production demo set is absent.
 _PROD_DEMO: Path = ROOT / "data" / "processed" / "prod_demo.csv"
 _HYBRID: Path = ROOT / "data" / "processed" / "hybrid_dataset.csv"

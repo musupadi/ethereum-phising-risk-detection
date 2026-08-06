@@ -93,6 +93,10 @@ META_COLS = [
     "source_dataset",
 ]
 
+# graph_present is a join-quality audit flag (1 = address found in MulDiGraph),
+# not a wallet-behavior signal. It must never enter the ML feature list.
+AUDIT_COLS = ["graph_present"]
+
 
 def find_graph_path() -> Path | None:
     for path in GRAPH_CANDIDATES:
@@ -295,7 +299,7 @@ def main() -> None:
 
     feature_cols = [
         c for c in final_df.columns
-        if c not in {"address", "node_id", "label", "class_name", "source_dataset", "error", "graph_label"}
+        if c not in {"address", "node_id", "label", "class_name", "source_dataset", "error", "graph_label", *AUDIT_COLS}
     ]
     etherscan_features = [c for c in ["created_at_ts"] + NUMERIC_ONCHAIN_COLS if c in final_df.columns]
     bigquery_features = [c for c in NUMERIC_BIGQUERY_COLS if c in final_df.columns]
@@ -312,6 +316,7 @@ def main() -> None:
 
     schema = {
         "features": feature_cols,
+        "audit_columns": AUDIT_COLS,
         "feature_groups": {
             "graph": graph_features,
             "etherscan": etherscan_features,

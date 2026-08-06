@@ -1,8 +1,10 @@
 """
 ml/live_features.py
 -------------------
-Ekstraksi 26 fitur produksi untuk wallet DI LUAR dataset penelitian, langsung
-dari Etherscan — tanpa MulDiGraph, tanpa model baru, tanpa retraining.
+Ekstraksi 25 fitur produksi (18 graf + 7 Etherscan) untuk wallet DI LUAR dataset
+penelitian, langsung dari Etherscan — tanpa MulDiGraph, tanpa model baru, tanpa
+retraining. `graph_present` TIDAK dihitung di sini: kolom itu hanya audit
+kualitas join MulDiGraph di dataset training, bukan fitur ML.
 
 Alasan ini mungkin: ke-20 fitur graf di `ml/preprocess.py:extract_node_features`
 semuanya bersifat LOKAL 1-hop (siapa mengirim ke node ini, siapa yang dikirimi,
@@ -201,7 +203,7 @@ def _graph_features_from_txs(address: str, txs: List[dict]) -> Dict[str, float]:
     }
 
 
-# ── Perakitan 26 fitur ────────────────────────────────────────────────────────
+# ── Perakitan 25 fitur ────────────────────────────────────────────────────────
 
 def build_live_features(
     address: str,
@@ -210,7 +212,7 @@ def build_live_features(
     request_delay: float = 0.25,
 ) -> Dict[str, Any]:
     """
-    Susun 26 fitur produksi untuk `address` dari data Etherscan terkini.
+    Susun 25 fitur produksi untuk `address` dari data Etherscan terkini.
 
     Raises
     ------
@@ -219,7 +221,7 @@ def build_live_features(
 
     Returns
     -------
-    dict dengan kunci: features (26 fitur), n_transactions, insufficient_data.
+    dict dengan kunci: features (25 fitur), n_transactions, insufficient_data.
     """
     key = api_key or os.getenv("ETHERSCAN_API_KEY", "").strip()
     if not key:
@@ -258,13 +260,13 @@ def build_live_features(
     features["tx_frequency"] = float(info.get("tx_frequency", 0.0) or 0.0)
     features["unique_counterparties"] = float(info.get("unique_counterparties", 0) or 0)
 
-    # 3) Dua fitur mati. Pada hybrid_dataset.csv keduanya KONSTAN di seluruh 8.595
-    #    baris (created_at_ts = 0, graph_present = 1), sehingga XGBoost tidak
-    #    pernah membuat split atasnya — gain keduanya tepat 0.00%. Nilainya di
-    #    sini tidak memengaruhi skor sama sekali; disamakan dengan training demi
-    #    kesebandingan, bukan demi akurasi.
+    # 3) created_at_ts konstan 0 di hybrid_dataset.csv (Etherscan tidak pernah
+    #    mengisi created_at saat enrichment), jadi XGBoost tidak pernah membuat
+    #    split atasnya — gain-nya 0.00%. Diisi di sini demi kesebandingan dengan
+    #    training, bukan demi akurasi. `graph_present` SENGAJA tidak dihitung:
+    #    itu kolom audit join MulDiGraph, bukan salah satu dari 25 fitur model
+    #    (lihat prod_feature_schema.json -> audit_columns).
     features["created_at_ts"] = 0.0
-    features["graph_present"] = 1.0
 
     n_tx = len(txs)
     return {

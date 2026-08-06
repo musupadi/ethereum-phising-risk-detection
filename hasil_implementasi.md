@@ -3,6 +3,16 @@
 > Dokumen ini mencatat hasil nyata dari implementasi sistem, berdasarkan blueprint di `code.md`.
 > Dibuat: 3 Maret 2026
 > Update terakhir: 13 Juli 2026 (§17 pendalaman audit 18 catatan: merge audit, statistik deskriptif, audit fitur, missingness pra-zero-fill, salah input, SMOTE empiris, PR-AUC, tuning GNN, output biner utama)
+>
+> **Koreksi 6 Agustus 2026:** skenario `muldigraph_plus_etherscan` sebelumnya disebut "26 fitur"
+> karena `graph_present` (flag audit cakupan join MulDiGraph, bukan perilaku wallet) ikut
+> dihitung sebagai predictor. Skema fitur & kode (`build_hybrid_dataset.py`,
+> `train_production_model.py`, `hybrid_feature_schema.json`, `prod_feature_schema.json`) sudah
+> diperbaiki agar skenario ini benar **25 fitur** (18 graf + 7 Etherscan) dan `graph_present`
+> hanya muncul di `audit_columns`. Angka F1/precision/recall/AUC di bawah ini masih berasal dari
+> model 26-fitur lama — **harus dijalankan ulang** (`python ml/build_hybrid_dataset.py && python
+> ml/train_production_model.py && python ml/train_dataset_scenarios.py`) untuk memvalidasi ulang
+> angka pada skema 25-fitur yang benar sebelum dikutip di naskah final.
 
 ---
 

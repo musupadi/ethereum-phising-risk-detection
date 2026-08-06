@@ -2,14 +2,16 @@
 ml/train_production_model.py
 ----------------------------
 Train and persist the *production* model served by the API / Streamlit demo:
-XGBoost on the best thesis scenario = MulDiGraph + Etherscan (26 features),
-F1 ≈ 91% (see hasil_implementasi.md §5.5, scenario `muldigraph_plus_etherscan`).
+XGBoost on the best thesis scenario = MulDiGraph + Etherscan (18 graph-derived +
+7 Etherscan-derived = 25 predictors; see hasil_implementasi.md §5.5, scenario
+`muldigraph_plus_etherscan`). `graph_present` is a join-quality audit flag, not
+a predictor — it is excluded from the feature list by the hybrid schema.
 
 It reproduces the exact split/config used in ml/train_dataset_scenarios.py so the
 served model matches the reported numbers, then writes:
   - ml/artifacts/model_prod_xgb.json   – XGBoost booster (servable)
-  - ml/artifacts/prod_feature_schema.json – 26 feature names (ordered) + metadata
-  - data/processed/prod_demo.csv       – held-out test rows (node_id + label + 26 feats)
+  - ml/artifacts/prod_feature_schema.json – 25 feature names (ordered) + metadata
+  - data/processed/prod_demo.csv       – held-out test rows (node_id + label + 25 feats)
                                          used for Streamlit "Demo (row_id)" mode
 
 Run:  python ml/train_production_model.py
@@ -73,6 +75,7 @@ def main() -> None:
     model.save(MODEL_OUT)
     SCHEMA_OUT.write_text(json.dumps({
         "features": feature_cols,
+        "audit_columns": schema.get("audit_columns", ["graph_present"]),
         "label": "label",
         "node_id": "node_id",
         "model_type": "xgboost",

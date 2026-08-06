@@ -230,7 +230,8 @@ def ensure_external_proxy_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def derive_feature_groups(df: pd.DataFrame) -> tuple[list[str], list[str], list[str]]:
-    drop_meta = {"label", "node_id", "address", "class_name", "source_dataset", "error"}
+    # graph_present is a join-quality audit flag, not a wallet-behavior feature.
+    drop_meta = {"label", "node_id", "address", "class_name", "source_dataset", "error", "graph_present"}
     etherscan_features = [
         c for c in [
             "created_at_ts",

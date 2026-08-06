@@ -2,11 +2,11 @@
 ml/predict.py
 -------------
 Inference helper for the *production* model served by the API / Streamlit demo:
-XGBoost on the best thesis scenario (MulDiGraph + Etherscan, 26 features, F1 ≈ 91%).
+XGBoost on the best thesis scenario (MulDiGraph + Etherscan, 25 features, F1 ≈ 91%).
 
 Loads:
   - ml/artifacts/model_prod_xgb.json     (XGBoost booster)
-  - ml/artifacts/prod_feature_schema.json (26 ordered feature names)
+  - ml/artifacts/prod_feature_schema.json (25 ordered feature names)
 Falls back to the legacy Random Forest (model.pkl + feature_schema.json) if the
 production artifacts are missing, so older setups keep working.
 
@@ -46,8 +46,20 @@ def _load():
 
         booster = xgb.Booster()
         booster.load_model(str(PROD_MODEL))
+        schema = json.loads(PROD_SCHEMA.read_text(encoding="utf-8"))
+
+        booster_names = booster.feature_names or []
+        if booster_names and set(booster_names) != set(schema["features"]):
+            raise RuntimeError(
+                f"{PROD_SCHEMA.name} lists {len(schema['features'])} features but "
+                f"{PROD_MODEL.name} was trained on {len(booster_names)} features — they "
+                f"no longer match (e.g. after excluding graph_present from the schema). "
+                f"Retrain with: python ml/build_hybrid_dataset.py && "
+                f"python ml/train_production_model.py"
+            )
+
         _model = booster
-        _schema = json.loads(PROD_SCHEMA.read_text(encoding="utf-8"))
+        _schema = schema
         _kind = "xgboost"
         log.info("Loaded production XGBoost model (%d features) from %s",
                  len(_schema["features"]), PROD_MODEL)

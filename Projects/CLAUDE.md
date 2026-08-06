@@ -23,7 +23,9 @@ understand before touching `ml/`:
    `muldigraph_plus_etherscan_plus_bigquery`). Produces the tables/figures/confusion
    matrices under `ml/artifacts/`. This is *evaluation*, not what gets served.
 2. **Production/served model** (`ml/train_production_model.py`) — trains the single model
-   the API actually loads: **XGBoost on MulDiGraph+Etherscan, 26 features, F1 ≈ 91%**.
+   the API actually loads: **XGBoost on MulDiGraph+Etherscan, 25 features (18 graph +
+   7 Etherscan), F1 ≈ 91%**. `graph_present` is a join-coverage audit column, listed
+   separately under `audit_columns` in the schema — it is never fed to the model.
    Writes `ml/artifacts/model_prod_xgb.json` + `prod_feature_schema.json` and the
    held-out demo set `data/processed/prod_demo.csv`.
 

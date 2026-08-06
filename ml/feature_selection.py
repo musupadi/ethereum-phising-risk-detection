@@ -1,9 +1,12 @@
 """
 ml/feature_selection.py
 -----------------------
-Seleksi fitur (catatan bimbingan poin 3,5,9,10): dari 25 fitur skenario
+Seleksi fitur (catatan bimbingan poin 3,5,9,10): dari fitur skenario
 MulDiGraph+Etherscan, tentukan subset terbaik memakai importance (XGBoost gain + RF)
 dan pemangkasan korelasi tinggi. Bandingkan F1 set penuh vs tereduksi.
+
+`graph_present` (audit join MulDiGraph) dan `created_at_ts` (konstan 0 di data ini)
+dikeluarkan dari daftar di bawah — keduanya bukan fitur perilaku wallet.
 
 Anti-leakage: capping (p1..p99) & scaling di-fit HANYA pada data train, lalu diterapkan
 ke test. Imbalance ditangani lewat scale_pos_weight (bukan buang data).
@@ -43,13 +46,15 @@ OUTDIR.mkdir(parents=True, exist_ok=True)
 CLEAN = PROCESSED / "hybrid_dataset_clean.csv"
 REPORT = ARTIFACTS / "feature_selection_report.json"
 
-# 25 fitur skenario MulDiGraph+Etherscan (prod 26 - created_at_ts yang sudah dibuang)
+# Fitur skenario MulDiGraph+Etherscan yang tersedia di hybrid_dataset_clean.csv
+# (graph_present dikeluarkan sebagai audit; created_at_ts sudah dibuang oleh
+# clean_hybrid_dataset.py karena konstan di data ini).
 SCENARIO_FEATS = [
     "in_degree", "out_degree", "unique_senders", "unique_receivers",
     "total_received", "total_sent", "avg_in_amount", "avg_out_amount",
     "max_in_amount", "max_out_amount", "min_in_amount", "min_out_amount",
     "std_in_amount", "std_out_amount", "in_out_ratio", "sent_received_ratio",
-    "timestamp_spread_in", "timestamp_spread_out", "graph_present",
+    "timestamp_spread_in", "timestamp_spread_out",
     "balance", "transaction_count", "activity_score", "avg_tx_value",
     "tx_frequency", "unique_counterparties",
 ]
@@ -136,7 +141,7 @@ def main():
     ranked = list(imp["feature"])
     ranked_pruned = [f for f in ranked if f not in drop_corr]
     experiments = {
-        "full_25": ranked,
+        "full": ranked,
         "corr_pruned": ranked_pruned,
         "top_20": ranked[:20],
         "top_18": ranked[:18],
@@ -163,7 +168,7 @@ def main():
 
     # --- Simpan report ---
     REPORT.write_text(json.dumps({
-        "scenario": "muldigraph_plus_etherscan (clean, created_at_ts dibuang)",
+        "scenario": "muldigraph_plus_etherscan (clean, created_at_ts dibuang, graph_present sebagai audit)",
         "n_features_input": len(feats),
         "scale_pos_weight": round(spw, 3),
         "importance_ranking": imp[["feature", "xgb_n", "rf_n", "combined"]].round(5).to_dict("records"),

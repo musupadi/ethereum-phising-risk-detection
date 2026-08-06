@@ -76,7 +76,7 @@ def main() -> None:
     fig, ax = plt.subplots(figsize=(6.2, 6.4))
     ax.barh([feats[i] for i in order], imp[order], color="#4C78A8")
     ax.set_xlabel("Importance (gain)")
-    ax.set_title("Top Feature Importances (XGBoost production, 26 features)")
+    ax.set_title(f"Top Feature Importances (XGBoost production, {len(feats)} features)")
     fig.tight_layout()
     out_fi = ART / "prod_feature_importance_xgb.png"
     fig.savefig(out_fi, dpi=130)

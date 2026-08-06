@@ -42,7 +42,9 @@ OUT_CLEAN = PROCESSED / "hybrid_dataset_clean.csv"
 OUT_CAPPED = PROCESSED / "hybrid_dataset_capped.csv"
 REPORT = ARTIFACTS / "cleaning_report.json"
 
-META_COLS = ["address", "label", "class_name", "source_dataset", "node_id"]
+# graph_present = audit flag kualitas join MulDiGraph, bukan fitur ML -> dikeluarkan
+# dari feature_cols di sini juga (tetap disimpan di CSV untuk keperluan audit).
+META_COLS = ["address", "label", "class_name", "source_dataset", "node_id", "graph_present"]
 DROP_FEATURES = ["created_at_ts"]  # konstan 0 di semua baris
 CAP_LOW, CAP_HIGH = 0.01, 0.99     # winsorize p1..p99
 

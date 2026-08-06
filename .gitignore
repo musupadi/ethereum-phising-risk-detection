@@ -21,9 +21,13 @@ ml/artifacts/model.pkl
 ml/artifacts/scaler.pkl
 # Keep plots and schema in git (they're small)
 
-# ── Data (large files) ────────────────────────────────────────────────────────
-data/raw/
-data/processed/
+# ── Data ──────────────────────────────────────────────────────────────────────
+# The raw EPTransNet graph is large + third-party: never re-upload it. Everything
+# else under data/ (Etherscan/BigQuery enrichment CSVs, the derived hybrid dataset,
+# train/test splits) is committed so the 8,595-wallet population is reproducible
+# without redistributing the raw graph.
+data/raw/MulDiGraph.pkl
+data/raw/*.pkl
 Ethereum Phishing Transaction Network/
 
 # ── Node / Hardhat ────────────────────────────────────────────────────────────

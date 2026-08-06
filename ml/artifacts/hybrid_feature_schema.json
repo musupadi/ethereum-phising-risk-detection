@@ -25,7 +25,6 @@
     "sent_received_ratio",
     "timestamp_spread_in",
     "timestamp_spread_out",
-    "graph_present",
     "bq_tx_count_out",
     "bq_tx_count_in",
     "bq_total_out_eth",
@@ -37,6 +36,7 @@
     "bq_first_seen_ts",
     "bq_last_seen_ts"
   ],
+  "audit_columns": ["graph_present"],
   "feature_groups": {
     "graph": [
       "in_degree",
@@ -56,8 +56,7 @@
       "in_out_ratio",
       "sent_received_ratio",
       "timestamp_spread_in",
-      "timestamp_spread_out",
-      "graph_present"
+      "timestamp_spread_out"
     ],
     "etherscan": [
       "created_at_ts",
@@ -100,8 +99,7 @@
       "in_out_ratio",
       "sent_received_ratio",
       "timestamp_spread_in",
-      "timestamp_spread_out",
-      "graph_present"
+      "timestamp_spread_out"
     ],
     "muldigraph_plus_etherscan": [
       "in_degree",
@@ -122,7 +120,6 @@
       "sent_received_ratio",
       "timestamp_spread_in",
       "timestamp_spread_out",
-      "graph_present",
       "created_at_ts",
       "balance",
       "transaction_count",
@@ -150,7 +147,6 @@
       "sent_received_ratio",
       "timestamp_spread_in",
       "timestamp_spread_out",
-      "graph_present",
       "bq_tx_count_out",
       "bq_tx_count_in",
       "bq_total_out_eth",
@@ -181,7 +177,6 @@
       "sent_received_ratio",
       "timestamp_spread_in",
       "timestamp_spread_out",
-      "graph_present",
       "created_at_ts",
       "balance",
       "transaction_count",

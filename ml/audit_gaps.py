@@ -34,13 +34,14 @@ BQ_ENR = ROOT / "data" / "raw" / "addresses_bigquery_enriched.csv"
 FS_REPORT = ROOT / "ml" / "artifacts" / "feature_selection_report.json"
 OUT = ROOT / "ml" / "artifacts" / "audit_report.json"
 
-# 25 fitur inti (setelah created_at_ts dibuang) — urutan dari feature_selection_report.
+# Fitur inti (setelah created_at_ts dibuang sbg konstan; graph_present dikeluarkan
+# sebagai audit kualitas join, bukan fitur) — urutan dari feature_selection_report.
 CORE_25 = [
     "unique_senders", "in_degree", "timestamp_spread_in", "sent_received_ratio", "total_sent",
     "max_out_amount", "total_received", "max_in_amount", "std_in_amount", "avg_out_amount",
     "avg_in_amount", "in_out_ratio", "transaction_count", "out_degree", "unique_receivers",
     "min_in_amount", "unique_counterparties", "activity_score", "tx_frequency", "avg_tx_value",
-    "min_out_amount", "timestamp_spread_out", "balance", "std_out_amount", "graph_present",
+    "min_out_amount", "timestamp_spread_out", "balance", "std_out_amount",
 ]
 # Fitur graf (dari MulDiGraph) vs fitur atribut (dari Etherscan)
 ETHERSCAN_FEATS = ["balance", "transaction_count", "activity_score", "avg_tx_value",
