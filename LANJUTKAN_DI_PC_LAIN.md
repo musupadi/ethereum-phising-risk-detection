@@ -1,5 +1,44 @@
 # Lanjutkan di PC yang punya data — fix `graph_present` (26 → 25 fitur)
 
+> ## ✅ SELESAI — dikerjakan 6 Agustus 2026, commit `ac57cb7`
+>
+> Seluruh langkah 1–6 di bawah sudah dijalankan. Ringkasan hasil:
+>
+> - **Langkah 0** tidak diperlukan: fix kode ternyata sudah ada di repo ini.
+> - **Langkah 2–3** ✅ `prod_feature_schema.json` = 25 fitur + `audit_columns: ['graph_present']`;
+>   `predict.py` dan API `ml_service` jalan tanpa error.
+> - **Langkah 4** ✅ flag `stale_pending_retrain` hilang otomatis saat retrain.
+> - **Langkah 5** ✅ `hasil_implementasi.md` di-update penuh.
+> - **Langkah 6** ✅ di-commit (72 file, 24 MB data turunan; `.env` & `.pkl` tetap ter-ignore).
+>   **Belum di-push** — tinggal `git push` kalau sudah oke.
+>
+> ### Dua temuan yang tidak diantisipasi dokumen ini
+>
+> 1. **`graph_present` memang tidak berpengaruh.** Konstan bernilai 1 di semua baris → varians
+>    dan importance nol. Uji isolasi: F1 0,8911 (25 fitur) vs 0,8966 (26 fitur); selisihnya
+>    murni dari `colsample_bytree`, bukan sinyal. Dugaan di langkah 5 benar.
+> 2. **Yang benar-benar menggeser angka adalah ukuran dataset.** PC ini punya
+>    **12.815 alamat (1:10)**, sedangkan §5.5/§12/§16/§17 lama ditulis dari sampel
+>    **8.595 (1:6,4)**. F1 produksi bergeser 0,9102 → **0,8911** karena kelas negatif bertambah
+>    (jumlah phishing tetap 1.165), bukan karena model memburuk. Ini justru **memperbaiki**
+>    inkonsistensi internal: §11 sudah lama menyatakan 1:10 sebagai rasio yang dipilih.
+>
+> ### Yang masih tersisa (di luar cakupan fix ini)
+>
+> - `experiments/run_graphsage_etherscan_late_fusion_v2.py` punya `assert` yang mengunci angka
+>   lama (F1 0,9102, split 6.876/1.719) → **akan gagal** kalau dijalankan sekarang. Nilai acuannya
+>   perlu diperbarui sebelum jalur late-fusion di-run ulang.
+> - `data/raw/etherscan_edges.csv` (126 edge) di-crawl saat populasi masih 8.595 alamat, jadi
+>   cross-edge Etherscan kemungkinan undercount. Crawl ulang butuh kuota API besar; dicatat
+>   sebagai keterbatasan di §5.5.
+> - `laporan belajar/*.md` sengaja tidak disentuh (catatan pribadi), tapi isinya masih menyebut
+>   8.595 / 26 fitur.
+>
+> ---
+>
+> <details>
+> <summary>Instruksi asli (arsip)</summary>
+
 > Dibuat: 6 Agustus 2026, dari sesi Claude Code di PC tanpa `data/` dan tanpa `git`.
 > Semua perubahan KODE sudah selesai dan sudah diverifikasi (lolos `py_compile` + JSON valid),
 > tapi **belum di-retrain dan belum di-commit** karena PC ini tidak punya `MulDiGraph.pkl`,
@@ -138,3 +177,5 @@ Belum disentuh (di luar cakupan fix ini, sengaja dibiarkan):
 - `HASIL_ABLASI.md`, `HASIL_LATE_FUSION*.md` (jalur GraphSAGE embedding, bukan skenario
   18/25/28/35 ini)
 - `new_system/` (live-scan model, README-nya sendiri sudah bilang ini "di luar lingkup tesis")
+
+</details>
