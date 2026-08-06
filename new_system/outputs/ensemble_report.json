@@ -1,0 +1,87 @@
+{
+  "metrics": {
+    "f1": 0.9008264462809917,
+    "precision": 0.8685258964143426,
+    "recall": 0.9356223175965666,
+    "accuracy": 0.9109461966604824,
+    "roc_auc": 0.9671519537714943,
+    "pr_auc": 0.9550444535827154,
+    "tn": 273,
+    "fp": 33,
+    "fn": 15,
+    "tp": 218
+  },
+  "threshold": 0.34000000000000014,
+  "ood_gate": [
+    {
+      "name": "Vitalik 3",
+      "address": "0x220866b1a2219f40e72f5c628b65d54268ca3a9d",
+      "score": 23,
+      "pass": true
+    },
+    {
+      "name": "Maker PSM USDC",
+      "address": "0x0a59649758aa4d66e25f08dd01271e891fe52199",
+      "score": 30,
+      "pass": true
+    },
+    {
+      "name": "Vitalik Buterin",
+      "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+      "score": 6,
+      "pass": true
+    },
+    {
+      "name": "Vitalik 2",
+      "address": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+      "score": 7,
+      "pass": true
+    },
+    {
+      "name": "OKX",
+      "address": "0x5041ed759dd4afc3a72b8192c143f72f4724081a",
+      "score": 3,
+      "pass": true
+    },
+    {
+      "name": "ETH2 Deposit Contract",
+      "address": "0x00000000219ab540356cbb839cbe05303d7705fa",
+      "score": 11,
+      "pass": true
+    },
+    {
+      "name": "Uniswap V2 Router",
+      "address": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+      "score": 3,
+      "pass": true
+    },
+    {
+      "name": "UNI token",
+      "address": "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+      "score": 2,
+      "pass": true
+    }
+  ],
+  "ood_gate_passed": true,
+  "params_xgb": {
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "max_depth": 9,
+    "learning_rate": 0.02,
+    "subsample": 0.8785281500310944,
+    "colsample_bytree": 0.7230781377870154,
+    "min_child_weight": 2,
+    "gamma": 0.0,
+    "reg_lambda": 0.5,
+    "scale_pos_weight": 0.9179865771812079,
+    "random_state": 42,
+    "tree_method": "hist"
+  },
+  "comparison": {
+    "baseline_single_xgb": 0.8739130434782608,
+    "threshold_tuned": 0.8816326530612245,
+    "hyperparam_tuned": 0.8870967741935484,
+    "ensemble": 0.9008264462809917,
+    "thesis_model_reference": 0.9102
+  }
+}

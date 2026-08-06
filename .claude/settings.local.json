@@ -1,35 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python -c \"import torch; from torch_geometric.nn import SAGEConv; print\\('PyTorch:', torch.__version__\\); print\\('CUDA:', torch.cuda.is_available\\(\\)\\); print\\('SAGEConv OK'\\)\")",
-      "Bash(python *)",
-      "PowerShell(Get-Item \"C:\\\\Kuliah\\\\ethereum-phising-risk-detection\\\\data\\\\processed\\\\train.csv\", \"C:\\\\Kuliah\\\\ethereum-phising-risk-detection\\\\data\\\\processed\\\\test.csv\" | Select-Object Name, Length; \\(Get-Content \"C:\\\\Kuliah\\\\ethereum-phising-risk-detection\\\\data\\\\processed\\\\test.csv\" | Measure-Object -Line\\).Lines)",
-      "PowerShell(\\(Get-Content \"C:\\\\Kuliah\\\\ethereum-phising-risk-detection\\\\data\\\\processed\\\\train.csv\" | Measure-Object -Line\\).Lines; python -c \"import pandas as pd; df=pd.read_csv\\('C:/Kuliah/ethereum-phising-risk-detection/data/processed/test.csv'\\); print\\(df.shape\\); print\\(df['label'].value_counts\\(\\) if 'label' in df.columns else df.iloc[:,-1].value_counts\\(\\)\\)\")",
-      "Bash(CHAIN_ENABLED=true python -m uvicorn api.main:app --host 127.0.0.1 --port 8000)",
-      "Bash(API_BASE=\"http://localhost:8000\" python -m streamlit run app/streamlit_app.py --server.port 8502 --server.headless true --browser.gatherUsageStats false)",
-      "Bash(npx hardhat *)",
-      "Bash(curl -s http://127.0.0.1:8000/risk/0x4dad23689bef624af5d1757a56135901c915fcfd)",
-      "Bash(curl -s -X POST http://127.0.0.1:8000/analyze -H \"Content-Type: application/json\" --data '{\"row_id\":0}')",
-      "Bash(grep -iE \"\\\\.env|credential|service-account|\\\\.json$\")",
-      "Bash(grep -iE \"\\\\.docx|\\\\.pkl|\\\\.pt$\")",
-      "Bash(git grep *)",
-      "Bash(export PYTHONIOENCODING=utf-8)",
-      "Bash(CHAIN_ENABLED=true .venv/Scripts/python.exe -m uvicorn api.main:app --host 127.0.0.1 --port 8000)",
-      "Bash(.venv/Scripts/python.exe -m streamlit run app/streamlit_app.py --server.port 8502 --server.headless true)",
-      "Bash(.venv/Scripts/python.exe -m py_compile app/streamlit_app.py)",
-      "Bash(curl -s http://127.0.0.1:8502/_stcore/health)",
-      "Bash(.venv/Scripts/python.exe --version)",
-      "Bash(.venv/Scripts/python.exe *)",
-      "Bash(CHAIN_ENABLED=false .venv/Scripts/python.exe -m uvicorn api.main:app --host 127.0.0.1 --port 8000)",
-      "Bash(curl -s http://localhost:8000/health)",
-      "Bash(curl -s -X POST http://localhost:8000/analyze -H \"Content-Type: application/json\" -d '{\"wallet\":\"0x4dad23689bef624af5d1757a56135901c915fcfd\"}')",
-      "Bash(./.venv/Scripts/python.exe -c \"import seaborn; print\\(seaborn.__version__\\)\")",
-      "Skill(dataviz)",
-      "Bash(CHAIN_ENABLED=false python -c ' *)",
-      "Bash(CHAIN_ENABLED=false .venv/Scripts/python.exe -c ' *)",
-      "Bash(rm -f HASIL_TUNING_EVALUASI_DEPLOY.md HASIL_CLEANING.md HASIL_EDA_SELEKSI_FITUR.md)",
-      "Bash(ls HASIL_*.md)",
-      "PowerShell(& C:\\\\Kuliah\\\\ethereum-phising-risk-detection\\\\.venv\\\\Scripts\\\\python.exe C:\\\\Kuliah\\\\ethereum-phising-risk-detection\\\\experiments\\\\run_embedding_only_ablation.py)"
+      "Bash(python -c \"import networkx, matplotlib; print\\(networkx.__version__, matplotlib.__version__\\)\")",
+      "Bash(python scripts/profile_muldigraph.py)"
     ]
   }
 }

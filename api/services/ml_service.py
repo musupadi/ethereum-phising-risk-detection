@@ -19,7 +19,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from ml.predict import predict_full         # noqa: E402
-from api.config import TEST_CSV, LOOKUP_CSV  # noqa: E402
+from api.config import (                     # noqa: E402
+    TEST_CSV, LOOKUP_CSV, LIVE_SCAN_ENABLED, LIVE_MAX_PAGES, LIVE_REQUEST_DELAY,
+)
 
 _test_df: Optional[pd.DataFrame] = None
 _lookup_df: Optional[pd.DataFrame] = None
@@ -93,12 +95,68 @@ def predict_from_row(row_id: int) -> dict:
     return result
 
 
+def _predict_live(wallet: str) -> dict:
+    """
+    Mode scan live: wallet TIDAK ada di dataset, jadi ke-26 fiturnya dihitung
+    langsung dari Etherscan lalu dinilai oleh MODEL PRODUKSI YANG SAMA.
+
+    Tidak ada model kedua dan tidak ada pelatihan ulang di sini — yang berganti
+    hanyalah SUMBER fitur (CSV precomputed -> Etherscan API). Lihat
+    `ml/live_features.py` untuk pemetaan edge MulDiGraph ke `txlist`.
+
+    Hasilnya ditandai `out_of_distribution=True`: model dilatih pada snapshot
+    MulDiGraph 2019, sehingga metrik tesis tidak berlaku untuk wallet ini dan
+    skornya tidak boleh dicatat ke blockchain.
+    """
+    # Impor tertunda supaya `requests`/kunci API hanya dibutuhkan bila mode live
+    # benar-benar dipakai. Dengan LIVE_SCAN_ENABLED=false (bawaan), baris di
+    # bawah tidak pernah dijalankan.
+    from ml.live_features import (  # noqa: E402
+        LiveScanUnavailableError, WalletNotFoundError, predict_address,
+    )
+
+    try:
+        result = predict_address(
+            wallet, max_pages=LIVE_MAX_PAGES, request_delay=LIVE_REQUEST_DELAY,
+            explain_top=_EXPLAIN_TOP,
+        )
+    except WalletNotFoundError as exc:
+        # KeyError -> HTTP 404 di api/main.py
+        raise KeyError(str(exc)) from exc
+    except LiveScanUnavailableError as exc:
+        raise KeyError(
+            f"Wallet {wallet} tidak ada di dataset MulDiGraph (snapshot 2019), "
+            f"dan scan live belum bisa dijalankan: {exc}"
+        ) from exc
+
+    result["node_id"] = str(wallet).strip().lower()
+    result["true_label"] = None          # tidak ada label kebenaran untuk wallet baru
+    result["split"] = "live_etherscan"
+    result["model_used"] = "production (fitur live Etherscan)"
+    warning = (
+        "Wallet ini di luar dataset penelitian. Fitur diambil dari Etherscan "
+        "terkini lalu dinilai model produksi yang sama — hasilnya ESTIMASI, "
+        "tidak dijamin oleh metrik tesis (F1 91% hanya berlaku pada populasi "
+        "MulDiGraph 2019), dan tidak dicatat ke blockchain."
+    )
+    if result.get("insufficient_data"):
+        warning += (
+            f" Selain itu wallet ini hanya punya {result.get('n_transactions', 0)} "
+            f"transaksi — terlalu sedikit untuk dinilai secara bermakna. "
+            f"Perlakukan hasilnya sebagai tidak dapat disimpulkan."
+        )
+    result["warning"] = warning
+    return result
+
+
 def predict_from_address(wallet: str) -> dict:
     """
     'Scan by address' mode: look up a wallet in the sampled dataset (train+test)
     by its address, pull its precomputed graph features, and run inference.
 
-    Raises KeyError if the address is not present in the dataset.
+    Jika alamat tidak ada di dataset dan LIVE_SCAN_ENABLED=true, sistem beralih ke
+    mode live (fitur diambil dari Etherscan, dinilai model B). Bila mode live mati,
+    perilakunya seperti semula: KeyError -> HTTP 404.
     """
     df = _load_lookup_df()
     key = str(wallet).strip().lower()
@@ -109,6 +167,8 @@ def predict_from_address(wallet: str) -> dict:
             f"Sepertinya kepotong/typo saat menempel. Periksa kembali."
         )
     if key not in df.index:
+        if LIVE_SCAN_ENABLED:
+            return _predict_live(key)
         raise KeyError(
             f"Wallet {wallet} tidak ada di dataset MulDiGraph (snapshot 2019). "
             f"Gunakan mode Manual atau pilih alamat contoh dari dataset."
@@ -120,6 +180,8 @@ def predict_from_address(wallet: str) -> dict:
     result["true_label"] = int(row.get("label", -1))
     result["node_id"] = str(row.get("node_id", wallet))
     result["split"] = "dataset"
+    result["model_used"] = "dataset"
+    result["out_of_distribution"] = False
     return result
 
 

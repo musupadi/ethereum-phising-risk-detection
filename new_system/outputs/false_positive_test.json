@@ -1,0 +1,193 @@
+{
+  "summary": {
+    "n_sampled": 20,
+    "n_flagged_phishing": 0,
+    "false_positive_rate": 0.0,
+    "n_with_enough_history": 19,
+    "false_positive_rate_excluding_thin_wallets": 0.0,
+    "baseline_model_A": "7/8 (0.88) pada pengujian awal \u2014 lihat laporan belajar/13",
+    "seed": 999
+  },
+  "cases": [
+    {
+      "address": "0x1bb1d103c870a8e719a0fb8cfb31d356a347ffed",
+      "n_tx": 146,
+      "is_contract": 0,
+      "score": 1,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0xc78a405337fee7f00db0beb8fd65e5ea90953a39",
+      "n_tx": 6,
+      "is_contract": 0,
+      "score": 9,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0x9a5cc6e3a3325cdc19fc76926cc9666c80139c09",
+      "n_tx": 3059,
+      "is_contract": 0,
+      "score": 0,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0x799c55a02257b106736c1876716a9486d11f4327",
+      "n_tx": 128,
+      "is_contract": 0,
+      "score": 7,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0x337bfc28f4242cf9d2e9ac0c14fbdb8828a41fda",
+      "n_tx": 24,
+      "is_contract": 0,
+      "score": 1,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0x4f389b894aa22ae94fe1b11ff299bdfd8c882019",
+      "n_tx": 58,
+      "is_contract": 0,
+      "score": 1,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0xf8fb76b05fd854cc6f35d5088b9d241cbbf616c3",
+      "n_tx": 6000,
+      "is_contract": 1,
+      "score": 1,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0xbb79f728abf37ae32b10295de472975f94f7f9ea",
+      "n_tx": 6000,
+      "is_contract": 0,
+      "score": 0,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0xd76df3ce96c10b26820296c291cdd3b9a8c01fd0",
+      "n_tx": 13,
+      "is_contract": 0,
+      "score": 4,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0xc9aa58029de585c2e22f9edd594e0cc5f1e3851a",
+      "n_tx": 137,
+      "is_contract": 0,
+      "score": 5,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0xf02d8c54cd3f39afb4e96ce2a1d0d6c07314f926",
+      "n_tx": 2,
+      "is_contract": 0,
+      "score": 19,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 1
+    },
+    {
+      "address": "0x9008d19f58aabd9ed0d60971565aa8510560ab41",
+      "n_tx": 6000,
+      "is_contract": 1,
+      "score": 0,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0x26827f7f51769ea21f94ba98ba64f5d0dc8988f9",
+      "n_tx": 3000,
+      "is_contract": 1,
+      "score": 2,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0xe5201e7e22cd7b1139d8b7f7df1d55facbce7c9a",
+      "n_tx": 2383,
+      "is_contract": 1,
+      "score": 32,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0x205c52e8f8b17dab5b29d2b7c16d95d2546527a4",
+      "n_tx": 36,
+      "is_contract": 0,
+      "score": 18,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0xe23c429ad5aabb3528be5666ea9364c9e6dfe541",
+      "n_tx": 3001,
+      "is_contract": 0,
+      "score": 0,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0xe97bded42d02f87cb046a1ab5730fb1cf6c36985",
+      "n_tx": 100,
+      "is_contract": 0,
+      "score": 1,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0xd0a6e6c54dbc68db5db3a091b171a77407ff7ccf",
+      "n_tx": 3102,
+      "is_contract": 1,
+      "score": 4,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0x1377c01c263d431891ae405cc964c6ae6c2e8e66",
+      "n_tx": 3000,
+      "is_contract": 0,
+      "score": 0,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    },
+    {
+      "address": "0x4fef9d741011476750a243ac70b9789a63dd47df",
+      "n_tx": 6000,
+      "is_contract": 1,
+      "score": 2,
+      "level": "LOW",
+      "flagged_phishing": 0,
+      "insufficient_data": 0
+    }
+  ]
+}

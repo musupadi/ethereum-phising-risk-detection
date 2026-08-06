@@ -53,6 +53,30 @@ class AnalyzeResponse(BaseModel):
     dataset_split: Optional[str] = Field(
         None, description="Which dataset split the wallet was found in (train/test), if any.",
     )
+    model_used: Optional[str] = Field(
+        None,
+        description="'dataset' = model tesis (XGBoost 26 fitur, F1 0,9102) untuk wallet "
+                    "di dalam dataset. 'live' = model perluasan untuk wallet arbitrer, "
+                    "fitur diambil langsung dari Etherscan.",
+        example="dataset",
+    )
+    out_of_distribution: Optional[bool] = Field(
+        None,
+        description="True bila wallet dinilai di luar populasi yang dievaluasi pada tesis. "
+                    "Metrik tesis tidak berlaku untuk hasil seperti ini, dan skornya "
+                    "tidak dicatat ke blockchain.",
+    )
+    warning: Optional[str] = Field(
+        None, description="Peringatan yang harus ditampilkan ke pengguna, bila ada.",
+    )
+    n_transactions: Optional[int] = Field(
+        None, description="Jumlah transaksi yang terbaca dari Etherscan (mode live saja).",
+    )
+    insufficient_data: Optional[bool] = Field(
+        None,
+        description="True bila riwayat wallet terlalu tipis (< 5 transaksi) untuk dinilai "
+                    "secara bermakna. Skor tetap ditampilkan, tetapi tidak dapat disimpulkan.",
+    )
 
 
 class RiskRecord(BaseModel):

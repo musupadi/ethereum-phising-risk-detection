@@ -1,0 +1,123 @@
+{
+  "v1": {
+    "n_features": 26,
+    "f1": 0.8774193548387097,
+    "precision": 0.8793103448275862,
+    "recall": 0.8755364806866953,
+    "accuracy": 0.8810020876826722,
+    "roc_auc": 0.9514463170382776,
+    "pr_auc": 0.9463314771318182,
+    "threshold": 0.55,
+    "tn": 218,
+    "fp": 28,
+    "fn": 29,
+    "tp": 204
+  },
+  "v2": {
+    "n_features": 37,
+    "f1": 0.9036402569593148,
+    "precision": 0.9017094017094017,
+    "recall": 0.9055793991416309,
+    "accuracy": 0.906054279749478,
+    "roc_auc": 0.9647056770996895,
+    "pr_auc": 0.9613109101763373,
+    "threshold": 0.45,
+    "tn": 223,
+    "fp": 23,
+    "fn": 22,
+    "tp": 211
+  },
+  "gain_f1": 0.0262,
+  "ood_gate_v2": [
+    {
+      "name": "Vitalik 3",
+      "score": 20,
+      "pass": true
+    },
+    {
+      "name": "Maker PSM USDC",
+      "score": 49,
+      "pass": false
+    },
+    {
+      "name": "Vitalik 2",
+      "score": 10,
+      "pass": true
+    },
+    {
+      "name": "ETH2 Deposit Contract",
+      "score": 7,
+      "pass": true
+    },
+    {
+      "name": "Uniswap V2 Router",
+      "score": 3,
+      "pass": true
+    },
+    {
+      "name": "UNI token",
+      "score": 3,
+      "pass": true
+    },
+    {
+      "name": "OKX",
+      "score": 3,
+      "pass": true
+    },
+    {
+      "name": "Vitalik Buterin",
+      "score": 6,
+      "pass": true
+    }
+  ],
+  "ood_gate_passed": false,
+  "new_feature_gain": [
+    {
+      "feature": "sweep_gap_median_s",
+      "gain": 8.216964721679688
+    },
+    {
+      "feature": "sweep_ratio_1h",
+      "gain": 7.2409586906433105
+    },
+    {
+      "feature": "sweep_gap_min_s",
+      "gain": 5.487521648406982
+    },
+    {
+      "feature": "token_out_ratio",
+      "gain": 4.332411289215088
+    },
+    {
+      "feature": "token_unique_contracts",
+      "gain": 3.799654960632324
+    },
+    {
+      "feature": "active_days",
+      "gain": 3.0951435565948486
+    },
+    {
+      "feature": "token_tx_count",
+      "gain": 2.9921131134033203
+    },
+    {
+      "feature": "tx_per_active_day",
+      "gain": 2.9007041454315186
+    },
+    {
+      "feature": "sweep_ratio_24h",
+      "gain": 2.660313844680786
+    },
+    {
+      "feature": "max_tx_in_day",
+      "gain": 2.6362645626068115
+    },
+    {
+      "feature": "failed_tx_ratio",
+      "gain": 1.5222574472427368
+    }
+  ],
+  "adopted": false,
+  "min_gain_required": 99.0,
+  "note": "Populasi, split, arsitektur, dan hyperparameter identik; hanya himpunan fitur yang berbeda."
+}

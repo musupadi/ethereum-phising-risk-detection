@@ -115,13 +115,18 @@ def analyze(req: AnalyzeRequest):
     wallet = node_id if re.fullmatch(r"0x[0-9a-fA-F]{40}", node_id) else req.wallet
 
     # ── Chain write ───────────────────────────────────────────────────────────
+    # Skor dari mode live (wallet di luar dataset) sengaja TIDAK dicatat on-chain:
+    # catatan permanen tidak boleh berisi tuduhan yang tidak tervalidasi.
+    out_of_distribution = bool(ml_result.get("out_of_distribution", False))
     tx_hash = None
-    if CHAIN_ENABLED:
+    if CHAIN_ENABLED and not out_of_distribution:
         try:
             tx_hash = chain_service.set_risk(wallet, risk_score, MODEL_VERSION)
         except Exception as exc:
             log.warning("Chain write failed (non-fatal): %s", exc)
             tx_hash = None
+    elif out_of_distribution:
+        log.info("Skor mode live untuk %s tidak ditulis on-chain (out-of-distribution)", wallet)
 
     return AnalyzeResponse(
         wallet=wallet,
@@ -134,6 +139,11 @@ def analyze(req: AnalyzeRequest):
         tx_hash=tx_hash,
         true_label=ml_result.get("true_label"),
         dataset_split=ml_result.get("split"),
+        model_used=ml_result.get("model_used"),
+        out_of_distribution=out_of_distribution,
+        warning=ml_result.get("warning"),
+        n_transactions=ml_result.get("n_transactions"),
+        insufficient_data=ml_result.get("insufficient_data"),
     )
 
 

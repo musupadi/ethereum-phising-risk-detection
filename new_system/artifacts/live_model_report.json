@@ -1,0 +1,152 @@
+{
+  "dataset": {
+    "rows": 2700,
+    "label_counts": {
+      "0": 1535,
+      "1": 1165
+    },
+    "source_counts": {
+      "phishing_eptransnet": 1165,
+      "block_sample_small": 900,
+      "block_sample": 587,
+      "curated": 40,
+      "curated_heldout": 8
+    },
+    "heldout": 8
+  },
+  "split": {
+    "fit": 1722,
+    "val": 431,
+    "test": 539
+  },
+  "test_metrics": {
+    "accuracy": 0.8923933209647495,
+    "precision": 0.8854625550660793,
+    "recall": 0.8626609442060086,
+    "f1": 0.8739130434782608,
+    "roc_auc": 0.9685404920194115,
+    "pr_auc": 0.9603680489994457,
+    "tn": 280,
+    "fp": 26,
+    "fn": 32,
+    "tp": 201
+  },
+  "ood_gate": [
+    {
+      "address": "0x220866b1a2219f40e72f5c628b65d54268ca3a9d",
+      "name": "Vitalik 3",
+      "score": 5,
+      "level": "LOW",
+      "verdict": "Bukan Phishing",
+      "pass": true
+    },
+    {
+      "address": "0x0a59649758aa4d66e25f08dd01271e891fe52199",
+      "name": "Maker PSM USDC",
+      "score": 15,
+      "level": "LOW",
+      "verdict": "Bukan Phishing",
+      "pass": true
+    },
+    {
+      "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+      "name": "Vitalik Buterin",
+      "score": 1,
+      "level": "LOW",
+      "verdict": "Bukan Phishing",
+      "pass": true
+    },
+    {
+      "address": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+      "name": "Vitalik 2",
+      "score": 1,
+      "level": "LOW",
+      "verdict": "Bukan Phishing",
+      "pass": true
+    },
+    {
+      "address": "0x5041ed759dd4afc3a72b8192c143f72f4724081a",
+      "name": "OKX",
+      "score": 0,
+      "level": "LOW",
+      "verdict": "Bukan Phishing",
+      "pass": true
+    },
+    {
+      "address": "0x00000000219ab540356cbb839cbe05303d7705fa",
+      "name": "ETH2 Deposit Contract",
+      "score": 1,
+      "level": "LOW",
+      "verdict": "Bukan Phishing",
+      "pass": true
+    },
+    {
+      "address": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+      "name": "Uniswap V2 Router",
+      "score": 1,
+      "level": "LOW",
+      "verdict": "Bukan Phishing",
+      "pass": true
+    },
+    {
+      "address": "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+      "name": "UNI token",
+      "score": 2,
+      "level": "LOW",
+      "verdict": "Bukan Phishing",
+      "pass": true
+    }
+  ],
+  "ood_gate_passed": true,
+  "top_features_by_gain": [
+    {
+      "feature": "sent_received_ratio",
+      "gain": 14.70114803314209
+    },
+    {
+      "feature": "repeat_ratio",
+      "gain": 8.681815147399902
+    },
+    {
+      "feature": "unique_senders",
+      "gain": 7.740650653839111
+    },
+    {
+      "feature": "min_out_amount",
+      "gain": 7.180540561676025
+    },
+    {
+      "feature": "avg_out_amount",
+      "gain": 6.792396545410156
+    },
+    {
+      "feature": "unique_counterparties",
+      "gain": 5.493869781494141
+    },
+    {
+      "feature": "transaction_count",
+      "gain": 4.958925247192383
+    },
+    {
+      "feature": "timestamp_spread_in",
+      "gain": 4.882455825805664
+    },
+    {
+      "feature": "sender_receiver_ratio",
+      "gain": 4.705766201019287
+    },
+    {
+      "feature": "is_contract",
+      "gain": 4.367684841156006
+    },
+    {
+      "feature": "timestamp_spread_out",
+      "gain": 4.048013687133789
+    },
+    {
+      "feature": "out_degree",
+      "gain": 3.715663194656372
+    }
+  ],
+  "threshold": 0.5
+}

@@ -5,7 +5,7 @@ import pandas as pd
 from dotenv import load_dotenv
 
 from data_fetchers import EtherscanFetcher
-
+#enrich disini berfungsi untuk menambahkan data dari Etherscan ke dalam dataset alamat Ethereum yang ada.
 ROOT = Path(__file__).resolve().parent.parent
 DATA_RAW = ROOT / "data" / "raw"
 INPUT_CSV = DATA_RAW / "addresses.csv"

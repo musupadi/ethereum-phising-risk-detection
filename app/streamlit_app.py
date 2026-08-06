@@ -143,6 +143,12 @@ def render_result(data: dict, wallet: str):
 
     if tx:
         st.success(f"✅ Stored on-chain  |  tx hash: `{tx}`")
+    elif data.get("out_of_distribution"):
+        st.info(
+            "ℹ️ Skor ini **sengaja tidak dicatat ke blockchain**. Wallet berada di luar "
+            "dataset penelitian, sehingga hasilnya berupa estimasi — catatan permanen "
+            "on-chain hanya diisi penilaian yang tervalidasi."
+        )
     else:
         st.info("ℹ️ Chain write skipped (CHAIN_ENABLED=false or node offline).")
 
@@ -202,6 +208,12 @@ def render_chain_record(wallet: str):
 # Scan by Address (paste wallet → lookup features in dataset → predict)
 # ──────────────────────────────────────────────────────────────────────────────
 st.subheader("🔎 Scan by Address — Tempel Wallet")
+st.caption(
+    "**Dua jalur penilaian.** Wallet yang ada di dataset penelitian (8.595 alamat, "
+    "snapshot EPTransNet 2019) dinilai oleh **model tesis** — XGBoost 26 fitur, F1 91,02%. "
+    "Wallet di luar itu dinilai oleh **model perluasan**: fitur diambil langsung dari "
+    "Etherscan saat itu juga, hasilnya berupa estimasi dan tidak dicatat ke blockchain."
+)
 # st.info(
 #     "Tempel alamat wallet. Sistem mencari fitur wallet itu di dataset "
 #     "MulDiGraph (train + test, ~12.815 wallet), lalu memprediksi phishing/tidak. "
@@ -242,11 +254,46 @@ if st.button("🔎 Scan", type="primary", key="scan_btn", disabled=bool(addr_err
             resp = requests.post(
                 f"{API_BASE}/analyze",
                 json={"wallet": scan_wallet},
-                timeout=30,
+                # Mode live memanggil Etherscan berkali-kali, jadi butuh waktu lebih.
+                timeout=180,
             )
             if resp.ok:
                 data = resp.json()
+
+                # Wallet di luar dataset -> dinilai model perluasan (mode live).
+                # Peringatannya ditampilkan SEBELUM skor, supaya tidak terlewat.
+                if data.get("insufficient_data"):
+                    st.error(
+                        "🚫 **Tidak dapat disimpulkan — riwayat terlalu tipis**\n\n"
+                        f"Wallet ini hanya punya {data.get('n_transactions', 0)} transaksi. "
+                        "Ke-18 fitur perilaku dihitung dari agregat transaksi, sehingga "
+                        "wallet sebaru ini tidak membawa cukup sinyal untuk dinilai. "
+                        "Skor di bawah ditampilkan apa adanya, tetapi **jangan** dibaca "
+                        "sebagai kesimpulan."
+                    )
+                elif data.get("out_of_distribution"):
+                    st.warning(
+                        "⚠️ **Wallet di luar dataset penelitian — mode estimasi**\n\n"
+                        f"{data.get('warning', '')}\n\n"
+                        f"Fitur diambil langsung dari Etherscan"
+                        + (f" ({data['n_transactions']:,} transaksi terbaca)."
+                           if data.get("n_transactions") else ".")
+                    )
+
                 render_result(data, scan_wallet)
+
+                if data.get("model_used") == "live":
+                    st.caption(
+                        "Model yang dipakai: **model perluasan (live)** — bukan model tesis "
+                        "XGBoost F1 91,02%. Metrik tesis tidak berlaku untuk hasil ini, "
+                        "dan skornya tidak dicatat ke blockchain."
+                    )
+                elif data.get("model_used") == "dataset":
+                    st.caption(
+                        "Model yang dipakai: **model tesis** — XGBoost, 26 fitur "
+                        "(MulDiGraph + Etherscan), F1 91,02%."
+                    )
+
                 tl = data.get("true_label")
                 if tl is not None and tl >= 0:
                     truth = "🔴 PHISHING" if tl == 1 else "🟢 NORMAL"

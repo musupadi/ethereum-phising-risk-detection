@@ -1,0 +1,11 @@
+address,name,expected_label,n_tx,is_contract,modelA_score,modelA_level,modelA_verdict,modelA_correct,modelB_score,modelB_level,modelB_verdict,modelB_correct
+0xd8da6bf26964af9d7eed9e03e53415d37aa96045,Vitalik Buterin,0,10000,0,98,HIGH,Phishing,0,1,LOW,Bukan Phishing,1
+0x7a250d5630b4cf539739df2c5dacb4c659f2488d,Uniswap V2 Router,0,10000,1,100,HIGH,Phishing,0,1,LOW,Bukan Phishing,1
+0x00000000219ab540356cbb839cbe05303d7705fa,ETH2 Deposit Contract,0,10000,1,90,HIGH,Phishing,0,1,LOW,Bukan Phishing,1
+0xab5801a7d398351b8be11c439e05c5b3259aec9b,Vitalik (dompet lama),0,4093,0,98,HIGH,Phishing,0,1,LOW,Bukan Phishing,1
+0x5041ed759dd4afc3a72b8192c143f72f4724081a,OKX Exchange,0,5839,0,13,LOW,Bukan Phishing,1,0,LOW,Bukan Phishing,1
+0x1f9840a85d5af5bf1d1762f925bdaddc4201f984,Token UNI,0,5005,1,24,LOW,Bukan Phishing,1,2,LOW,Bukan Phishing,1
+0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48,Token USDC,0,5080,1,18,LOW,Bukan Phishing,1,1,LOW,Bukan Phishing,1
+0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2,WETH,0,10000,1,99,HIGH,Phishing,0,1,LOW,Bukan Phishing,1
+0x60afc5761212ed59608b0559b4ccbaad24fc74b1,Phishing dataset #1,1,124,0,100,HIGH,Phishing,1,99,HIGH,Phishing,1
+0x903bb9cd3a276d8f18fa6efed49b9bc52ccf06e5,Phishing dataset #2,1,5358,1,100,HIGH,Phishing,1,79,HIGH,Phishing,1

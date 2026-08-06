@@ -36,8 +36,11 @@ Prasyarat sekali saja: `pip install -r requirements.txt`. Artefak model (`ml/art
 | **Blockchain** (on-chain) | Hardhat (Solidity) | `npx hardhat node` lalu `npx hardhat run scripts/deploy.ts --network localhost` | `8545` | Node Ethereum lokal + deploy kontrak `RiskRegistry` (simpan skor permanen) |
 | **Backend** (API) | FastAPI + web3.py | `python -m uvicorn api.main:app --port 8000` | `8000` | ML inference (XGBoost) + baca/tulis skor ke smart contract |
 | **Frontend** (UI) | Streamlit | `streamlit run app/streamlit_app.py --server.port 8502` | `8502` | Antarmuka: scan wallet, lihat skor, lihat riwayat on-chain |
+| **DApp** (baca on-chain) | HTML + JSON-RPC | `.\chain\dapp\run_dapp.ps1` | `8503` | Baca skor **langsung dari smart contract**, tanpa lewat FastAPI |
 
-> Alur: **Streamlit (8502)** → **FastAPI (8000)** → model XGBoost + **Hardhat (8545)**. Backend wajib jalan; blockchain opsional (`CHAIN_ENABLED=false` untuk skip).
+> Alur tulis: **Streamlit (8502)** → **FastAPI (8000)** → model XGBoost → **Hardhat (8545)**.
+> Alur baca DApp: **Browser (8503)** → **Hardhat (8545)** langsung, tanpa backend.
+> Backend wajib jalan untuk *menulis* skor; blockchain opsional (`CHAIN_ENABLED=false` untuk skip).
 
 **Mode cepat — tanpa blockchain (2 terminal):**
 
@@ -65,6 +68,17 @@ python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
 # di terminal lain:
 streamlit run app/streamlit_app.py --server.port 8502
 ```
+
+**Mode DApp — mode lengkap + halaman pembaca on-chain (4 terminal):**
+
+```powershell
+# Terminal 1–3: sama persis seperti mode lengkap di atas
+
+# Terminal 4 — halaman DApp
+.\chain\dapp\run_dapp.ps1
+```
+
+➡️ Buka **http://localhost:8503/dapp/** — analisis dulu 1 wallet lewat Streamlit supaya ada datanya.
 
 ➡️ Buka **http://localhost:8502** · API docs: **http://localhost:8000/docs**
 
@@ -138,6 +152,9 @@ curl http://localhost:8000/risk/0x4dad23689bef624af5d1757a56135901c915fcfd
 │   │   └── RiskRegistry.sol  # Solidity contract
 │   ├── scripts/
 │   │   └── deploy.ts         # Hardhat deploy script
+│   ├── dapp/                 # Halaman DApp: baca on-chain tanpa backend
+│   │   ├── index.html        #   eth_call getRisk() + eth_getLogs RiskUpdated
+│   │   └── run_dapp.ps1      #   launcher → http://localhost:8503/dapp/
 │   ├── hardhat.config.ts
 │   └── package.json
 ├── app/
@@ -227,20 +244,118 @@ streamlit run app/streamlit_app.py --server.port 8502
 
 Buka **http://localhost:8502**
 
+### Mode C — Mode B + halaman DApp pembaca on-chain (4 terminal)
+
+Menambahkan **`chain/dapp/index.html`**: halaman yang membaca skor **langsung dari smart
+contract** lewat JSON-RPC — tanpa melewati FastAPI sama sekali. Ini yang membuktikan sifat
+*decentralized* sistem: matikan FastAPI, pembacaan skor tetap jalan.
+
+> FastAPI **tidak digantikan**. Menulis skor tetap butuh model XGBoost (harus off-chain,
+> karena inferensi ML tidak mungkin dijalankan di dalam smart contract). Yang
+> terdesentralisasi adalah **pembacaan dan verifikasi** hasilnya.
+
+```powershell
+# Terminal 1 — Hardhat node lokal (biarkan jalan)
+cd chain
+npx hardhat node
+
+# Terminal 2 — deploy kontrak (sekali, tiap kali node dinyalakan ulang)
+cd chain
+npx hardhat run scripts/deploy.ts --network localhost
+
+# Terminal 3 — FastAPI + Streamlit (JALUR TULIS: mengisi data ke chain)
+$env:CHAIN_ENABLED = "true"
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+# di terminal lain:
+streamlit run app/streamlit_app.py --server.port 8502
+
+# Terminal 4 — halaman DApp (JALUR BACA: langsung ke blockchain)
+.\chain\dapp\run_dapp.ps1
+```
+
+Buka **http://localhost:8503/dapp/**
+
+**Urutan mencoba:**
+
+1. Lewat Streamlit (`:8502`), analisis minimal satu wallet supaya ada data on-chain.
+   Contoh wallet phishing yang skornya tinggi: `0x60afc5761212ed59608b0559b4ccbaad24fc74b1` → skor 100 (HIGH).
+2. Buka halaman DApp (`:8503/dapp/`) → klik **Hubungkan**.
+   Alamat kontrak terisi otomatis dari `chain/artifacts/deployment.json`.
+3. Tempel alamat wallet tadi → **Baca on-chain** (memanggil `getRisk()`).
+4. Klik **Muat riwayat** → tabel semua wallet yang pernah dinilai, direkonstruksi dari
+   event log `RiskUpdated`.
+5. **Uji pembuktiannya:** matikan FastAPI (Ctrl+C di terminal 3), lalu ulangi langkah 3–4.
+   Halaman DApp tetap berfungsi — karena ia bicara langsung ke blockchain.
+
+**Opsional — lewat MetaMask** (bukti DApp paling nyata):
+tambahkan jaringan Hardhat di MetaMask (RPC `http://127.0.0.1:8545`, chainId `31337`),
+lalu klik tombol **MetaMask** di halaman itu, bukan tombol **Hubungkan**.
+
+Catatan penting:
+
+- Halaman **harus** dibuka lewat `http://localhost:8503/dapp/`, jangan klik dua kali file
+  HTML-nya (`file://`) — alamat kontrak tidak akan terisi otomatis dan sebagian browser
+  memblokir permintaan jaringannya.
+- Skrip menyajikan folder `chain/`, bukan `chain/dapp/`, supaya halaman bisa membaca
+  `../artifacts/deployment.json`.
+- Setiap kali `npx hardhat node` di-restart, blockchain-nya kosong lagi — **deploy ulang**
+  dan analisis ulang wallet-nya, kalau tidak halaman akan bilang "belum pernah dinilai".
+- Halaman ini **tanpa library eksternal** (tidak ada ethers.js/CDN) — encoding & decoding
+  ABI ditulis manual, jadi tetap jalan tanpa internet.
+
+### Mode scan wallet di luar dataset — SISTEM BARU (opsional, mati secara bawaan)
+
+> 📌 Ini **tambahan di luar lingkup tesis**, disimpan terpisah di folder
+> **[`new_system/`](new_system/README.md)**. Dengan pengaturan bawaan
+> (`LIVE_SCAN_ENABLED=false`), aplikasi berperilaku persis seperti sistem tesis:
+> wallet di luar dataset menghasilkan HTTP 404. Angka-angka tesis tidak terpengaruh.
+
+Bila dinyalakan, `POST /analyze` punya dua jalur:
+
+| Wallet | Model | Fitur | Dicatat on-chain? |
+|---|---|---|---|
+| Ada di `hybrid_dataset.csv` (8.595 alamat) | **Model tesis** `ml/artifacts/model_prod_xgb.json` — XGBoost 26 fitur, F1 91,02% | precomputed | ✅ ya |
+| Di luar dataset | **Model perluasan** `new_system/artifacts/model_live_xgb.json` | diambil live dari Etherscan | ❌ tidak pernah |
+
+Hasil mode live selalu ditandai `out_of_distribution: true` dan disertai `warning`.
+
+```powershell
+# Menyalakan (bawaan: mati)
+$env:LIVE_SCAN_ENABLED = "true"
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+```
+
+Variabel env terkait (`api/config.py`):
+
+| Variabel | Default | Fungsi |
+|---|---|---|
+| `LIVE_SCAN_ENABLED` | **`false`** | Nyalakan untuk mengaktifkan sistem baru |
+| `LIVE_MAX_PAGES` | `5` | Batas halaman txlist per alamat (1 halaman = 1.000 transaksi) |
+| `LIVE_REQUEST_DELAY` | `0.25` | Jeda antar panggilan Etherscan |
+
+Latar belakang, hasil evaluasi, dan batasannya ada di
+**[`new_system/README.md`](new_system/README.md)**.
+
 ### Cek cepat aplikasi sudah jalan
 
 ```powershell
-# API sehat? (chain_connected true hanya pada Mode B)
+# API sehat? (chain_connected true hanya pada Mode B / C)
 curl http://localhost:8000/health
 # Streamlit sehat?
 curl http://localhost:8502/_stcore/health
+# Node blockchain sehat? (Mode B / C) — harus balas result = 0x7a69 (chainId 31337)
+Invoke-RestMethod -Uri http://127.0.0.1:8545 -Method Post -ContentType "application/json" `
+  -Body '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}'
+# Halaman DApp tersaji? (Mode C) — harus StatusCode 200
+(Invoke-WebRequest http://localhost:8503/dapp/ -UseBasicParsing).StatusCode
 ```
 
-| Komponen | URL |
-|---|---|
-| Streamlit UI | http://localhost:8502 |
-| FastAPI (docs) | http://localhost:8000/docs |
-| Hardhat RPC (Mode B) | http://127.0.0.1:8545 |
+| Komponen | URL | Mode |
+|---|---|---|
+| Streamlit UI | http://localhost:8502 | A, B, C |
+| FastAPI (docs) | http://localhost:8000/docs | A, B, C |
+| Hardhat RPC | http://127.0.0.1:8545 | B, C |
+| **Halaman DApp (baca on-chain)** | **http://localhost:8503/dapp/** | **C** |
 
 > Catatan: aplikasi live memakai **XGBoost (MulDiGraph + Etherscan)** — model terbaik di tabel perbandingan tesis. GNN dan Random Forest tetap dilatih sebagai pembanding di `ml/train_dataset_scenarios.py`, tapi yang di-serve adalah XGBoost.
 

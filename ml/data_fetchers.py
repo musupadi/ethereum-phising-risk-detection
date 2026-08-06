@@ -5,7 +5,7 @@ Fetches wallet data from external APIs:
 - Etherscan: transaction counts, balance, wallet activity, transaction edges
 - Forta Network: phishing/scam/exploit labels
 """
-
+# Dat Fetcher untuk pengambilan Dataset Etherscan dan Forta Network
 import json
 import logging
 import time

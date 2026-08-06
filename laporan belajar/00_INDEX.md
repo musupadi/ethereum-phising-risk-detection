@@ -15,6 +15,13 @@ yang benar-benar ada di repo ini (bukan karangan / bukan salinan tesis).
 | 8 | [08_masalah_judul_tesis.md](08_masalah_judul_tesis.md) | Analisis A/B/C/D + penilaian judul baru + alternatif |
 | 9 | [09_latihan_presentasi.md](09_latihan_presentasi.md) | 15 pertanyaan dosen + kunci jawaban + jebakan |
 | — | [10_temuan_penting.md](10_temuan_penting.md) | **Daftar ketidaksesuaian tesis vs kode. Baca ini sebelum bimbingan.** |
+| — | [11_asal_data_etherscan.md](11_asal_data_etherscan.md) | Asal data Etherscan: API, 4 panggilan/alamat, 4 temuan enrichment |
+| — | [12_dapp_lokal.md](12_dapp_lokal.md) | Lapisan DApp pembaca on-chain — pendukung judul baru |
+| — | [13_uji_wallet_luar_dataset.md](13_uji_wallet_luar_dataset.md) | **Uji OOD: Vitalik dapat skor 92. Kenapa scan wallet bebas tidak diaktifkan.** |
+| — | [14_model_live.md](14_model_live.md) | Model perluasan untuk wallet di luar dataset (hasil pelatihan ulang) |
+| 🎯 | [15_panduan_demo.md](15_panduan_demo.md) | **Panduan demo: urutan klik, naskah bicara, rencana cadangan** |
+| — | [17_bentuk_graph_muldigraph.md](17_bentuk_graph_muldigraph.md) | **Bentuk & isi MulDiGraph: statistik asli, ego-network 1-hop, bahan Bab 3** |
+| ⭐ | [LAPORAN_UTAMA.md](LAPORAN_UTAMA.md) | **Ringkasan eksekutif — baca ini lebih dulu** |
 
 ## Angka kunci yang harus hafal
 
@@ -31,3 +38,8 @@ yang benar-benar ada di repo ini (bukan karangan / bukan salinan tesis).
 | GraphSAGE graph-only F1 | 0,8189 | idem |
 | Embedding-only (ablasi) F1 | 0,8184 | `outputs/four_model_comparison_ablation.csv` |
 | Edge asli antar 8.595 wallet | 264 edge berarah unik | `outputs/edge_source_audit_v2.json` |
+| MulDiGraph: node / edge | 2.973.489 / 13.551.303 | `ml/artifacts/graph_profile/graph_stats.json` |
+| MulDiGraph: phishing | 1.165 (0,039% dari graph) | idem |
+| Degree median phishing vs normal | 13 vs 1 | idem |
+| Edge bernilai 0 ETH | 9.152.968 (67,5%) | idem |
+| Rentang waktu data | 2015-08-07 s.d. 2019-01-19 | idem |

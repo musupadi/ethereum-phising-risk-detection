@@ -7,6 +7,26 @@ Diurutkan dari yang paling berisiko.
 
 ---
 
+## 🔴 0. Model gagal total pada wallet di luar dataset
+
+Diuji live ke Etherscan pada alamat mainnet nyata: **Vitalik Buterin skor 92**,
+**Uniswap V2 Router 100**, **ETH2 Deposit Contract 84** — semuanya divonis "Phishing".
+Dari 8 wallet acak blok terbaru, **7 dinilai HIGH**.
+
+Penyebabnya `unique_senders` (kontribusi SHAP +3,1 s/d +4,9): model belajar
+*"banyak pengirim unik = phishing"*, karena kelas negatif di data latih didominasi
+wallet beraktivitas rendah.
+
+**Konsekuensi praktis:** jangan pernah mendemokan scan wallet di luar dataset.
+Pakai contoh wallet dari dataset saja.
+
+F1 0,9102 tetap sah untuk populasi terevaluasi — yang tidak sah adalah menafsirkannya
+sebagai "91% akurat untuk wallet Ethereum mana pun".
+
+→ bukti + naskah jawaban: [13_uji_wallet_luar_dataset.md](13_uji_wallet_luar_dataset.md)
+
+---
+
 ## 🔴 1. Angka GNN di tabel 4×4 mengandung kebocoran data
 
 **Fakta kode.** `ml/train_dataset_scenarios.py:369-375` memanggil
@@ -157,6 +177,7 @@ adalah **XGBoost**, dan `MODEL_VERSION` on-chain-nya `xgb-eth-v1`.
 | "Akurasi saya 97,5%" | "F1 0,9102; akurasi 97,5% menyesatkan pada data timpang 1:6,4" |
 | "graph_present membantu model" | "graph_present adalah penanda cakupan; nilainya seragam 1, membuktikan cakupan graph 100%" |
 | "Sistem bisa memindai wallet apa pun" | "Sistem melayani 8.595 alamat dataset; perluasan ke alamat arbitrer adalah pekerjaan lanjutan" |
+| "Model saya 91% akurat mendeteksi wallet phishing" | "F1 91% pada populasi terevaluasi. Uji di luar populasi itu menunjukkan false positive tinggi pada wallet sah beraktivitas tinggi — saya laporkan sebagai keterbatasan" |
 
 ---
 

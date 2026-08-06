@@ -1,0 +1,43 @@
+{
+  "results": {
+    "ensemble_3 (sekarang)": {
+      "f1": 0.9008264462809917,
+      "precision": 0.8685258964143426,
+      "recall": 0.9356223175965666,
+      "roc_auc": 0.9671519537714943,
+      "threshold": 0.34
+    },
+    "ensemble_4 (+HistGB)": {
+      "f1": 0.8983739837398373,
+      "precision": 0.8532818532818532,
+      "recall": 0.9484978540772532,
+      "roc_auc": 0.9670257230216837,
+      "threshold": 0.26
+    },
+    "ensemble_berbobot": {
+      "f1": 0.8866396761133604,
+      "precision": 0.8390804597701149,
+      "recall": 0.9399141630901288,
+      "roc_auc": 0.9678812869926224,
+      "threshold": 0.21
+    },
+    "stacking": {
+      "f1": 0.8703296703296703,
+      "precision": 0.8918918918918919,
+      "recall": 0.8497854077253219,
+      "roc_auc": 0.9691576201295969,
+      "threshold": 0.66
+    },
+    "seleksi_fitur (18)": {
+      "f1": 0.8942115768463074,
+      "precision": 0.835820895522388,
+      "recall": 0.9613733905579399,
+      "roc_auc": 0.967741030603944,
+      "threshold": 0.28
+    }
+  },
+  "winner": "ensemble_3 (sekarang)",
+  "gain_vs_current": 0.0,
+  "adopted": false,
+  "note": "Semua pemilihan dilakukan di validation split; test dinilai sekali. Kandidat hanya diadopsi bila unggul >= 0,005 agar tidak mengejar derau."
+}

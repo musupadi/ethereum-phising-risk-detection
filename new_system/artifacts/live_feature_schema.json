@@ -1,0 +1,60 @@
+{
+  "features": [
+    "in_degree",
+    "out_degree",
+    "unique_senders",
+    "unique_receivers",
+    "total_received",
+    "total_sent",
+    "avg_in_amount",
+    "avg_out_amount",
+    "max_in_amount",
+    "max_out_amount",
+    "min_in_amount",
+    "min_out_amount",
+    "std_in_amount",
+    "std_out_amount",
+    "in_out_ratio",
+    "sent_received_ratio",
+    "timestamp_spread_in",
+    "timestamp_spread_out",
+    "balance",
+    "transaction_count",
+    "unique_counterparties",
+    "is_contract",
+    "sender_receiver_ratio",
+    "repeat_ratio",
+    "balance_ratio",
+    "activity_span_days"
+  ],
+  "label": "label",
+  "node_id": "address",
+  "model_type": "ensemble",
+  "scenario": "live_etherscan_hard_negatives",
+  "threshold": 0.34000000000000014,
+  "metrics": {
+    "f1": 0.9008,
+    "precision": 0.8685,
+    "recall": 0.9356,
+    "accuracy": 0.9109,
+    "roc_auc": 0.9672,
+    "pr_auc": 0.955,
+    "tn": 273,
+    "fp": 33,
+    "fn": 15,
+    "tp": 218
+  },
+  "note": "Ensemble rata-rata probabilitas. Ambang dan hyperparameter dipilih dari validation split; test set dinilai sekali. Penjelasan SHAP berasal dari komponen XGBoost saja.",
+  "ensemble_members": [
+    "xgboost",
+    "random_forest",
+    "extra_trees"
+  ],
+  "ensemble_files": {
+    "xgboost": "model_live_xgb.json",
+    "random_forest": "model_live_rf.pkl",
+    "extra_trees": "model_live_et.pkl"
+  },
+  "aggregation": "mean_probability",
+  "tuned": true
+}

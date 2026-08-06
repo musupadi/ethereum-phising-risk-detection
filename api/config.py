@@ -10,6 +10,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
+# Muat .env sejak awal. Mode scan live membutuhkan ETHERSCAN_API_KEY, dan uvicorn
+# tidak membaca .env dengan sendirinya — tanpa ini, /analyze untuk wallet di luar
+# dataset gagal dengan "ETHERSCAN_API_KEY tidak tersedia".
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(ROOT / ".env")
+except ImportError:  # python-dotenv opsional; env boleh diisi dari shell
+    pass
+
 # ── Hardhat / Web3 ────────────────────────────────────────────────────────────
 RPC_URL: str = os.getenv("RPC_URL", "http://127.0.0.1:8545")
 
@@ -47,6 +57,20 @@ _HYBRID: Path = ROOT / "data" / "processed" / "hybrid_dataset.csv"
 TEST_CSV: Path = _PROD_DEMO if _PROD_DEMO.exists() else ROOT / "data" / "processed" / "test.csv"
 LOOKUP_CSV: Path = _HYBRID if _HYBRID.exists() else TEST_CSV
 TRAIN_CSV: Path = ROOT / "data" / "processed" / "train.csv"
+
+# ── Mode scan live — penerapan operasional, di luar lingkup evaluasi tesis ────
+# MATI secara bawaan. Dengan LIVE_SCAN_ENABLED=false, sistem berperilaku persis
+# seperti sistem tesis aslinya: wallet di luar dataset menghasilkan HTTP 404.
+#
+# Bila dinyalakan, wallet di luar hybrid_dataset.csv dinilai oleh MODEL PRODUKSI
+# YANG SAMA, hanya dengan ke-26 fiturnya dihitung real-time dari Etherscan
+# (`ml/live_features.py`). Tidak ada model kedua, tidak ada pelatihan ulang, dan
+# artefak model tidak tersentuh — jadi metrik tesis tetap apa adanya. Hasil live
+# selalu ditandai out_of_distribution dan tidak pernah ditulis ke blockchain.
+# Butuh ETHERSCAN_API_KEY di .env.
+LIVE_SCAN_ENABLED: bool = os.getenv("LIVE_SCAN_ENABLED", "false").lower() in ("1", "true", "yes")
+LIVE_MAX_PAGES: int = int(os.getenv("LIVE_MAX_PAGES", "5"))
+LIVE_REQUEST_DELAY: float = float(os.getenv("LIVE_REQUEST_DELAY", "0.25"))
 
 # ── FastAPI ───────────────────────────────────────────────────────────────────
 API_HOST: str = os.getenv("API_HOST", "0.0.0.0")

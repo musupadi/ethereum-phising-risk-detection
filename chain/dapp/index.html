@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RiskRegistry DApp — Pembaca On-Chain</title>
+<style>
+  :root {
+    --bg: #0f1419; --panel: #171d26; --panel2: #1e2531; --line: #2a3341;
+    --text: #e6edf3; --muted: #8b98a9; --accent: #4c8dff;
+    --low: #3fb950; --med: #d29922; --high: #f85149;
+    --mono: ui-monospace, SFMono-Regular, "Cascadia Code", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f8fa; --panel: #fff; --panel2: #f0f3f6; --line: #d8dee4;
+      --text: #1f2328; --muted: #636c76;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px 64px;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.55;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 12px; }
+  .sub { color: var(--muted); margin: 0 0 20px; font-size: .92rem; }
+  .badge {
+    display: inline-block; padding: 2px 9px; border-radius: 99px;
+    font-size: .72rem; font-weight: 600; letter-spacing: .03em;
+    background: #4c8dff22; color: var(--accent); border: 1px solid #4c8dff44;
+    vertical-align: middle; margin-left: 8px;
+  }
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px; margin-bottom: 16px;
+  }
+  label { display: block; font-size: .8rem; color: var(--muted); margin: 10px 0 4px; }
+  input, button, select {
+    font: inherit; border-radius: 8px; border: 1px solid var(--line);
+  }
+  input, select {
+    width: 100%; padding: 9px 11px; background: var(--panel2); color: var(--text);
+    font-family: var(--mono); font-size: .86rem;
+  }
+  button {
+    padding: 9px 18px; background: var(--accent); color: #fff; border: none;
+    cursor: pointer; font-weight: 600; font-size: .9rem;
+  }
+  button:hover { filter: brightness(1.1); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .row > * { flex: 1 1 220px; }
+  .row > .btns { flex: 0 0 auto; display: flex; gap: 8px; }
+  .status {
+    display: flex; align-items: center; gap: 8px; font-size: .85rem;
+    padding: 9px 12px; border-radius: 8px; background: var(--panel2);
+    border: 1px solid var(--line); font-family: var(--mono);
+  }
+  .dot { width: 9px; height: 9px; border-radius: 99px; background: var(--muted); flex: 0 0 auto; }
+  .dot.on { background: var(--low); } .dot.off { background: var(--high); }
+  .score { font-size: 3rem; font-weight: 700; line-height: 1; font-family: var(--mono); }
+  .lvl { font-size: .78rem; font-weight: 700; padding: 3px 12px; border-radius: 99px; letter-spacing: .05em; }
+  .lvl.LOW { background: #3fb95022; color: var(--low); border: 1px solid #3fb95055; }
+  .lvl.MEDIUM { background: #d2992222; color: var(--med); border: 1px solid #d2992255; }
+  .lvl.HIGH { background: #f8514922; color: var(--high); border: 1px solid #f8514955; }
+  .kv { display: grid; grid-template-columns: 150px 1fr; gap: 6px 14px; font-size: .86rem; margin-top: 16px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; font-family: var(--mono); word-break: break-all; }
+  .tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { border-collapse: collapse; width: 100%; font-size: .82rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; }
+  td.mono { font-family: var(--mono); }
+  .msg { padding: 10px 12px; border-radius: 8px; font-size: .85rem; margin-top: 12px; }
+  .msg.err { background: #f8514918; border: 1px solid #f8514944; color: var(--high); }
+  .msg.ok  { background: #3fb95018; border: 1px solid #3fb95044; color: var(--low); }
+  .note { font-size: .8rem; color: var(--muted); margin-top: 14px; }
+  code { font-family: var(--mono); background: var(--panel2); padding: 1px 5px; border-radius: 4px; font-size: .85em; }
+  .hidden { display: none; }
+  .flow {
+    font-family: var(--mono); font-size: .78rem; color: var(--muted);
+    background: var(--panel2); padding: 12px; border-radius: 8px; overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>RiskRegistry — Pembaca On-Chain <span class="badge">DApp</span></h1>
+  <p class="sub">
+    Halaman ini membaca skor risiko <strong>langsung dari smart contract</strong> melalui JSON-RPC.
+    Tidak ada FastAPI, tidak ada database, tidak ada backend di tengah.
+  </p>
+
+  <div class="card">
+    <h2>Koneksi</h2>
+    <div class="row">
+      <div>
+        <label for="rpc">RPC endpoint</label>
+        <input id="rpc" value="http://127.0.0.1:8545" />
+      </div>
+      <div>
+        <label for="addr">Alamat kontrak RiskRegistry</label>
+        <input id="addr" value="0x5FbDB2315678afecb367f032d93F642f64180aa3" />
+      </div>
+      <div class="btns">
+        <button id="btnConnect">Hubungkan</button>
+        <button id="btnMM" class="ghost">MetaMask</button>
+      </div>
+    </div>
+    <div style="margin-top:14px" class="status">
+      <span class="dot" id="dot"></span><span id="connText">Belum terhubung</span>
+    </div>
+    <div id="connMsg"></div>
+  </div>
+
+  <div class="card">
+    <h2>Cek skor satu wallet <span style="color:var(--muted);font-weight:400;font-size:.8rem">— fungsi getRisk()</span></h2>
+    <div class="row">
+      <div style="flex:3 1 380px">
+        <label for="wallet">Alamat wallet</label>
+        <input id="wallet" placeholder="0x..." />
+      </div>
+      <div class="btns"><button id="btnRead" disabled>Baca on-chain</button></div>
+    </div>
+    <div id="readOut"></div>
+  </div>
+
+  <div class="card">
+    <h2>Riwayat penilaian <span style="color:var(--muted);font-weight:400;font-size:.8rem">— event RiskUpdated</span></h2>
+    <p class="sub" style="margin:0 0 12px">
+      Direkonstruksi dari log event sejak block 0. Mapping di Solidity tidak bisa di-iterate,
+      sehingga daftar ini hanya mungkin dibaca lewat event log.
+    </p>
+    <button id="btnLogs" disabled>Muat riwayat</button>
+    <div id="logsOut"></div>
+  </div>
+
+  <div class="card">
+    <h2>Yang dibuktikan halaman ini</h2>
+    <div class="flow">alur lama :  Browser → Streamlit → FastAPI → web3.py → Kontrak
+alur DApp :  Browser ────────────────────────────────► Kontrak</div>
+    <p class="note">
+      Semua pemanggilan di halaman ini memakai <code>eth_call</code> dan <code>eth_getLogs</code> mentah
+      via <code>fetch()</code> — ABI di-encode dan di-decode sendiri di JavaScript, tanpa satu pun
+      library eksternal. Artinya lapisan pembacaan sistem ini sudah benar-benar tidak bergantung
+      pada backend terpusat: siapa pun yang punya alamat kontrak dan akses ke node bisa
+      memverifikasi skornya sendiri.
+    </p>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Konstanta ABI — dihitung dari keccak256 tanda tangan fungsi/event.
+//   getRisk(address)                          -> 0xcca7ee41
+//   RiskUpdated(address,uint16,uint64,string) -> topic0 di bawah
+// ─────────────────────────────────────────────────────────────────────────────
+const SEL_GET_RISK = "0xcca7ee41";
+const SEL_OWNER    = "0x8da5cb5b";
+const TOPIC_RISK_UPDATED =
+  "0x714c3a9c073adc76bbe4b255f69bb4feba383e720ad06bdd9f16d7d1cce79fd4";
+
+let rpcUrl = null, contractAddr = null, useMetaMask = false, rpcId = 1;
+
+const $ = (id) => document.getElementById(id);
+
+// ── Lapisan JSON-RPC ────────────────────────────────────────────────────────
+async function rpc(method, params) {
+  if (useMetaMask && window.ethereum) {
+    return await window.ethereum.request({ method, params });
+  }
+  // Catatan CORS: node Hardhat menjawab preflight dengan
+  // `Access-Control-Allow-Methods: OPTIONS, GET` — POST tidak diizinkan.
+  // Memakai Content-Type "text/plain" membuat request tergolong *simple request*
+  // sehingga browser tidak mengirim preflight sama sekali. Hardhat tetap
+  // mem-parse body-nya sebagai JSON. (Diverifikasi terhadap node lokal.)
+  const res = await fetch(rpcUrl, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=UTF-8" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: rpcId++, method, params }),
+  });
+  if (!res.ok) throw new Error("HTTP " + res.status + " dari node RPC");
+  const json = await res.json();
+  if (json.error) throw new Error(json.error.message || JSON.stringify(json.error));
+  return json.result;
+}
+
+// ── Encode / decode ABI seadanya (cukup untuk kontrak sesederhana ini) ──────
+const strip = (h) => h.replace(/^0x/, "");
+const padAddr = (a) => strip(a).toLowerCase().padStart(64, "0");
+const slot = (hex, i) => strip(hex).slice(i * 64, (i + 1) * 64);
+const toInt = (word) => parseInt(word, 16);
+
+function decodeString(hex, offsetWordIndex) {
+  const body = strip(hex);
+  const offset = parseInt(slot(body, offsetWordIndex), 16) * 2; // byte -> nibble
+  const len = parseInt(body.slice(offset, offset + 64), 16);
+  const data = body.slice(offset + 64, offset + 64 + len * 2);
+  let out = "";
+  for (let i = 0; i < data.length; i += 2) {
+    out += String.fromCharCode(parseInt(data.substr(i, 2), 16));
+  }
+  return decodeURIComponent(escape(out)); // tangani UTF-8
+}
+
+function isAddress(a) { return /^0x[0-9a-fA-F]{40}$/.test((a || "").trim()); }
+
+function levelOf(score) {
+  return score < 40 ? "LOW" : score < 70 ? "MEDIUM" : "HIGH";
+}
+function fmtTime(ts) {
+  if (!ts) return "—";
+  return new Date(ts * 1000).toISOString().replace("T", " ").replace(".000Z", " UTC");
+}
+function msg(host, text, kind) {
+  $(host).innerHTML = `<div class="msg ${kind}">${text}</div>`;
+}
+
+// ── Panggilan kontrak ───────────────────────────────────────────────────────
+async function callGetRisk(wallet) {
+  const data = SEL_GET_RISK + padAddr(wallet);
+  const raw = await rpc("eth_call", [{ to: contractAddr, data }, "latest"]);
+  if (!raw || raw === "0x") throw new Error("Kontrak tidak mengembalikan data — periksa alamat kontrak.");
+  return {
+    riskScore: toInt(slot(raw, 0)),
+    timestamp: toInt(slot(raw, 1)),
+    modelVersion: decodeString(raw, 2),
+  };
+}
+
+async function fetchRiskEvents() {
+  const logs = await rpc("eth_getLogs", [{
+    fromBlock: "0x0", toBlock: "latest",
+    address: contractAddr, topics: [TOPIC_RISK_UPDATED],
+  }]);
+  // Simpan hanya catatan terbaru per wallet (block tertinggi) — sama seperti /records.
+  const latest = new Map();
+  for (const log of logs) {
+    const wallet = "0x" + log.topics[1].slice(-40);
+    const rec = {
+      wallet,
+      riskScore: toInt(slot(log.data, 0)),
+      timestamp: toInt(slot(log.data, 1)),
+      modelVersion: decodeString(log.data, 2),
+      block: parseInt(log.blockNumber, 16),
+    };
+    const prev = latest.get(wallet);
+    if (!prev || rec.block >= prev.block) latest.set(wallet, rec);
+  }
+  return [...latest.values()].sort((a, b) => b.timestamp - a.timestamp);
+}
+
+// ── Aksi UI ─────────────────────────────────────────────────────────────────
+async function connect(viaMetaMask) {
+  useMetaMask = !!viaMetaMask;
+  rpcUrl = $("rpc").value.trim();
+  contractAddr = $("addr").value.trim();
+  $("connMsg").innerHTML = "";
+
+  if (!isAddress(contractAddr)) {
+    msg("connMsg", "Alamat kontrak tidak valid (harus 0x + 40 hex).", "err");
+    return;
+  }
+
+  try {
+    if (useMetaMask) {
+      if (!window.ethereum) throw new Error("MetaMask tidak terpasang di browser ini.");
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+    }
+    const chainIdHex = await rpc("eth_chainId", []);
+    const blockHex = await rpc("eth_blockNumber", []);
+    const chainId = parseInt(chainIdHex, 16);
+
+    // Pastikan ada kontrak di alamat itu.
+    const code = await rpc("eth_getCode", [contractAddr, "latest"]);
+    if (!code || code === "0x") {
+      throw new Error("Tidak ada kontrak di alamat tersebut pada chain ini. " +
+                      "Jalankan ulang deploy.ts, lalu salin address dari chain/artifacts/deployment.json.");
+    }
+    let owner = "—";
+    try {
+      const raw = await rpc("eth_call", [{ to: contractAddr, data: SEL_OWNER }, "latest"]);
+      owner = "0x" + slot(raw, 0).slice(-40);
+    } catch (_) {}
+
+    $("dot").className = "dot on";
+    $("connText").textContent =
+      `terhubung · chainId ${chainId} · block ${parseInt(blockHex, 16)} · ` +
+      `${useMetaMask ? "MetaMask" : "RPC langsung"}`;
+    $("btnRead").disabled = false;
+    $("btnLogs").disabled = false;
+    msg("connMsg", `Kontrak ditemukan. Owner: <code>${owner}</code>`, "ok");
+  } catch (e) {
+    $("dot").className = "dot off";
+    $("connText").textContent = "gagal terhubung";
+    $("btnRead").disabled = true;
+    $("btnLogs").disabled = true;
+    msg("connMsg",
+      `${e.message}<br><span style="opacity:.8">Pastikan <code>npx hardhat node</code> sudah jalan ` +
+      `dan kontraknya sudah di-deploy.</span>`, "err");
+  }
+}
+
+async function readOne() {
+  const wallet = $("wallet").value.trim();
+  if (!isAddress(wallet)) { msg("readOut", "Alamat wallet tidak valid.", "err"); return; }
+  $("readOut").innerHTML = `<div class="msg">Membaca dari kontrak…</div>`;
+  try {
+    const r = await callGetRisk(wallet);
+    if (r.timestamp === 0) {
+      msg("readOut",
+        "Wallet ini <strong>belum pernah dinilai</strong> on-chain (record kosong). " +
+        "Jalankan <code>/analyze</code> untuk wallet ini lebih dulu.", "err");
+      return;
+    }
+    const lvl = levelOf(r.riskScore);
+    $("readOut").innerHTML = `
+      <div style="display:flex;align-items:center;gap:18px;margin-top:18px">
+        <div class="score">${r.riskScore}</div>
+        <div>
+          <span class="lvl ${lvl}">${lvl}</span>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:6px">skor risiko 0–100</div>
+        </div>
+      </div>
+      <dl class="kv">
+        <dt>Wallet</dt><dd>${wallet}</dd>
+        <dt>Versi model</dt><dd>${r.modelVersion || "—"}</dd>
+        <dt>Waktu penilaian</dt><dd>${fmtTime(r.timestamp)}</dd>
+        <dt>Sumber data</dt><dd>eth_call → RiskRegistry.getRisk() — tanpa backend</dd>
+      </dl>`;
+  } catch (e) {
+    msg("readOut", e.message, "err");
+  }
+}
+
+async function loadLogs() {
+  $("logsOut").innerHTML = `<div class="msg">Membaca event log…</div>`;
+  try {
+    const recs = await fetchRiskEvents();
+    if (!recs.length) {
+      msg("logsOut", "Belum ada event RiskUpdated. Lakukan minimal satu <code>/analyze</code> " +
+                     "dengan <code>CHAIN_ENABLED=true</code>.", "err");
+      return;
+    }
+    const rows = recs.map((r) => `
+      <tr>
+        <td class="mono">${r.wallet}</td>
+        <td class="mono">${r.riskScore}</td>
+        <td><span class="lvl ${levelOf(r.riskScore)}">${levelOf(r.riskScore)}</span></td>
+        <td class="mono">${r.modelVersion}</td>
+        <td class="mono">${fmtTime(r.timestamp)}</td>
+        <td class="mono">${r.block}</td>
+      </tr>`).join("");
+    $("logsOut").innerHTML = `
+      <div class="tablewrap" style="margin-top:14px">
+        <table>
+          <thead><tr><th>Wallet</th><th>Skor</th><th>Level</th><th>Versi model</th><th>Waktu (UTC)</th><th>Block</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <p class="note">${recs.length} wallet tercatat on-chain (catatan terbaru per wallet).</p>`;
+  } catch (e) {
+    msg("logsOut", e.message, "err");
+  }
+}
+
+// ── Muat alamat kontrak dari deployment.json bila halaman disajikan via HTTP ─
+(async function bootstrap() {
+  try {
+    const res = await fetch("../artifacts/deployment.json", { cache: "no-store" });
+    if (res.ok) {
+      const d = await res.json();
+      if (d.address) $("addr").value = d.address;
+    }
+  } catch (_) { /* dibuka via file:// — pakai nilai default */ }
+})();
+
+$("btnConnect").onclick = () => connect(false);
+$("btnMM").onclick = () => connect(true);
+$("btnRead").onclick = readOne;
+$("btnLogs").onclick = loadLogs;
+$("wallet").addEventListener("keydown", (e) => { if (e.key === "Enter") readOne(); });
+</script>
+</body>
+</html>
