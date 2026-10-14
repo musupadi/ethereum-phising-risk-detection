@@ -34,15 +34,24 @@ def _init():
         log.warning("CHAIN_ENABLED=false – chain calls are mocked.")
         return
 
-    if _w3 is not None:
+    # Hanya anggap sudah siap kalau kontraknya benar-benar termuat. Kalau init
+    # sebelumnya gagal (node belum nyala / deployment.json belum ada), kita coba
+    # lagi — bukan menyimpan setengah jadi yang bikin set_risk gagal diam-diam.
+    if _w3 is not None and _contract is not None:
         return
 
-    _w3 = Web3(Web3.HTTPProvider(RPC_URL))
+    w3 = Web3(Web3.HTTPProvider(RPC_URL))
     # Inject POA middleware (needed for Hardhat / Geth clique)
-    _w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
+    w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 
-    if not _w3.is_connected():
+    if not w3.is_connected():
         raise ConnectionError(f"Cannot connect to Ethereum node at {RPC_URL}")
+
+    if not ABI_JSON.exists() or not DEPLOYMENT_JSON.exists():
+        raise FileNotFoundError(
+            f"Kontrak belum ter-deploy: {DEPLOYMENT_JSON} / {ABI_JSON} tidak ada. "
+            "Jalankan: cd chain ; npx hardhat run scripts/deploy.ts --network localhost"
+        )
 
     # Load ABI
     with open(ABI_JSON) as f:
@@ -53,6 +62,7 @@ def _init():
         deployment = json.load(f)
     contract_address = Web3.to_checksum_address(deployment["address"])
 
+    _w3 = w3
     _contract = _w3.eth.contract(address=contract_address, abi=abi)
     _account = _w3.eth.account.from_key(SIGNER_PRIVATE_KEY)
     log.info("Connected to chain. Contract: %s  Signer: %s", contract_address, _account.address)

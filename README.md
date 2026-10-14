@@ -1,16 +1,3 @@
-# Terminal 1 — Hardhat node
-cd chain ; npx hardhat node
-
-# Terminal 2 — deploy kontrak (setelah node siap)
-cd chain ; npx hardhat run scripts/deploy.ts --network localhost
-
-# Terminal 3 — API (chain aktif)
-$env:CHAIN_ENABLED = "true"
-python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
-
-# Terminal 4 — UI
-streamlit run app/streamlit_app.py --server.port 8502
-
 # Ethereum Phishing Risk Registry
 
 AI + Blockchain risk scoring system that:
@@ -68,6 +55,10 @@ python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
 # di terminal lain:
 streamlit run app/streamlit_app.py --server.port 8502
 ```
+
+> ⚠️ Urutan wajib **node → deploy → API**, dan **deploy diulang tiap kali node
+> di-restart**. Kalau `chain_connected` masih `false`, lihat
+> [Troubleshooting](#troubleshooting--chain_connected-false).
 
 **Mode DApp — mode lengkap + halaman pembaca on-chain (4 terminal):**
 
@@ -224,25 +215,71 @@ Buka **http://localhost:8502**
 
 Demo end-to-end: skor risiko tercatat permanen ke smart contract `RiskRegistry`.
 
+> ⚠️ **Urutannya wajib: node → deploy → API.** Kalau FastAPI dinyalakan sebelum node
+> siap dan kontrak ter-deploy, koneksi chain-nya gagal. Kalau kamu terlanjur salah
+> urutan, **restart uvicorn** setelah node siap — lihat
+> [Troubleshooting](#troubleshooting--chain_connected-false) di bawah.
+
+**Terminal 1 — node blockchain lokal** (biarkan terbuka, jangan ditutup):
+
 ```powershell
-# Terminal 1 — Hardhat node lokal (biarkan jalan)
 cd chain
 npx hardhat node
+```
 
-# Terminal 2 — deploy kontrak (sekali, setelah node siap)
+Tunggu sampai muncul daftar 20 akun dan baris
+`Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/`.
+
+**Terminal 2 — deploy kontrak** (setelah node siap):
+
+```powershell
 cd chain
 npx hardhat run scripts/deploy.ts --network localhost
-#   -> menulis chain/artifacts/deployment.json + RiskRegistry.abi.json
-#   -> kontrak: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+```
 
-# Terminal 3 — FastAPI (chain aktif = default) lalu Streamlit
+Berhasil kalau outputnya seperti ini:
+
+```
+RiskRegistry deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+Deployment info written to: ...\chain\artifacts\deployment.json
+ABI written to: ...\chain\artifacts\RiskRegistry.abi.json
+```
+
+> 🔴 **Deploy WAJIB diulang setiap kali `npx hardhat node` dinyalakan ulang.** Bukan
+> cuma karena blockchain-nya kosong lagi — `deploy.ts` menulis `deployment.json` dan
+> `RiskRegistry.abi.json` ke dalam `chain/artifacts/`, yaitu folder milik Hardhat
+> sendiri, dan **Hardhat menghapus isi folder itu setiap kali compile ulang**. Tanpa
+> kedua file itu FastAPI tidak tahu alamat kontraknya, dan `chain_connected` akan
+> `false`. Terminal 2 boleh ditutup setelah deploy selesai; Terminal 1 tidak.
+
+**Terminal 3 — FastAPI** (jalankan dari root repo, bukan dari `chain/`):
+
+```powershell
 $env:CHAIN_ENABLED = "true"
 python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
-# di terminal lain:
+```
+
+**Terminal 4 — Streamlit:**
+
+```powershell
 streamlit run app/streamlit_app.py --server.port 8502
 ```
 
 Buka **http://localhost:8502**
+
+**Pastikan chain benar-benar tersambung** sebelum lanjut:
+
+```powershell
+curl http://localhost:8000/health
+# harus: {"status":"ok","chain_enabled":true,"chain_connected":true}
+```
+
+Lalu analisis satu wallet dan cek `tx_hash`-nya **tidak `null`** — itu bukti skornya
+benar-benar tertulis ke smart contract:
+
+```powershell
+curl -X POST http://localhost:8000/analyze -H "Content-Type: application/json" -d '{\"wallet\":\"0x4dad23689bef624af5d1757a56135901c915fcfd\"}'
+```
 
 ### Mode C — Mode B + halaman DApp pembaca on-chain (4 terminal)
 
@@ -358,6 +395,54 @@ Invoke-RestMethod -Uri http://127.0.0.1:8545 -Method Post -ContentType "applicat
 | **Halaman DApp (baca on-chain)** | **http://localhost:8503/dapp/** | **C** |
 
 > Catatan: aplikasi live memakai **XGBoost (MulDiGraph + Etherscan)** — model terbaik di tabel perbandingan tesis. GNN dan Random Forest tetap dilatih sebagai pembanding di `ml/train_dataset_scenarios.py`, tapi yang di-serve adalah XGBoost.
+
+### Troubleshooting — `chain_connected: false`
+
+Ini masalah paling sering di Mode B/C. Diagnosis berurutan, berhenti di langkah pertama
+yang gagal:
+
+**1. Node-nya hidup?**
+
+```powershell
+Invoke-RestMethod -Uri http://127.0.0.1:8545 -Method Post -ContentType "application/json" `
+  -Body '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}'
+```
+
+`Unable to connect to the remote server` → Terminal 1 mati. Nyalakan `npx hardhat node`
+lagi, lalu **deploy ulang** (langkah 2). Harus balas `result : 0x7a69`.
+
+**2. Kontraknya sudah ter-deploy?**
+
+```powershell
+Test-Path chain\artifacts\deployment.json, chain\artifacts\RiskRegistry.abi.json
+```
+
+Kalau ada yang `False` → deploy ulang:
+`cd chain ; npx hardhat run scripts/deploy.ts --network localhost`.
+Ingat, dua file ini **terhapus tiap kali Hardhat compile ulang** (lihat peringatan di
+Mode B), jadi hilangnya file ini normal — tinggal deploy lagi.
+
+**3. `CHAIN_ENABLED` benar-benar `true`?**
+
+```powershell
+curl http://localhost:8000/health
+```
+
+Kalau `chain_enabled: false`, berarti uvicorn dijalankan dengan `CHAIN_ENABLED=false`.
+Nilai ini dibaca dari `.env` (`api/config.py`) **atau** dari `$env:CHAIN_ENABLED` di
+terminal tempat uvicorn dijalankan — variabel env di PowerShell hanya berlaku untuk
+terminal itu saja, jadi set ulang di terminal yang sama sebelum menjalankan uvicorn.
+
+**4. Sudah benar semua tapi tetap `false`, atau `tx_hash` selalu `null`?**
+
+**Restart uvicorn (Ctrl+C lalu jalankan lagi).** Koneksi chain dibuat sekali saat
+permintaan pertama dan disimpan di memori proses; kalau saat itu node belum siap,
+proses uvicorn yang lama tetap memegang state gagal. Urutan yang benar selalu:
+**node → deploy → baru nyalakan API.**
+
+> Catatan: kegagalan tulis on-chain sengaja tidak mematikan request (`api/main.py`
+> menangkap error-nya), jadi `/analyze` tetap balas 200 dengan `tx_hash: null`.
+> **Selalu cek `tx_hash`**, jangan hanya lihat status HTTP-nya.
 
 ---
 
