@@ -10,17 +10,17 @@
     "test_size": 0.2,
     "random_state": 42,
     "stratified": true,
-    "n_train": 6876,
-    "n_test": 1719,
+    "n_train": 10252,
+    "n_test": 2563,
     "n_train_phishing": 932,
     "n_test_phishing": 233
   },
   "dimensions": {
-    "graphsage_input_features": 19,
+    "graphsage_input_features": 18,
     "graphsage_embedding_dimension": 128,
     "etherscan_feature_count": 7,
     "fused_vector_dimension": 135,
-    "scenario2_tabular_feature_count": 26,
+    "scenario2_tabular_feature_count": 25,
     "etherscan_features": [
       "created_at_ts",
       "balance",
@@ -48,57 +48,56 @@
       "in_out_ratio",
       "sent_received_ratio",
       "timestamp_spread_in",
-      "timestamp_spread_out",
-      "graph_present"
+      "timestamp_spread_out"
     ]
   },
   "late_fusion_v2": {
     "Model": "GraphSAGE-Etherscan Late Fusion V2",
     "Input": "128-d graph embedding || 7 scaled Etherscan features = 135-d",
-    "Accuracy": 0.9668411867364747,
-    "Precision": 0.8492063492063492,
-    "Recall": 0.9184549356223176,
-    "F1": 0.8824742268041237,
-    "ROC-AUC": 0.9916257025514241,
-    "PR-AUC": 0.9528855889861982,
-    "TN": 1448,
-    "FP": 38,
-    "FN": 19,
-    "TP": 214
+    "Accuracy": 0.9734685914943426,
+    "Precision": 0.8113207547169812,
+    "Recall": 0.9227467811158798,
+    "F1": 0.8634538152610441,
+    "ROC-AUC": 0.991222899666599,
+    "PR-AUC": 0.9375239269538465,
+    "TN": 2280,
+    "FP": 50,
+    "FN": 18,
+    "TP": 215
   },
   "graphsage_graph_only_leakage_controlled": {
     "Model": "GraphSAGE graph-only (leakage-controlled)",
-    "Input": "19 graph features + 264 EPTransNet edges",
-    "Accuracy": 0.9488074461896452,
-    "Precision": 0.7865612648221344,
-    "Recall": 0.8540772532188842,
-    "F1": 0.8189300411522634,
-    "ROC-AUC": 0.971428612688382,
-    "PR-AUC": 0.8879936208787067,
-    "TN": 1432,
-    "FP": 54,
-    "FN": 34,
-    "TP": 199
+    "Input": "18 graph features + 354 EPTransNet edges",
+    "Accuracy": 0.9516191962543894,
+    "Precision": 0.6822742474916388,
+    "Recall": 0.8755364806866953,
+    "F1": 0.7669172932330827,
+    "ROC-AUC": 0.9714094936359116,
+    "PR-AUC": 0.8161068142600219,
+    "TN": 2235,
+    "FP": 95,
+    "FN": 29,
+    "TP": 204
   },
   "xgboost_scenario2_reference": {
     "Model": "XGBoost tabular (Scenario 2)",
-    "Input": "26 tabular features (19 graph + 7 Etherscan)",
-    "Accuracy": 0.9749854566608493,
-    "Precision": 0.8861788617886179,
-    "Recall": 0.9356223175965666,
-    "F1": 0.9102296450939458,
-    "ROC-AUC": 0.9948041520572554,
-    "PR-AUC": 0.9701142579566242,
-    "TN": 1458,
-    "FP": 28,
-    "FN": 15,
-    "TP": 218
+    "Input": "25 tabular features (19 graph + 7 Etherscan)",
+    "Accuracy": 0.9789309403043308,
+    "Precision": 0.8403041825095057,
+    "Recall": 0.9484978540772532,
+    "F1": 0.8911290322580645,
+    "ROC-AUC": 0.9938182688942512,
+    "PR-AUC": 0.9582360232795704,
+    "TN": 2288,
+    "FP": 42,
+    "FN": 12,
+    "TP": 221
   },
   "published_xgboost_scenario2_reference": {
-    "Accuracy": 0.975,
-    "Precision": 0.8862,
-    "Recall": 0.9356,
-    "F1": 0.9102
+    "Accuracy": 0.9789,
+    "Precision": 0.8403,
+    "Recall": 0.9485,
+    "F1": 0.8911
   },
   "edge_audit": {
     "edge_sources_used": [
@@ -107,110 +106,110 @@
     "edge_sources_excluded": [
       "data/raw/etherscan_edges.csv (Etherscan-derived edges) - excluded by V2 design"
     ],
-    "muldigraph_addresses_found": 8595,
-    "dataset_addresses_total": 8595,
-    "raw_directed_edge_entries": 528,
-    "unique_directed_edges": 264,
-    "edges_train_train": 150,
+    "muldigraph_addresses_found": 12815,
+    "dataset_addresses_total": 12815,
+    "raw_directed_edge_entries": 708,
+    "unique_directed_edges": 354,
+    "edges_train_train": 244,
     "edges_train_test": 95,
-    "edges_test_test": 19,
-    "self_loops_added_by_pyg_builder": 8595,
+    "edges_test_test": 15,
+    "self_loops_added_by_pyg_builder": 12815,
     "note": "raw_directed_edge_entries counts every (successor/predecessor) hit and so double-counts each edge once from each endpoint; unique_directed_edges is the deduplicated set actually passed to the GNN. V1 reported 528 raw MulDiGraph entries + 126 Etherscan entries; V2 uses the MulDiGraph entries only."
   },
   "fused_model_gain_report": {
-    "features_used_by_trees": 134,
-    "etherscan_gain_share": 0.018470536048063296,
-    "embedding_gain_share": 0.9815294639519367,
+    "features_used_by_trees": 129,
+    "etherscan_gain_share": 0.018318554594547978,
+    "embedding_gain_share": 0.981681445405452,
     "top_features": [
       {
-        "feature": "sage_emb_89",
-        "gain": 1054.1746826171875,
-        "share": 0.3979096058119254
+        "feature": "sage_emb_91",
+        "gain": 2096.22509765625,
+        "share": 0.4640262891446846
       },
       {
-        "feature": "sage_emb_107",
-        "gain": 293.9299621582031,
-        "share": 0.11094703497177107
+        "feature": "sage_emb_123",
+        "gain": 938.5125122070312,
+        "share": 0.20775177190760782
       },
       {
-        "feature": "sage_emb_127",
-        "gain": 285.9840087890625,
-        "share": 0.1079477491560038
+        "feature": "sage_emb_93",
+        "gain": 128.0910186767578,
+        "share": 0.028354588510458387
       },
       {
-        "feature": "sage_emb_19",
-        "gain": 117.94499206542969,
-        "share": 0.04451960958095639
+        "feature": "sage_emb_74",
+        "gain": 105.85723114013672,
+        "share": 0.02343285470630494
       },
       {
-        "feature": "sage_emb_4",
-        "gain": 51.44845199584961,
-        "share": 0.01941977320350466
+        "feature": "sage_emb_35",
+        "gain": 73.30758666992188,
+        "share": 0.01622757376897623
       },
       {
-        "feature": "sage_emb_65",
-        "gain": 35.13005065917969,
-        "share": 0.013260216585018612
-      },
-      {
-        "feature": "sage_emb_41",
-        "gain": 29.234329223632812,
-        "share": 0.01103481292936348
-      },
-      {
-        "feature": "sage_emb_125",
-        "gain": 24.14469337463379,
-        "share": 0.009113674973959858
-      },
-      {
-        "feature": "sage_emb_98",
-        "gain": 21.489429473876953,
-        "share": 0.008111416971089129
-      },
-      {
-        "feature": "sage_emb_60",
-        "gain": 21.21521759033203,
-        "share": 0.008007912737597753
-      },
-      {
-        "feature": "sage_emb_36",
-        "gain": 16.90739631652832,
-        "share": 0.006381879127388271
-      },
-      {
-        "feature": "sage_emb_119",
-        "gain": 16.39362907409668,
-        "share": 0.006187952139493332
+        "feature": "sage_emb_112",
+        "gain": 71.86141204833984,
+        "share": 0.015907444483310183
       },
       {
         "feature": "sage_emb_62",
-        "gain": 16.115215301513672,
-        "share": 0.006082861857656858
+        "gain": 65.17344665527344,
+        "share": 0.014426977635192335
       },
       {
-        "feature": "sage_emb_5",
-        "gain": 15.500626564025879,
-        "share": 0.005850878708846006
+        "feature": "sage_emb_124",
+        "gain": 57.906822204589844,
+        "share": 0.012818417188974607
       },
       {
-        "feature": "sage_emb_43",
-        "gain": 15.406108856201172,
-        "share": 0.005815201980422398
+        "feature": "sage_emb_106",
+        "gain": 21.94400405883789,
+        "share": 0.004857586517680478
+      },
+      {
+        "feature": "sage_emb_57",
+        "gain": 21.373855590820312,
+        "share": 0.004731376847654331
+      },
+      {
+        "feature": "sage_emb_110",
+        "gain": 20.928770065307617,
+        "share": 0.004632851462672257
+      },
+      {
+        "feature": "sage_emb_72",
+        "gain": 20.08521270751953,
+        "share": 0.004446119231075204
+      },
+      {
+        "feature": "eth_unique_counterparties",
+        "gain": 19.447072982788086,
+        "share": 0.00430485882504628
+      },
+      {
+        "feature": "sage_emb_89",
+        "gain": 19.423152923583984,
+        "share": 0.004299563813398432
+      },
+      {
+        "feature": "eth_transaction_count",
+        "gain": 19.3787841796875,
+        "share": 0.004289742223337653
       }
     ]
   },
   "alignment_and_leakage_checks": [
-    "non-redundancy: GraphSAGE input (19 graph features) and the fused Etherscan block (7 features) are disjoint - no feature enters twice",
-    "wallet population = 8,595 unique lowercased EPTransNet addresses; no wallet added or dropped",
-    "stratified 80:20 split, random_state=42 -> train=6876, test=1719 (identical to Scenario 2)",
-    "topology built from MulDiGraph only (264 unique directed edges); etherscan_edges.csv never read",
+    "non-redundancy: GraphSAGE input (18 graph features) and the fused Etherscan block (7 features) are disjoint - no feature enters twice",
+    "wallet population = 12,815 unique lowercased EPTransNet addresses; no wallet added or dropped",
+    "stratified 80:20 split, random_state=42 -> train=10252, test=2563 (identical to Scenario 2)",
+    "topology built from MulDiGraph only (354 unique directed edges); etherscan_edges.csv never read",
     "graph-feature StandardScaler fitted on TRAIN rows only",
-    "early stopping driven by a train-internal validation slice (fit=5500, val=1376); test F1/loss/ROC-AUC/PR-AUC never monitored",
+    "early stopping driven by a train-internal validation slice (fit=8201, val=2051); test F1/loss/ROC-AUC/PR-AUC never monitored",
     "embedding = output of the final SAGEConv->BatchNorm->ReLU (pre-head, 128-d); logits/probabilities not used",
     "graph node order == [train wallets..., test wallets...]; embedding rows aligned by position",
     "Etherscan values zero-filled (same as Scenario 2); StandardScaler fitted on TRAIN only",
     "embedding rows, Etherscan rows, labels and split indices refer to the same wallet in the same order",
-    "published XGBoost Scenario 2 baseline reproduced exactly (Acc 97.50 / Prec 88.62 / Rec 93.56 / F1 91.02)"
+    "published XGBoost Scenario 2 baseline reproduced exactly (Acc 97.89 / Prec 84.03 / Rec 94.85 / F1 89.11)"
   ],
   "seeds": {
     "numpy": 42,

@@ -17,7 +17,6 @@ in_out_ratio,MulDiGraph (EPTransNet),GraphSAGE encoder input,True
 sent_received_ratio,MulDiGraph (EPTransNet),GraphSAGE encoder input,True
 timestamp_spread_in,MulDiGraph (EPTransNet),GraphSAGE encoder input,True
 timestamp_spread_out,MulDiGraph (EPTransNet),GraphSAGE encoder input,True
-graph_present,MulDiGraph (EPTransNet),GraphSAGE encoder input,True
 created_at_ts,Etherscan (enrichment),tabular branch (concatenated after embedding),True
 balance,Etherscan (enrichment),tabular branch (concatenated after embedding),True
 transaction_count,Etherscan (enrichment),tabular branch (concatenated after embedding),True

@@ -629,7 +629,7 @@ Recommended (simplest) workflow on Windows:
 PowerShell activation example:
 
 ```powershell
-cd /d C:\Kuliah\ethereum-phising-risk-detection
+cd /d <path-to-repo>
 .\.venv\Scripts\Activate.ps1
 python ml\enrich_real_addresses_etherscan.py
 ```
@@ -638,7 +638,7 @@ Control batch size and request pacing (recommended for free Etherscan key):
 
 ```powershell
 # Windows PowerShell example
-cd /d C:\Kuliah\ethereum-phising-risk-detection
+cd /d <path-to-repo>
 $env:ETHERSCAN_PER_RUN_LIMIT='1000'
 $env:ETHERSCAN_REQUEST_DELAY='0.4'
 .\.venv\Scripts\python.exe ml\enrich_real_addresses_etherscan.py
@@ -710,7 +710,7 @@ Run one batch manually:
 
 ```powershell
 # Windows PowerShell example (use PowerShell, not Command Prompt)
-cd /d C:\Kuliah\ethereum-phising-risk-detection
+cd /d <path-to-repo>
 $env:GOOGLE_APPLICATION_CREDENTIALS='C:\path\to\service-account.json'
 $env:BIGQUERY_PROJECT_ID='your-gcp-project-id'
 $env:BIGQUERY_DAYS_WINDOW='90'
@@ -752,7 +752,7 @@ Notes:
 - `ml/train_dataset_scenarios.py` is the script to run if you want the complete thesis results in `ml/artifacts/dataset_scenarios_comparison.csv`.
 
 ```powershell
-cd /d C:\Kuliah\ethereum-phising-risk-detection
+cd /d <path-to-repo>
 .\.venv\Scripts\Activate.ps1
 python ml\enrich_real_addresses_bigquery.py
 ```
@@ -760,7 +760,7 @@ python ml\enrich_real_addresses_bigquery.py
 If you prefer Command Prompt (`cmd`), activate venv like this first:
 
 ```bat
-cd /d C:\Kuliah\ethereum-phising-risk-detection
+cd /d <path-to-repo>
 .venv\Scripts\activate.bat
 python ml\enrich_real_addresses_bigquery.py
 ```
@@ -768,9 +768,9 @@ python ml\enrich_real_addresses_bigquery.py
 If you use Command Prompt (`cmd`), use this syntax instead:
 
 ```bat
-cd /d C:\Kuliah\ethereum-phising-risk-detection
-set GOOGLE_APPLICATION_CREDENTIALS=C:\Kuliah\ethereum-phising-risk-detection\primal-library-239611-b6941382db9f.json
-set BIGQUERY_PROJECT_ID=primal-library-239611
+cd /d <path-to-repo>
+set GOOGLE_APPLICATION_CREDENTIALS=C:\path\to\your-service-account.json
+set BIGQUERY_PROJECT_ID=your-gcp-project-id
 set BIGQUERY_DAYS_WINDOW=90
 set BIGQUERY_PER_RUN_LIMIT=1000
 .venv\Scripts\python.exe ml\enrich_real_addresses_bigquery.py
