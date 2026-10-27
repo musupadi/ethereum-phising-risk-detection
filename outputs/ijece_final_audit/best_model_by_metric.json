@@ -15,8 +15,8 @@
     "recall": {
       "scenario": "muldigraph_plus_etherscan_plus_bigquery",
       "model": "XGBoost",
-      "mean": 0.9399,
-      "std": 0.0157
+      "mean": 0.9403,
+      "std": 0.0133
     },
     "f1": {
       "scenario": "muldigraph_plus_etherscan",
@@ -27,19 +27,19 @@
     "roc_auc": {
       "scenario": "muldigraph_plus_etherscan_plus_bigquery",
       "model": "XGBoost",
-      "mean": 0.9944,
+      "mean": 0.9945,
       "std": 0.002
     },
     "pr_auc": {
       "scenario": "muldigraph_plus_etherscan_plus_bigquery",
       "model": "XGBoost",
-      "mean": 0.9632,
-      "std": 0.0091
+      "mean": 0.9633,
+      "std": 0.009
     },
     "fewest_FN": {
       "scenario": "muldigraph_plus_etherscan_plus_bigquery",
       "model": "XGBoost",
-      "mean": 14.0
+      "mean": 13.9
     },
     "fewest_FP": {
       "scenario": "muldigraph_plus_etherscan",
@@ -53,17 +53,17 @@
       "1": 0.0041,
       "2": -0.0112,
       "3": -0.0002,
-      "4": 0.0014,
-      "5": 0.0047,
-      "6": 0.002,
-      "7": 0.0232,
-      "8": 0.0136,
+      "4": -0.005,
+      "5": 0.0084,
+      "6": 0.0016,
+      "7": 0.025,
+      "8": 0.0113,
       "42": 0.001
     },
-    "seeds_rf_higher_f1": 7,
-    "mean_diff_rf_minus_xgb": 0.0037,
-    "std_diff": 0.0092,
-    "wilcoxon_p_two_sided": 0.1602,
+    "seeds_rf_higher_f1": 6,
+    "mean_diff_rf_minus_xgb": 0.0033,
+    "std_diff": 0.0099,
+    "wilcoxon_p_two_sided": 0.4316,
     "seeds_xgb_higher_recall": 10,
     "seeds_xgb_higher_pr_auc": 10,
     "seeds_xgb_higher_roc_auc": 9,

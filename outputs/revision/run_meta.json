@@ -20,5 +20,5 @@
     "muldigraph_plus_etherscan_plus_bigquery": 35
   },
   "graph_edges_muldigraph_only": 354,
-  "runtime_s": 774.9
+  "runtime_s": 921.2
 }

@@ -17,6 +17,16 @@ Every change to the experimental protocol, newest first. Earlier outputs are pre
 | 7 | New lower-prevalence sensitivity (S1, 1:10 … 1:100 with extra normals featurised from MulDiGraph) and an analytic prior-shift estimate of precision | 1:10 does not represent the real prevalence | `experiments/revision_extra.py` | `prevalence_*` |
 | 8 | New feature selection with the subset chosen by 5-fold CV inside the training split | `ml/feature_selection.py` selected the best subset by **test** F1 | `experiments/revision_extra.py` | `feature_selection_cv_*` |
 | 9 | Consistency validator | requested reproducibility check | `scripts/validate_revision.py` | `validation_results.json` |
+| 10 | `ml/train_dataset_scenarios.py` seeds NumPy and PyTorch before building GraphSAGE | the single-split GraphSAGE F1 changed between runs (S1 0.7649 vs 0.7871); two runs are now identical | `ml/train_dataset_scenarios.py` | `ml/artifacts/dataset_scenarios_comparison.csv` and its GNN confusion matrices |
+| 11 | Late-fusion V2 labels report the actual feature counts (18 graph + 7 Etherscan) instead of the hard-coded "19 graph" | stale text from the 8,595 schema | `experiments/run_graphsage_etherscan_late_fusion_v2.py` | `outputs/late_fusion_report_v2.md`, `outputs/embedding_only_ablation_report.md` |
+| 12 | Consolidated metrics table | single traceable source of every number | `scripts/build_final_metrics.py` | `FINAL_VERIFIED_METRICS.csv` |
+| 13 | Model benchmarks re-measured (live Etherscan runs kept) | consistent v2 timestamp; values vary run to run (load 75.5 → 60.0 ms, service path 3.54 → 2.87 ms) | `experiments/revision_ops.py` | `ops_metrics.json` |
+| 14 | v1 markdown in `outputs/ijece_final_audit/` replaced by pointers to the v2 documents | avoid v1 numbers being read as final | — | `outputs/ijece_final_audit/*.md` |
+| 15 | Figure 2 regenerated from v2 10-seed results | Reviewer C6 | `scripts/make_figure2.py` | `figure2_f1_by_scenario.png/.pdf` |
+| 16 | Stale docstrings fixed (comments only) | audit L-2 | `api/services/ml_service.py` | — |
+
+Run log of v2: `revision_ijece.py` 12:38–12:54, `revision_extra.py` 12:54–12:58, follow-up scripts
+13:00–13:10 (27 Oct 2026). Results: `VALIDATION_REPORT.md`.
 
 Not changed (deliberately): the production artifact `ml/artifacts/model_prod_xgb.json`, `ml/predict.py`,
 the API, the RiskRegistry contract, raw data and labels.

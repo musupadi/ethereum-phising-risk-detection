@@ -2,7 +2,7 @@
   "experiment": "GraphSAGE-Etherscan Late Fusion V2 (Leakage-Controlled, Non-Redundant)",
   "fusion_type": "embedding-level late fusion (graph-tabular)",
   "corrections_over_v1": [
-    "GraphSAGE input restricted to the 19 graph-derived features (no Etherscan double-use)",
+    "GraphSAGE input restricted to the 18 graph-derived features (no Etherscan double-use)",
     "no test signal used for early stopping or model selection, for any model",
     "topology restricted to EPTransNet/MulDiGraph edges (etherscan_edges.csv excluded)"
   ],
@@ -54,16 +54,16 @@
   "late_fusion_v2": {
     "Model": "GraphSAGE-Etherscan Late Fusion V2",
     "Input": "128-d graph embedding || 7 scaled Etherscan features = 135-d",
-    "Accuracy": 0.9734685914943426,
-    "Precision": 0.8113207547169812,
-    "Recall": 0.9227467811158798,
-    "F1": 0.8634538152610441,
-    "ROC-AUC": 0.991222899666599,
-    "PR-AUC": 0.9375239269538465,
-    "TN": 2280,
-    "FP": 50,
-    "FN": 18,
-    "TP": 215
+    "Accuracy": 0.9726882559500585,
+    "Precision": 0.7985347985347986,
+    "Recall": 0.9356223175965666,
+    "F1": 0.8616600790513834,
+    "ROC-AUC": 0.9919265412882905,
+    "PR-AUC": 0.9388856576157696,
+    "TN": 2275,
+    "FP": 55,
+    "FN": 15,
+    "TP": 218
   },
   "graphsage_graph_only_leakage_controlled": {
     "Model": "GraphSAGE graph-only (leakage-controlled)",
@@ -81,7 +81,7 @@
   },
   "xgboost_scenario2_reference": {
     "Model": "XGBoost tabular (Scenario 2)",
-    "Input": "25 tabular features (19 graph + 7 Etherscan)",
+    "Input": "25 tabular features (18 graph + 7 Etherscan)",
     "Accuracy": 0.9789309403043308,
     "Precision": 0.8403041825095057,
     "Recall": 0.9484978540772532,

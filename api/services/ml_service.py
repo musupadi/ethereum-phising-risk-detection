@@ -39,8 +39,9 @@ def _load_lookup_df() -> pd.DataFrame:
     """Full sampled dataset indexed by lowercase wallet address (node_id).
 
     Used by 'scan by address' so a user can paste a wallet and get its
-    precomputed features (incl. Etherscan) without knowing a row_id. Covers all
-    ~8.595 sampled wallets in hybrid_dataset.csv.
+    precomputed features (incl. Etherscan) without knowing a row_id. Covers
+    all 12,815 wallets in hybrid_dataset.csv (including training wallets,
+    whose scores are therefore in-sample).
     """
     global _lookup_df
     if _lookup_df is None:
@@ -158,7 +159,7 @@ def predict_from_address(wallet: str) -> dict:
     by its address, pull its precomputed graph features, and run inference.
 
     Jika alamat tidak ada di dataset dan LIVE_SCAN_ENABLED=true, sistem beralih ke
-    mode live (fitur diambil dari Etherscan, dinilai model B). Bila mode live mati,
+    mode live (fitur diambil dari Etherscan, dinilai model produksi yang sama). Bila mode live mati,
     perilakunya seperti semula: KeyError -> HTTP 404.
     """
     df = _load_lookup_df()

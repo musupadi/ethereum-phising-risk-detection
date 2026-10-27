@@ -3,5 +3,5 @@ XGBoost_Scenario2,actual_normal,2288,42
 XGBoost_Scenario2,actual_phishing,12,221
 GraphSAGE_graph_only,actual_normal,2235,95
 GraphSAGE_graph_only,actual_phishing,29,204
-LateFusion_V2,actual_normal,2280,50
-LateFusion_V2,actual_phishing,18,215
+LateFusion_V2,actual_normal,2275,55
+LateFusion_V2,actual_phishing,15,218

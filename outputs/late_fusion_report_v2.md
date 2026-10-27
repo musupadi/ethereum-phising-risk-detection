@@ -47,17 +47,17 @@ The two sets are disjoint - asserted at runtime - so no feature is consumed twic
 
 | Model | Input | Accuracy | Precision | Recall | F1 | ROC-AUC | PR-AUC | TN | FP | FN | TP |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| XGBoost tabular (Scenario 2) | 25 tabular features (19 graph + 7 Etherscan) | 97.89% | 84.03% | 94.85% | 89.11% | 0.9938 | 0.9582 | 2288 | 42 | 12 | 221 |
+| XGBoost tabular (Scenario 2) | 25 tabular features (18 graph + 7 Etherscan) | 97.89% | 84.03% | 94.85% | 89.11% | 0.9938 | 0.9582 | 2288 | 42 | 12 | 221 |
 | GraphSAGE graph-only (leakage-controlled) | 18 graph features + 354 EPTransNet edges | 95.16% | 68.23% | 87.55% | 76.69% | 0.9714 | 0.8161 | 2235 | 95 | 29 | 204 |
-| GraphSAGE-Etherscan Late Fusion V2 | 128-d graph embedding || 7 scaled Etherscan features = 135-d | 97.35% | 81.13% | 92.27% | 86.35% | 0.9912 | 0.9375 | 2280 | 50 | 18 | 215 |
+| GraphSAGE-Etherscan Late Fusion V2 | 128-d graph embedding || 7 scaled Etherscan features = 135-d | 97.27% | 79.85% | 93.56% | 86.17% | 0.9919 | 0.9389 | 2275 | 55 | 15 | 218 |
 
 ### Does fusion improve on XGBoost?
 
-The late-fusion V2 model **does not improve** on the XGBoost Scenario 2 tabular baseline (86.35% vs 89.11%, -2.77 pp on the held-out test set); no improvement is claimed.
+The late-fusion V2 model **does not improve** on the XGBoost Scenario 2 tabular baseline (86.17% vs 89.11%, -2.95 pp on the held-out test set); no improvement is claimed.
 
 ### Does fusion improve on GraphSAGE?
 
-The late-fusion V2 model **improves** F1 over the leakage-controlled graph-only GraphSAGE baseline (86.35% vs 76.69%, +9.65 pp on the held-out test set).
+The late-fusion V2 model **improves** F1 over the leakage-controlled graph-only GraphSAGE baseline (86.17% vs 76.69%, +9.47 pp on the held-out test set).
 
 ### Where does the fused model get its signal?
 

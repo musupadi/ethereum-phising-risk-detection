@@ -5,7 +5,7 @@ V2 experiment: "GraphSAGE-Etherscan Late Fusion (Leakage-Controlled, Non-Redunda
 
 Corrections over V1 (experiments/run_graphsage_etherscan_late_fusion.py, untouched):
 
-  1. NON-REDUNDANT. The GraphSAGE encoder is fed ONLY the 19 graph-derived
+  1. NON-REDUNDANT. The GraphSAGE encoder is fed ONLY the 18 graph-derived
      (Scenario-1) features. The 7 Etherscan features enter the model exactly once -
      in the tabular branch that is concatenated after the embedding. In V1 the same
      7 Etherscan features were both GraphSAGE inputs and concatenated again.
@@ -318,7 +318,7 @@ def main() -> None:
         f"etherscan_edges.csv never read"
     )
 
-    # ── 3. GraphSAGE encoder on the 19 graph features ─────────────────────────
+    # ── 3. GraphSAGE encoder on the 18 graph features ─────────────────────────
     X_train_g = train_df[graph_cols].fillna(0).values.astype(np.float64)
     X_test_g = test_df[graph_cols].fillna(0).values.astype(np.float64)
 
@@ -405,7 +405,7 @@ def main() -> None:
     rows = [
         metrics_row(
             "XGBoost tabular (Scenario 2)",
-            f"{len(scenario2_cols)} tabular features (19 graph + 7 Etherscan)",
+            f"{len(scenario2_cols)} tabular features ({len(graph_cols)} graph + {len(etherscan_cols)} Etherscan)",
             y_test, xgb_pred, xgb_proba,
         ),
         metrics_row(
@@ -471,7 +471,7 @@ def main() -> None:
                 "experiment": "GraphSAGE-Etherscan Late Fusion V2 (Leakage-Controlled, Non-Redundant)",
                 "fusion_type": "embedding-level late fusion (graph-tabular)",
                 "corrections_over_v1": [
-                    "GraphSAGE input restricted to the 19 graph-derived features (no Etherscan double-use)",
+                    "GraphSAGE input restricted to the 18 graph-derived features (no Etherscan double-use)",
                     "no test signal used for early stopping or model selection, for any model",
                     "topology restricted to EPTransNet/MulDiGraph edges (etherscan_edges.csv excluded)",
                 ],

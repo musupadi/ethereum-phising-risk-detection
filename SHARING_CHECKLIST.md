@@ -76,6 +76,10 @@ Aman dihapus — tidak ada script yang membaca file-file ini:
 
 ## D. Status uji jalan (smoke test di folder clone bersih, 27 Okt 2026)
 
+> **Update revisi v2:** status terbaru ada di `outputs/revision/VALIDATION_REPORT.md`
+> (`scripts/validate_revision.py`: 22 PASS, 0 FAIL, 0 BLOCKED). Tabel di bawah adalah smoke test
+> v1, yang memakai pipeline yang sama sebelum perbaikan early stopping XGBoost.
+
 Diuji dari `git clone` bersih + perubahan revisi, tanpa `.env`, dengan `MulDiGraph.pkl`
 disalin manual (seperti yang akan dilakukan reviewer).
 

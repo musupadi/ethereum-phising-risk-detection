@@ -2,8 +2,8 @@
 
 ## Why this experiment exists
 
-Late fusion V2 (F1 86.35%) beat the graph-only GraphSAGE baseline (F1 76.69%) by
-+9.65 pp, but **two things changed at once**: the GraphSAGE linear classification head was
+Late fusion V2 (F1 86.17%) beat the graph-only GraphSAGE baseline (F1 76.69%) by
++9.47 pp, but **two things changed at once**: the GraphSAGE linear classification head was
 replaced by XGBoost, and seven Etherscan features were concatenated. That confound made the
 V2 gain impossible to attribute. This ablation removes the Etherscan branch and changes
 nothing else, which separates the two effects.
@@ -25,27 +25,27 @@ nothing else, which separates the two effects.
 
 | # | Model | Input | Accuracy | Precision | Recall | F1 | ROC-AUC | PR-AUC | TN | FP | FN | TP |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | XGBoost tabular (Scenario 2) | 25 tabular features (19 graph + 7 Etherscan) | 97.89% | 84.03% | 94.85% | 89.11% | 0.9938 | 0.9582 | 2288 | 42 | 12 | 221 |
+| 1 | XGBoost tabular (Scenario 2) | 25 tabular features (18 graph + 7 Etherscan) | 97.89% | 84.03% | 94.85% | 89.11% | 0.9938 | 0.9582 | 2288 | 42 | 12 | 221 |
 | 2 | GraphSAGE graph-only (leakage-controlled) | 18 graph features + 354 EPTransNet edges | 95.16% | 68.23% | 87.55% | 76.69% | 0.9714 | 0.8161 | 2235 | 95 | 29 | 204 |
-| 3 | GraphSAGE Embedding + XGBoost (No Etherscan Ablation) | 128-d graph embedding only (no Etherscan) | 95.59% | 68.99% | 93.56% | 79.42% | 0.9814 | 0.8931 | 2232 | 98 | 15 | 218 |
-| 4 | GraphSAGE-Etherscan Late Fusion V2 | 128-d graph embedding || 7 scaled Etherscan features = 135-d | 97.35% | 81.13% | 92.27% | 86.35% | 0.9912 | 0.9375 | 2280 | 50 | 18 | 215 |
+| 3 | GraphSAGE Embedding + XGBoost (No Etherscan Ablation) | 128-d graph embedding only (no Etherscan) | 95.59% | 68.87% | 93.99% | 79.49% | 0.9825 | 0.8932 | 2231 | 99 | 14 | 219 |
+| 4 | GraphSAGE-Etherscan Late Fusion V2 | 128-d graph embedding || 7 scaled Etherscan features = 135-d | 97.27% | 79.85% | 93.56% | 86.17% | 0.9919 | 0.9389 | 2275 | 55 | 15 | 218 |
 
 ## Attribution
 
 | Effect | Contribution to F1 |
 |---|---|
-| Replacing the GraphSAGE linear head with XGBoost (row 2 -> row 3) | **+2.73 pp** |
-| Adding the 7 Etherscan features (row 3 -> row 4) | **+6.93 pp** |
-| Total gain of late fusion V2 over the graph-only baseline (row 2 -> row 4) | **+9.65 pp** |
-| Remaining gap of the embedding-only model to XGBoost Scenario 2 (row 3 -> row 1) | **-9.70 pp** |
+| Replacing the GraphSAGE linear head with XGBoost (row 2 -> row 3) | **+2.80 pp** |
+| Adding the 7 Etherscan features (row 3 -> row 4) | **+6.67 pp** |
+| Total gain of late fusion V2 over the graph-only baseline (row 2 -> row 4) | **+9.47 pp** |
+| Remaining gap of the embedding-only model to XGBoost Scenario 2 (row 3 -> row 1) | **-9.62 pp** |
 
 ## Verdict
 
-Embedding-only XGBoost reaches F1 79.42%, which is materially lower than late fusion V2 (86.35%) by 6.93 pp. **The Etherscan branch contributes measurable additional value beyond the classifier swap.** Of the +9.65 pp total gain over the graph-only baseline, +2.73 pp is attributable to replacing the linear head with XGBoost and +6.93 pp to the seven Etherscan features.
+Embedding-only XGBoost reaches F1 79.49%, which is materially lower than late fusion V2 (86.17%) by 6.67 pp. **The Etherscan branch contributes measurable additional value beyond the classifier swap.** Of the +9.47 pp total gain over the graph-only baseline, +2.80 pp is attributable to replacing the linear head with XGBoost and +6.67 pp to the seven Etherscan features.
 
-Decision rule applied: "close to 86.35%" was operationalised before looking at the
+Decision rule applied: "close to 86.17%" was operationalised before looking at the
 result as **within 1.00 pp** of the late-fusion F1. Observed difference:
-6.93 pp -> classified as **materially lower**.
+6.67 pp -> classified as **materially lower**.
 
 ## Leakage and alignment controls
 

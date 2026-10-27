@@ -1,0 +1,16 @@
+{
+  "selected_per_seed": {
+    "42": "corr_pruned",
+    "0": "top_20",
+    "1": "full",
+    "2": "full",
+    "3": "full",
+    "4": "full",
+    "5": "top_20",
+    "6": "corr_pruned",
+    "7": "full",
+    "8": "corr_pruned"
+  },
+  "test_f1_of_cv_selected_subset_mean": 0.9004759398191329,
+  "std": 0.013165202003739301
+}

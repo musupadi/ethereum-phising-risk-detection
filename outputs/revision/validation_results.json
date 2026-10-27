@@ -1,0 +1,124 @@
+{
+  "results": [
+    {
+      "check": "dataset rows = 12815",
+      "status": "PASS",
+      "detail": "12815"
+    },
+    {
+      "check": "label counts 1165/11650",
+      "status": "PASS",
+      "detail": "{0: 11650, 1: 1165}"
+    },
+    {
+      "check": "no duplicate addresses",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "required columns present",
+      "status": "PASS",
+      "detail": "[]"
+    },
+    {
+      "check": "no NaN in predictors",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "scenario sizes 18/25/28/35",
+      "status": "PASS",
+      "detail": "[18, 25, 28, 35]"
+    },
+    {
+      "check": "graph_present not a predictor",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "feature groups 18/7/10",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "confusion matrices sum to 2563",
+      "status": "PASS",
+      "detail": "[np.int64(2563)]"
+    },
+    {
+      "check": "233 phishing in every test split",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "precision/recall/F1 match confusion matrix",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "10 seeds per scenario/model",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "summary F1 = mean of per-seed F1",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "seeds = {42, 0..8}",
+      "status": "PASS",
+      "detail": "[0, 1, 2, 3, 4, 5, 6, 7, 8, 42]"
+    },
+    {
+      "check": "test-monitored GraphSAGE rows flagged invalid",
+      "status": "PASS",
+      "detail": "[]"
+    },
+    {
+      "check": "main GraphSAGE monitors validation mask",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "fit/early-stopping/calibration slices partition the training split",
+      "status": "PASS",
+      "detail": "{'seed': 42, 'fit': 6151, 'early_stopping': 2050, 'calibration_threshold': 2051, 'test': 2563, 'cal_phishing': 187}"
+    },
+    {
+      "check": "booster feature order == prod schema",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "prod schema == S2 scenario",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "prod F1 on seed-42 test == schema metric",
+      "status": "PASS",
+      "detail": "0.8911"
+    },
+    {
+      "check": "prod model == seed-42 XGBoost S2 of the 10-seed table",
+      "status": "PASS",
+      "detail": "0.8911 vs 0.8911"
+    },
+    {
+      "check": "prod booster uses all trees (best_iteration = last)",
+      "status": "PASS",
+      "detail": "best_iteration=249, rounds=250"
+    }
+  ],
+  "artifact_sha256": {
+    "ml\\artifacts\\model_prod_xgb.json": "33962304efd5ede75ab5c25815311e07bfa99cb1c4932f2a6c2decc4dcc35c11",
+    "ml\\artifacts\\prod_feature_schema.json": "1963e8c74bb2735edc971067b4bbf7831df842c5d99d9c7642ac0b7f0c669c2f",
+    "ml\\artifacts\\hybrid_feature_schema.json": "e8e8d09a6e3de7b49fd9ac01364148fda52f778b41e8c7fe4542b4b6522d3a4b",
+    "data\\processed\\hybrid_dataset.csv": "5a6085a367a42c03a05aa27596c4ea7e76ea47d173102fcff6929639107dcbe3",
+    "data/raw/MulDiGraph.pkl": "155fbbd738a7855a194a3c975711412b48d6d483f6387e47638832d999dc8d14"
+  },
+  "n_pass": 22,
+  "n_fail": 0,
+  "n_blocked": 0
+}

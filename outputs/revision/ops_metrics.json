@@ -9,23 +9,23 @@
     "n_trees": 250,
     "n_features": 25,
     "max_depth": null,
-    "deserialise_ms": 75.5,
-    "process_rss_before_load_mb": 151.3,
-    "process_rss_after_load_mb": 154.8,
-    "model_resident_increment_mb": 3.5,
+    "deserialise_ms": 60.0,
+    "process_rss_before_load_mb": 151.2,
+    "process_rss_after_load_mb": 155.2,
+    "model_resident_increment_mb": 4.0,
     "process_rss_after_inference_mb": 162.6,
     "single_wallet_booster_predict_ms": {
-      "median": 0.723,
-      "p95": 1.829
+      "median": 0.596,
+      "p95": 0.733
     },
     "single_wallet_predict_full_ms": {
-      "median": 3.543,
-      "p95": 6.423
+      "median": 2.871,
+      "p95": 3.398
     },
     "batch": {
       "n": 2563,
-      "total_ms": 5.1,
-      "per_wallet_us": 2.01
+      "total_ms": 3.2,
+      "per_wallet_us": 1.26
     }
   },
   "gas": {
@@ -219,5 +219,6 @@
       "calls_median": 5,
       "compute_s_median": 0.018
     }
-  }
+  },
+  "measured_at": "2026-10-27 (model benchmarks re-run for v2; live Etherscan runs from the first measurement, same day)"
 }

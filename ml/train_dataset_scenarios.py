@@ -350,6 +350,12 @@ def train_gnn(
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
+    # Seed weight init and dropout so the single-split GraphSAGE result is reproducible
+    # (previously unseeded: F1 varied between runs).
+    import torch
+    np.random.seed(42)
+    torch.manual_seed(42)
+
     # 2 layers: 1-hop then 2-hop aggregation — more layers cause over-smoothing
     # on graphs of this size (~8K nodes).
     gnn = GraphPhiV2(

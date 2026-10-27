@@ -1,29 +1,29 @@
-11:41:35  INFO      Loading MulDiGraph from C:\Kuliah\ethereum-phising-risk-detection\data\raw\MulDiGraph.pkl (this may take ~30s) ...
-11:42:15  INFO      MulDiGraph loaded: 2973489 nodes, 13551303 edges
-11:42:15  INFO      Edge audit (MulDiGraph only): 708 raw entries -> 354 unique directed edges (train-train=244, train-test=95, test-test=15)
-11:42:15  INFO      Initialized SAGE V2: hidden=128 layers=2 device=cpu
-11:42:15  INFO      Real-edge graph: 12815 nodes (10252 train / 2563 test), 354 transaction edges
-11:42:15  INFO      Loaded saved V2 encoder weights (no retraining) <- graphsage_encoder_for_fusion_v2.pt
-11:42:15  INFO      Encoder identity verified against V2 metrics.
-11:42:15  INFO      Training embedding-only XGBoost (128-d, no Etherscan) ...
-11:42:15  INFO      Initialized XGBoost: estimators=250, depth=6, lr=0.050
-11:42:15  INFO      Training XGBoost with scale_pos_weight=9.99
+13:13:27  INFO      Loading MulDiGraph from C:\Kuliah\ethereum-phising-risk-detection\data\raw\MulDiGraph.pkl (this may take ~30s) ...
+13:13:51  INFO      MulDiGraph loaded: 2973489 nodes, 13551303 edges
+13:13:51  INFO      Edge audit (MulDiGraph only): 708 raw entries -> 354 unique directed edges (train-train=244, train-test=95, test-test=15)
+13:13:51  INFO      Initialized SAGE V2: hidden=128 layers=2 device=cpu
+13:13:51  INFO      Real-edge graph: 12815 nodes (10252 train / 2563 test), 354 transaction edges
+13:13:51  INFO      Loaded saved V2 encoder weights (no retraining) <- graphsage_encoder_for_fusion_v2.pt
+13:13:51  INFO      Encoder identity verified against V2 metrics.
+13:13:51  INFO      Training embedding-only XGBoost (128-d, no Etherscan) ...
+13:13:51  INFO      Initialized XGBoost: estimators=250, depth=6, lr=0.050
+13:13:51  INFO      Training XGBoost with scale_pos_weight=9.99
 [0]	train-logloss:0.64995	val-logloss:0.65019
 [50]	train-logloss:0.10888	val-logloss:0.13359
 [100]	train-logloss:0.06840	val-logloss:0.11006
 [150]	train-logloss:0.05526	val-logloss:0.10926
 [167]	train-logloss:0.05161	val-logloss:0.11058
-11:42:17  INFO      Training complete. Best iteration: 127
-11:42:17  INFO      Attribution: head swap +2.73 pp | Etherscan branch +6.93 pp | total +9.65 pp
+13:13:52  INFO      Training complete. Best iteration: 127
+13:13:52  INFO      Attribution: head swap +2.80 pp | Etherscan branch +6.67 pp | total +9.47 pp
 
 === Four-model comparison (held-out test set, n=2563) ===
                                                 Model  Accuracy  Precision  Recall     F1  ROC-AUC  PR-AUC   TN  FP  FN  TP
                          XGBoost tabular (Scenario 2)    0.9789     0.8403  0.9485 0.8911   0.9938  0.9582 2288  42  12 221
             GraphSAGE graph-only (leakage-controlled)    0.9516     0.6823  0.8755 0.7669   0.9714  0.8161 2235  95  29 204
-GraphSAGE Embedding + XGBoost (No Etherscan Ablation)    0.9559     0.6899  0.9356 0.7942   0.9814  0.8931 2232  98  15 218
-                   GraphSAGE-Etherscan Late Fusion V2    0.9735     0.8113  0.9227 0.8635   0.9912  0.9375 2280  50  18 215
+GraphSAGE Embedding + XGBoost (No Etherscan Ablation)    0.9559     0.6887  0.9399 0.7949   0.9825  0.8932 2231  99  14 219
+                   GraphSAGE-Etherscan Late Fusion V2    0.9727     0.7985  0.9356 0.8617   0.9919  0.9389 2275  55  15 218
 
-Head swap   : +2.73 pp
-Etherscan   : +6.93 pp
-Total vs GNN: +9.65 pp
+Head swap   : +2.80 pp
+Etherscan   : +6.67 pp
+Total vs GNN: +9.47 pp
 Report -> C:\Kuliah\ethereum-phising-risk-detection\outputs\embedding_only_ablation_report.md

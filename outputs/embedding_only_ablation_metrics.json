@@ -37,7 +37,7 @@
   "models": {
     "xgboost_scenario2": {
       "Model": "XGBoost tabular (Scenario 2)",
-      "Input": "25 tabular features (19 graph + 7 Etherscan)",
+      "Input": "25 tabular features (18 graph + 7 Etherscan)",
       "Accuracy": 0.9789309403043308,
       "Precision": 0.8403041825095057,
       "Recall": 0.9484978540772532,
@@ -67,41 +67,41 @@
       "Model": "GraphSAGE Embedding + XGBoost (No Etherscan Ablation)",
       "Input": "128-d graph embedding only (no Etherscan)",
       "Accuracy": 0.9559110417479516,
-      "Precision": 0.689873417721519,
-      "Recall": 0.9356223175965666,
-      "F1": 0.7941712204007286,
-      "ROC-AUC": 0.9813627069940504,
-      "PR-AUC": 0.8930994163895538,
-      "TN": 2232,
-      "FP": 98,
-      "FN": 15,
-      "TP": 218
+      "Precision": 0.6886792452830188,
+      "Recall": 0.9399141630901288,
+      "F1": 0.79491833030853,
+      "ROC-AUC": 0.9824669822616,
+      "PR-AUC": 0.8932171516440982,
+      "TN": 2231,
+      "FP": 99,
+      "FN": 14,
+      "TP": 219
     },
     "late_fusion_v2": {
       "Model": "GraphSAGE-Etherscan Late Fusion V2",
       "Input": "128-d graph embedding || 7 scaled Etherscan features = 135-d",
-      "Accuracy": 0.9734685914943426,
-      "Precision": 0.8113207547169812,
-      "Recall": 0.9227467811158798,
-      "F1": 0.8634538152610441,
-      "ROC-AUC": 0.991222899666599,
-      "PR-AUC": 0.9375239269538465,
-      "TN": 2280,
-      "FP": 50,
-      "FN": 18,
-      "TP": 215
+      "Accuracy": 0.9726882559500585,
+      "Precision": 0.7985347985347986,
+      "Recall": 0.9356223175965666,
+      "F1": 0.8616600790513834,
+      "ROC-AUC": 0.9919265412882905,
+      "PR-AUC": 0.9388856576157696,
+      "TN": 2275,
+      "FP": 55,
+      "FN": 15,
+      "TP": 218
     }
   },
   "attribution_pp": {
-    "xgboost_head_swap": 2.7253927167645964,
-    "etherscan_branch": 6.928259486031552,
-    "total_over_graphsage_baseline": 9.653652202796149,
-    "gap_to_xgboost_scenario2": -9.695781185733587
+    "xgboost_head_swap": 2.800103707544732,
+    "etherscan_branch": 6.6741748742853435,
+    "total_over_graphsage_baseline": 9.474278581830076,
+    "gap_to_xgboost_scenario2": -9.621070194953452
   },
   "interpretation_rule": {
     "threshold_pp": 1.0,
     "embedding_only_close_to_late_fusion": false,
-    "verdict": "Embedding-only XGBoost reaches F1 79.42%, which is materially lower than late fusion V2 (86.35%) by 6.93 pp. **The Etherscan branch contributes measurable additional value beyond the classifier swap.** Of the +9.65 pp total gain over the graph-only baseline, +2.73 pp is attributable to replacing the linear head with XGBoost and +6.93 pp to the seven Etherscan features."
+    "verdict": "Embedding-only XGBoost reaches F1 79.49%, which is materially lower than late fusion V2 (86.17%) by 6.67 pp. **The Etherscan branch contributes measurable additional value beyond the classifier swap.** Of the +9.47 pp total gain over the graph-only baseline, +2.80 pp is attributable to replacing the linear head with XGBoost and +6.67 pp to the seven Etherscan features."
   },
   "gain_report": {
     "features_used_by_trees": 123,

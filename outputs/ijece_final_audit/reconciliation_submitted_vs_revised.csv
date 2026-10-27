@@ -1,19 +1,19 @@
 item,submitted_8595,revised_seed42_12815,revised_mean_10seeds,revised_std,old_source,note
 muldigraph_only / LogisticRegression F1,0.785,0.6904,0.6979,0.0307,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
 muldigraph_only / RandomForest F1,0.8685,0.8745,0.8816,0.0141,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
-muldigraph_only / XGBoost F1,0.8857,0.8717,0.8809,0.0147,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
+muldigraph_only / XGBoost F1,0.8857,0.8735,0.8823,0.0138,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
 muldigraph_only / GraphSAGE F1,0.8432,0.788,0.7802,0.032,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,old GraphSAGE used test-F1 early stopping + Etherscan edges
 muldigraph_plus_etherscan / LogisticRegression F1,0.854,0.7285,0.7621,0.0368,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
 muldigraph_plus_etherscan / RandomForest F1,0.8884,0.8921,0.904,0.0109,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
-muldigraph_plus_etherscan / XGBoost F1,0.9102,0.8911,0.9003,0.0128,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
+muldigraph_plus_etherscan / XGBoost F1,0.9102,0.8911,0.9007,0.0132,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
 muldigraph_plus_etherscan / GraphSAGE F1,0.896,0.8526,0.858,0.0398,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,old GraphSAGE used test-F1 early stopping + Etherscan edges
 muldigraph_plus_bigquery / LogisticRegression F1,0.7879,0.6857,0.707,0.0419,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
 muldigraph_plus_bigquery / RandomForest F1,0.8708,0.8755,0.8824,0.0138,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
-muldigraph_plus_bigquery / XGBoost F1,0.8838,0.8689,0.8794,0.0125,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
+muldigraph_plus_bigquery / XGBoost F1,0.8838,0.8689,0.8797,0.0137,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
 muldigraph_plus_bigquery / GraphSAGE F1,0.8333,0.7675,0.783,0.0317,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,old GraphSAGE used test-F1 early stopping + Etherscan edges
 muldigraph_plus_etherscan_plus_bigquery / LogisticRegression F1,0.8546,0.7652,0.7773,0.0364,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
 muldigraph_plus_etherscan_plus_bigquery / RandomForest F1,0.8973,0.8861,0.901,0.0138,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
-muldigraph_plus_etherscan_plus_bigquery / XGBoost F1,0.9038,0.8889,0.9006,0.0121,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
+muldigraph_plus_etherscan_plus_bigquery / XGBoost F1,0.9038,0.8889,0.9004,0.0119,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,
 muldigraph_plus_etherscan_plus_bigquery / GraphSAGE F1,0.8753,0.856,0.8465,0.04,git 6f98c6c ml/artifacts/dataset_scenarios_comparison.csv,old GraphSAGE used test-F1 early stopping + Etherscan edges
 Late fusion F1,0.8825,,,,git b632480 outputs/late_fusion_metrics_v2.json,
 embedding-only ablation JSON (old),"{""xgboost_scenario2"": 0.9102, ""graphsage_graph_only"": 0.8189, ""embedding_only_xgboost_ablation"": 0.8184, ""late_fusion_v2"": 0.8825}",,,,git b632480 outputs/embedding_only_ablation_metrics.json,

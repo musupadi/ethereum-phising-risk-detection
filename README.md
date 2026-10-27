@@ -37,10 +37,13 @@ No API key is needed for reproduction: the Etherscan and BigQuery enrichment res
 | Build the 12,815-wallet dataset | `python ml/build_hybrid_dataset.py` | ~1 min | `data/processed/hybrid_dataset.csv` (byte-identical to the committed file) |
 | Production model | `python ml/train_production_model.py` | ~10 s | `ml/artifacts/model_prod_xgb.json`; test F1 = 0.8911 |
 | 4 × 4 comparison, seed 42 | `cd ml; python train_dataset_scenarios.py; cd ..` | ~2 min | `ml/artifacts/dataset_scenarios_comparison.csv` |
-| **All paper tables (10 seeds)** | `python experiments/revision_ijece.py` | ~13 min | `outputs/revision/*.csv`, `reliability_diagram.png` |
+| **All paper tables (10 seeds)** | `python experiments/revision_ijece.py` | ~15 min | `outputs/revision/multiseed_*`, `calibration_*`, `cost_threshold_*`, `majority_ratio_*`, `graphsage_protocol_decomposition.csv`, `reliability_diagram.png` |
+| Robustness: temporal split, lower prevalence, train-only feature selection | `python experiments/revision_extra.py` (after the line above) | ~4 min | `outputs/revision/temporal_split_*`, `prevalence_*`, `feature_selection_cv_*` |
 | Model footprint, latency, gas cost | `python experiments/revision_ops.py --no-live --eth-usd 2313.76` | ~10 s | `outputs/revision/ops_metrics.json` |
 | Late fusion (single split) | `python experiments/run_graphsage_etherscan_late_fusion_v2.py` | ~1 min | `outputs/late_fusion_*_v2.*` |
 | Embedding-only ablation | `python experiments/run_embedding_only_ablation.py` | ~1 min | `outputs/embedding_only_*` |
+| Consolidated metrics table | `python scripts/build_final_metrics.py` | <5 s | `outputs/revision/FINAL_VERIFIED_METRICS.csv` |
+| Consistency checks | `python scripts/validate_revision.py` | ~10 s | `outputs/revision/validation_results.json` (exit code 0 = all checks pass) |
 
 \*Measured on a 12-thread CPU without a GPU.
 
@@ -57,8 +60,10 @@ No API key is needed for reproduction: the Etherscan and BigQuery enrichment res
 | Table C (calibration) + reliability figure | `calibration_summary.csv`, `reliability_diagram.png` |
 | Table D (cost-sensitive threshold) | `cost_threshold_summary.csv` |
 | Isolated-wallet statistics | `isolated_wallets.json` |
+| Table A2 (lower prevalence), temporal split, feature selection | `prevalence_sensitivity_summary.csv`, `temporal_split_summary.csv`, `feature_selection_cv_summary.csv` |
+| Every reported number with its source | `FINAL_VERIFIED_METRICS.csv`; per-comment evidence in `IJECE_REVIEWER_EVIDENCE.md`; audit in `AUDIT_FINDINGS.md`, `VALIDATION_REPORT.md`, `EXPERIMENT_CHANGELOG.md`, `REPRODUCIBILITY.md` |
 
-**Protocol.** Every split is a stratified 80:20 split. Scaling, early stopping (XGBoost and GraphSAGE), threshold selection and calibration are all fitted on a validation slice taken from the training wallets, and each test set is scored exactly once. Seeds: 42, 0–8.
+**Protocol (revision v2).** Every split is a stratified 80:20 split; seeds 42, 0–8. Scaling and early stopping (XGBoost and GraphSAGE) use the training wallets only, and XGBoost predicts with the trees up to its best iteration. Calibration and cost-sensitive thresholds use a dedicated XGBoost trained on 60% / early-stopped on 20% / calibrated on 20% of each training split. Each test set is scored exactly once. Results of the earlier v1 pass are archived in `outputs/archive/`.
 
 **Optional (needs your own credentials):** live scanning of wallets outside the dataset (`ETHERSCAN_API_KEY` in `.env`, `LIVE_SCAN_ENABLED=true`), re-running the enrichment (`ml/enrich_real_addresses_*.py`, which also needs a Google Cloud service account for BigQuery), and the blockchain demo (Node.js 18+, `cd chain; npm install`). Copy `.env.example` to `.env` to configure these.
 
@@ -204,6 +209,8 @@ curl http://localhost:8000/risk/0x4dad23689bef624af5d1757a56135901c915fcfd
 │   └── streamlit_app.py      # Streamlit UI
 ├── experiments/
 │   ├── revision_ijece.py     # All paper tables: 10 seeds, fusion, calibration, cost, ratios
+│   ├── revision_extra.py     # Temporal split, lower prevalence, train-only feature selection
+│   ├── ijece_final_audit.py  # Evidence tables for the reviewers (no retraining)
 │   ├── revision_ops.py       # Model footprint, latency, live Etherscan path, gas cost
 │   └── run_*.py              # Single-split late fusion / embedding ablation
 ├── outputs/
