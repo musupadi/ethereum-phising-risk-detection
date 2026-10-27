@@ -1,0 +1,124 @@
+{
+  "measured": {
+    "host": {
+      "cpu": 12,
+      "python": "3.13.5"
+    },
+    "model": {
+      "model_file": "model_prod_xgb.json",
+      "model_file_size_kb": 878.3,
+      "n_trees": 250,
+      "n_features": 25,
+      "max_depth": null,
+      "deserialise_ms": 75.5,
+      "process_rss_before_load_mb": 151.3,
+      "process_rss_after_load_mb": 154.8,
+      "model_resident_increment_mb": 3.5,
+      "process_rss_after_inference_mb": 162.6,
+      "single_wallet_booster_predict_ms": {
+        "median": 0.723,
+        "p95": 1.829
+      },
+      "single_wallet_predict_full_ms": {
+        "median": 3.543,
+        "p95": 6.423
+      },
+      "batch": {
+        "n": 2563,
+        "total_ms": 5.1,
+        "per_wallet_us": 2.01
+      }
+    },
+    "live_etherscan_path": {
+      "request_delay_s": 0.25,
+      "summary": {
+        "n": 11,
+        "total_s_median": 9.15,
+        "total_s_max": 16.555,
+        "calls_median": 5,
+        "compute_s_median": 0.018
+      },
+      "n_wallets": 11,
+      "calls_per_wallet": [
+        5
+      ],
+      "total_s_range": [
+        7.997,
+        16.555
+      ],
+      "note": "measured 27 Oct 2026 from the author workstation while another experiment was using the CPU; 11 wallets only"
+    },
+    "riskregistry_hardhat_local": {
+      "source": "ml/artifacts/blockchain_metrics.json (20 setRisk calls, chain/scripts/measure_gas.py)",
+      "gas_used": 35462,
+      "gas_range": [
+        35452,
+        35464
+      ],
+      "commit_latency_ms": {
+        "min": 11.15,
+        "max": 38.44,
+        "mean": 13.57,
+        "median": 11.97,
+        "stdev": 5.93
+      }
+    }
+  },
+  "derived_estimates_not_measured": {
+    "public_network_cost_formula": "cost_ETH = gas_used x gas_price_gwei x 1e-9",
+    "eth_usd_assumption": 2313.76,
+    "eth_usd_source": "CoinDesk, 26 Oct 2026",
+    "table": [
+      {
+        "gas_price_gwei": 0.1,
+        "cost_eth": 3.5462000000000005e-06,
+        "cost_usd": 0.008205055712000002
+      },
+      {
+        "gas_price_gwei": 0.5,
+        "cost_eth": 1.7731e-05,
+        "cost_usd": 0.04102527856
+      },
+      {
+        "gas_price_gwei": 1,
+        "cost_eth": 3.5462e-05,
+        "cost_usd": 0.08205055712
+      },
+      {
+        "gas_price_gwei": 5,
+        "cost_eth": 0.00017731000000000002,
+        "cost_usd": 0.4102527856000001
+      },
+      {
+        "gas_price_gwei": 10,
+        "cost_eth": 0.00035462000000000004,
+        "cost_usd": 0.8205055712000002
+      },
+      {
+        "gas_price_gwei": 30,
+        "cost_eth": 0.00106386,
+        "cost_usd": 2.4615167136000005
+      }
+    ],
+    "mainnet_commit_latency": "about one block interval (~12 s); NOT measured",
+    "throughput_bound_free_tier": "3 calls/s / 5 calls per wallet = 0.6 wallets/s; 100,000 calls/day / 5 = 20,000 wallets/day per account. Limits taken from Etherscan documentation (docs.etherscan.io rate-limits page, Oct 2026); not load-tested."
+  },
+  "production_model_compatibility": {
+    "booster_feature_names_equal_schema_order": true,
+    "schema_equals_hybrid_S2_order": true,
+    "n_features": 25,
+    "schema_metrics": {
+      "accuracy": 0.9789,
+      "precision": 0.8403,
+      "recall": 0.9485,
+      "f1": 0.8911
+    },
+    "matches_seed42_xgboost_S2_in_revision_runs": true,
+    "training_rows": "80% inner fit slice of the seed-42 training split (8,201 wallets); not refitted on all data"
+  },
+  "api_behaviour_notes": [
+    "Dataset wallets are scored from precomputed rows of hybrid_dataset.csv, which includes the ~80% training wallets: their scores are in-sample and must not be presented as held-out performance.",
+    "predict.py fills any missing schema feature with 0.0 without warning.",
+    "Live mode: empty Etherscan txlist -> WalletNotFoundError -> HTTP 404, no score; fewer than MIN_MEANINGFUL_TX = 5 transactions -> scored with insufficient_data flag; all live scores flagged out_of_distribution and never written on-chain."
+  ]
+}

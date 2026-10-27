@@ -1,0 +1,25 @@
+rank,feature,xgb_n,rf_n,combined,corr_partners_ge_threshold,dropped_by_correlation_filter,in_top_20_subset,in_corr_pruned_subset,in_production_model
+1,unique_senders,0.4316900074481964,0.18986,0.31077,in_degree (0.954),False,True,True,True
+2,in_degree,0.12651999294757843,0.07492,0.10072,unique_senders (0.954),True,True,False,True
+3,timestamp_spread_in,0.07662999629974365,0.08252,0.07957,,False,True,True,True
+4,sent_received_ratio,0.06594999879598618,0.04933,0.05764,,False,True,True,True
+5,total_sent,0.05615999922156334,0.04598,0.05107,,False,True,True,True
+6,std_in_amount,0.008070000447332859,0.07817,0.04312,,False,True,True,True
+7,in_out_ratio,0.03739999979734421,0.04693,0.04217,,False,True,True,True
+8,avg_in_amount,0.01396000012755394,0.06254,0.03825,,False,True,True,True
+9,total_received,0.009050000458955765,0.06627,0.03766,,False,True,True,True
+10,max_in_amount,0.011230000294744968,0.05856,0.0349,,False,True,True,True
+11,avg_out_amount,0.019670000299811363,0.04501,0.03234,,False,True,True,True
+12,max_out_amount,0.014449999667704105,0.04721,0.03083,,False,True,True,True
+13,transaction_count,0.021460000425577164,0.01425,0.01785,,False,True,True,True
+14,unique_receivers,0.015410000458359718,0.01629,0.01585,,False,True,True,True
+15,min_in_amount,0.007799999788403511,0.0235,0.01565,,False,True,True,True
+16,out_degree,0.013740000315010548,0.01446,0.0141,,False,True,True,True
+17,activity_score,0.01133000012487173,0.01554,0.01344,tx_frequency (1.000),False,True,True,True
+18,unique_counterparties,0.013989999890327454,0.0116,0.01279,,False,True,True,True
+19,avg_tx_value,0.009109999984502792,0.01447,0.01179,,False,True,True,True
+20,tx_frequency,0.008670000359416008,0.01405,0.01136,activity_score (1.000),True,True,False,True
+21,min_out_amount,0.006089999806135893,0.01207,0.00908,,False,False,True,True
+22,timestamp_spread_out,0.0088900001719594,0.00551,0.0072,,False,False,True,True
+23,balance,0.007089999970048666,0.00607,0.00658,,False,False,True,True
+24,std_out_amount,0.005669999867677689,0.00491,0.00529,,False,False,True,True

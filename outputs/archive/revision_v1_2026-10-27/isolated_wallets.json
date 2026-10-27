@@ -1,0 +1,17 @@
+{
+  "population": 12815,
+  "induced_graph_unique_directed_edges": 354,
+  "induced_graph_edges_with_etherscan": 440,
+  "no_1hop_tx_in_muldigraph": {
+    "normal": 0,
+    "phishing": 0
+  },
+  "no_edge_in_induced_gnn_graph": {
+    "normal": 11467,
+    "phishing": 918
+  },
+  "etherscan_tx_count_zero": {
+    "normal": 88,
+    "phishing": 8
+  }
+}

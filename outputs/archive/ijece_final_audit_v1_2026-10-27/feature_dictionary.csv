@@ -1,0 +1,37 @@
+no,attribute,source,role,definition,code,S1,S2,S3,S4,in_production_model,nonzero_rows,constant
+1,in_degree,MulDiGraph (1-hop),predictor,Number of incoming transaction edges,ml/preprocess.py:extract_node_features,True,True,True,True,True,5525,False
+2,out_degree,MulDiGraph (1-hop),predictor,Number of outgoing transaction edges,ml/preprocess.py:extract_node_features,True,True,True,True,True,9380,False
+3,unique_senders,MulDiGraph (1-hop),predictor,Distinct predecessor addresses,ml/preprocess.py:extract_node_features,True,True,True,True,True,5525,False
+4,unique_receivers,MulDiGraph (1-hop),predictor,Distinct successor addresses,ml/preprocess.py:extract_node_features,True,True,True,True,True,9380,False
+5,total_received,MulDiGraph (1-hop),predictor,Sum of incoming ETH,ml/preprocess.py:extract_node_features,True,True,True,True,True,5338,False
+6,total_sent,MulDiGraph (1-hop),predictor,Sum of outgoing ETH,ml/preprocess.py:extract_node_features,True,True,True,True,True,3996,False
+7,avg_in_amount,MulDiGraph (1-hop),predictor,Mean incoming amount,ml/preprocess.py:extract_node_features,True,True,True,True,True,5338,False
+8,avg_out_amount,MulDiGraph (1-hop),predictor,Mean outgoing amount,ml/preprocess.py:extract_node_features,True,True,True,True,True,3996,False
+9,max_in_amount,MulDiGraph (1-hop),predictor,Maximum incoming amount,ml/preprocess.py:extract_node_features,True,True,True,True,True,5338,False
+10,max_out_amount,MulDiGraph (1-hop),predictor,Maximum outgoing amount,ml/preprocess.py:extract_node_features,True,True,True,True,True,3996,False
+11,min_in_amount,MulDiGraph (1-hop),predictor,Minimum incoming amount,ml/preprocess.py:extract_node_features,True,True,True,True,True,5176,False
+12,min_out_amount,MulDiGraph (1-hop),predictor,Minimum outgoing amount,ml/preprocess.py:extract_node_features,True,True,True,True,True,3136,False
+13,std_in_amount,MulDiGraph (1-hop),predictor,Population std. dev. of incoming amounts (0 if <2 edges),ml/preprocess.py:extract_node_features,True,True,True,True,True,2114,False
+14,std_out_amount,MulDiGraph (1-hop),predictor,Population std. dev. of outgoing amounts (0 if <2 edges),ml/preprocess.py:extract_node_features,True,True,True,True,True,1914,False
+15,in_out_ratio,MulDiGraph (1-hop),predictor,in_degree / (out_degree + 1),ml/preprocess.py:extract_node_features,True,True,True,True,True,5525,False
+16,sent_received_ratio,MulDiGraph (1-hop),predictor,total_sent / (total_received + 1e-9),ml/preprocess.py:extract_node_features,True,True,True,True,True,3996,False
+17,timestamp_spread_in,MulDiGraph (1-hop),predictor,"max - min timestamp of incoming edges, seconds (0 if <2 edges)",ml/preprocess.py:extract_node_features,True,True,True,True,True,2203,False
+18,timestamp_spread_out,MulDiGraph (1-hop),predictor,"max - min timestamp of outgoing edges, seconds (0 if <2 edges)",ml/preprocess.py:extract_node_features,True,True,True,True,True,4009,False
+19,graph_present,MulDiGraph,audit-only (not a predictor),1 if the address is a MulDiGraph node (join-quality audit flag),ml/build_hybrid_dataset.py,False,False,False,False,False,12815,True
+20,created_at_ts,Etherscan API,predictor,First-transaction timestamp from Etherscan (never populated; constant 0),ml/data_fetchers.py:EtherscanFetcher,False,True,False,True,True,0,True
+21,balance,Etherscan API,predictor,Current ETH balance (Etherscan account/balance),ml/data_fetchers.py:EtherscanFetcher,False,True,False,True,True,7306,False
+22,transaction_count,Etherscan API,predictor,"Normal transactions (Etherscan txlist, paged, capped at 10,000)",ml/data_fetchers.py:EtherscanFetcher,False,True,False,True,True,12719,False
+23,activity_score,Etherscan API,predictor,Transactions in the latest 100-transaction txlist window,ml/data_fetchers.py:EtherscanFetcher,False,True,False,True,True,12724,False
+24,avg_tx_value,Etherscan API,predictor,Mean ETH value in that window,ml/data_fetchers.py:EtherscanFetcher,False,True,False,True,True,12576,False
+25,tx_frequency,Etherscan API,predictor,activity_score / 30,ml/data_fetchers.py:EtherscanFetcher,False,True,False,True,True,12724,False
+26,unique_counterparties,Etherscan API,predictor,Distinct counterparties in that window (self excluded),ml/data_fetchers.py:EtherscanFetcher,False,True,False,True,True,12724,False
+27,bq_tx_count_out,BigQuery crypto_ethereum,predictor,"Outgoing tx count, BigQuery 90-day window",ml/enrich_real_addresses_bigquery.py (SQL),False,False,True,True,False,108,False
+28,bq_tx_count_in,BigQuery crypto_ethereum,predictor,"Incoming tx count, 90-day window",ml/enrich_real_addresses_bigquery.py (SQL),False,False,True,True,False,70,False
+29,bq_total_out_eth,BigQuery crypto_ethereum,predictor,"ETH sent, 90-day window",ml/enrich_real_addresses_bigquery.py (SQL),False,False,True,True,False,80,False
+30,bq_total_in_eth,BigQuery crypto_ethereum,predictor,"ETH received, 90-day window",ml/enrich_real_addresses_bigquery.py (SQL),False,False,True,True,False,50,False
+31,bq_unique_to,BigQuery crypto_ethereum,predictor,"Distinct recipients, 90-day window",ml/enrich_real_addresses_bigquery.py (SQL),False,False,True,True,False,108,False
+32,bq_unique_from,BigQuery crypto_ethereum,predictor,"Distinct senders, 90-day window",ml/enrich_real_addresses_bigquery.py (SQL),False,False,True,True,False,70,False
+33,bq_active_days_out,BigQuery crypto_ethereum,predictor,"Days with outgoing activity, 90-day window",ml/enrich_real_addresses_bigquery.py (SQL),False,False,True,True,False,108,False
+34,bq_active_days_in,BigQuery crypto_ethereum,predictor,"Days with incoming activity, 90-day window",ml/enrich_real_addresses_bigquery.py (SQL),False,False,True,True,False,70,False
+35,bq_first_seen_ts,BigQuery crypto_ethereum,predictor,Earliest tx timestamp in the 90-day window,ml/enrich_real_addresses_bigquery.py (SQL),False,False,True,True,False,126,False
+36,bq_last_seen_ts,BigQuery crypto_ethereum,predictor,Latest tx timestamp in the 90-day window,ml/enrich_real_addresses_bigquery.py (SQL),False,False,True,True,False,126,False

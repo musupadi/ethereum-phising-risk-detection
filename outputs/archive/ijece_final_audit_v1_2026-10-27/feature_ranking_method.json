@@ -1,0 +1,23 @@
+{
+  "formula": "combined(f) = 0.5 * [ gain_XGB(f)/sum gain_XGB + MDI_RF(f)/sum MDI_RF ]",
+  "xgb_importance": "XGBClassifier.feature_importances_ (importance_type=gain, sklearn API default)",
+  "rf_importance": "RandomForestClassifier(n_estimators=400, class_weight=balanced).feature_importances_ (MDI)",
+  "fitted_on": "train split (seed 42) of hybrid_dataset_clean.csv after p1/p99 capping fitted on train",
+  "n_features_ranked": 24,
+  "created_at_ts_removed_before_ranking": true,
+  "order": "ranking first, correlation filter afterwards (filter uses the ranking to decide which of a pair to drop)",
+  "threshold_operator": ">= 0.95",
+  "dropped": [
+    "in_degree",
+    "tx_frequency"
+  ],
+  "subset_results_f1": {
+    "full": 0.8947,
+    "corr_pruned": 0.8966,
+    "top_20": 0.8921,
+    "top_18": 0.8866,
+    "top_15": 0.8907
+  },
+  "used_by_production_model": false,
+  "why_in_degree_is_top_ranked": "The ranking is computed on all 24 features before pruning, so in_degree keeps rank 2. The correlation filter then removes it from the 'corr_pruned' subset only. 'top_k' subsets are cut from the unpruned ranking and still contain it, and the production model uses all 25 S2 features (no selection applied)."
+}

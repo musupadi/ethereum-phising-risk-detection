@@ -226,7 +226,7 @@ def main() -> None:
     (OUT / "isolated_wallets.json").write_text(json.dumps(iso, indent=2))
     log.info("Isolation audit: %s", iso)
 
-    rows, cost_rows, calib_rows, decomp_rows = [], [], [], []
+    rows, cost_rows, calib_rows, decomp_rows, split_sizes = [], [], [], [], []
     reliability = None
 
     for seed in SEEDS:
@@ -277,8 +277,32 @@ def main() -> None:
                 _, _, pred_i, proba_i, ep = train_sage(Xs, y_all, edges, m_fit, m_val, seed,
                                                       train_edges=edges_inductive)
                 add(scen, "GraphSAGE-inductive", metrics(y_all[m_te], pred_i[m_te], proba_i[m_te]), epochs_run=ep)
+                # Strict inductive: training/monitoring graph keeps only edges among FIT wallets, so
+                # neither validation nor test wallets pass messages during training.
+                keep_s = m_fit[edges[:, 0]] & m_fit[edges[:, 1]]
+                _, _, pred_s, proba_s, ep = train_sage(Xs, y_all, edges, m_fit, m_val, seed,
+                                                      train_edges=edges[keep_s])
+                add(scen, "GraphSAGE-inductive-strict", metrics(y_all[m_te], pred_s[m_te], proba_s[m_te]),
+                    epochs_run=ep)
 
-                # B-3.3 cost-sensitive threshold (chosen on validation, applied to test)
+                # B-2.5 / B-3.3 use a dedicated XGBoost with THREE disjoint training-side slices:
+                # fit (60% of train) / early-stopping (20%) / calibration+threshold (20%).
+                # The early-stopping slice is never reused for calibration or threshold choice.
+                idx_fit2, idx_rest = train_test_split(idx_tr, test_size=0.4, random_state=seed,
+                                                      stratify=y_all[idx_tr])
+                idx_es, idx_cal = train_test_split(idx_rest, test_size=0.5, random_state=seed,
+                                                   stratify=y_all[idx_rest])
+                mc = XGBoostModel(n_estimators=250, max_depth=6, learning_rate=0.05, subsample=0.85,
+                                  colsample_bytree=0.85, random_state=seed)
+                mc.fit(X[idx_fit2], y_all[idx_fit2], X[idx_es], y_all[idx_es], feature_names=cols,
+                       early_stopping_rounds=40)
+                p_val, y_val = mc.predict_proba(X[idx_cal])[:, 1], y_all[idx_cal]
+                p = mc.predict_proba(X_te)[:, 1]
+                split_sizes.append({"seed": seed, "fit": len(idx_fit2), "early_stopping": len(idx_es),
+                                    "calibration_threshold": len(idx_cal), "test": len(idx_te),
+                                    "cal_phishing": int(y_val.sum())})
+
+                # B-3.3 cost-sensitive threshold (chosen on the calibration slice, applied once to test)
                 grid = np.linspace(0.05, 0.95, 181)
                 for c in COST_RATIOS:
                     costs = [c * ((p_val < t) & (y_val == 1)).sum() + ((p_val >= t) & (y_val == 0)).sum() for t in grid]
@@ -291,7 +315,7 @@ def main() -> None:
                                           "total_cost": c * r["FN"] + r["FP"],
                                           "precision": r["precision"], "recall": r["recall"], "f1": r["f1"]})
 
-                # B-2.5 calibration (fitted on validation slice)
+                # B-2.5 calibration (fitted on the calibration slice)
                 eps = 1e-6
                 logit = lambda q: np.log(np.clip(q, eps, 1 - eps) / (1 - np.clip(q, eps, 1 - eps)))  # noqa: E731
                 platt = LogisticRegression(C=1e6).fit(logit(p_val).reshape(-1, 1), y_val)
@@ -306,6 +330,7 @@ def main() -> None:
                     calib_rows.append({"seed": seed, "method": name,
                                        "brier": brier_score_loss(y_te, q), "ece_10bin": ece(y_te, q),
                                        "log_loss": log_loss(y_te, qc), "roc_auc": roc_auc_score(y_te, q),
+                                       "pr_auc": average_precision_score(y_te, q),
                                        "f1_at_0.5": f1_score(y_te, (q >= 0.5).astype(int))})
                 if seed == 42:
                     reliability = (y_te, variants)
@@ -313,17 +338,18 @@ def main() -> None:
                 # A-2.4 decomposition of the old Table-3 GraphSAGE protocol (seed 42 only)
                 if seed == 42:
                     Xs1 = StandardScaler().fit(df.loc[m_tr, graph_cols].fillna(0)).transform(df[graph_cols].fillna(0))
+                    # A and B monitor TEST F1: kept only to demonstrate the bias; NOT valid estimates.
                     cases = [
                         ("A: old Table-3 protocol (25 feats, ES on TEST F1, +Etherscan edges, fit on all train)",
-                         Xs, edges_eth, m_tr, m_te),
-                        ("B: 25 feats, ES on TEST F1, MulDiGraph edges", Xs, edges, m_tr, m_te),
-                        ("C: 25 feats, ES on train-internal VALIDATION, MulDiGraph edges", Xs, edges, m_fit, m_val),
-                        ("D: 18 graph feats, ES on VALIDATION (old Table-4 encoder)", Xs1, edges, m_fit, m_val),
+                         Xs, edges_eth, m_tr, m_te, False),
+                        ("B: 25 feats, ES on TEST F1, MulDiGraph edges", Xs, edges, m_tr, m_te, False),
+                        ("C: 25 feats, ES on train-internal VALIDATION, MulDiGraph edges", Xs, edges, m_fit, m_val, True),
+                        ("D: 18 graph feats, ES on VALIDATION (old Table-4 encoder)", Xs1, edges, m_fit, m_val, True),
                     ]
-                    for name, Xc, ec, mf, mm in cases:
+                    for name, Xc, ec, mf, mm, valid in cases:
                         _, _, pr, pb, ep = train_sage(Xc, y_all, ec, mf, mm, seed)
-                        decomp_rows.append({"protocol": name, "epochs_run": ep,
-                                            **metrics(y_all[m_te], pr[m_te], pb[m_te])})
+                        decomp_rows.append({"protocol": name, "valid_performance_estimate": valid,
+                                            "epochs_run": ep, **metrics(y_all[m_te], pr[m_te], pb[m_te])})
 
         # ── Table 4: late fusion + embedding-only ablation (encoder = S1 GraphSAGE) ──
         gnn1, g1 = sage_s1
@@ -344,7 +370,7 @@ def main() -> None:
     phish = df[df.label == 1]
     normal = df[df.label == 0]
     for r in MAJORITY_RATIOS:
-        for seed in SEEDS[:5]:
+        for seed in SEEDS:
             sub = pd.concat([phish, normal.sample(n=min(len(normal), r * len(phish)), random_state=seed)])
             X = sub[s2].fillna(0).values.astype(np.float64)
             y = sub["label"].values.astype(int)
@@ -373,6 +399,7 @@ def main() -> None:
     cal.groupby("method", sort=False).agg(["mean", "std"]).drop(columns="seed").round(4).to_csv(OUT / "calibration_summary.csv")
 
     pd.DataFrame(decomp_rows).to_csv(OUT / "graphsage_protocol_decomposition.csv", index=False)
+    pd.DataFrame(split_sizes).to_csv(OUT / "calibration_split_sizes.csv", index=False)
 
     rat = pd.DataFrame(ratio_rows)
     rat.to_csv(OUT / "majority_ratio_all_runs.csv", index=False)

@@ -139,6 +139,19 @@ class XGBoostModel:
         
         return evals_result
 
+    def _proba_pos(self, X: np.ndarray) -> np.ndarray:
+        """P(phishing) using trees up to the early-stopping best iteration.
+
+        xgb.train() returns the booster from the LAST round (best_iteration +
+        early_stopping_rounds), and Booster.predict() uses every tree by default,
+        so without iteration_range early stopping would not affect predictions.
+        """
+        dmatrix = xgb.DMatrix(X, feature_names=self.feature_names)
+        best = getattr(self.model, "best_iteration", None)
+        if best is None:
+            return self.model.predict(dmatrix)
+        return self.model.predict(dmatrix, iteration_range=(0, int(best) + 1))
+
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
         Predict class labels.
@@ -152,9 +165,7 @@ class XGBoostModel:
         if self.model is None:
             raise ValueError("Model not trained. Call fit() first.")
         
-        dmatrix = xgb.DMatrix(X, feature_names=self.feature_names)
-        proba = self.model.predict(dmatrix)
-        return (proba > 0.5).astype(int)
+        return (self._proba_pos(X) > 0.5).astype(int)
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """
@@ -169,8 +180,7 @@ class XGBoostModel:
         if self.model is None:
             raise ValueError("Model not trained. Call fit() first.")
         
-        dmatrix = xgb.DMatrix(X, feature_names=self.feature_names)
-        proba_pos = self.model.predict(dmatrix)
+        proba_pos = self._proba_pos(X)
         proba_neg = 1 - proba_pos
         
         return np.column_stack([proba_neg, proba_pos])

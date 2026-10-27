@@ -1,0 +1,24 @@
+{
+  "seeds": [
+    42,
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "population": 12815,
+  "phishing": 1165,
+  "scenarios": {
+    "muldigraph_only": 18,
+    "muldigraph_plus_etherscan": 25,
+    "muldigraph_plus_bigquery": 28,
+    "muldigraph_plus_etherscan_plus_bigquery": 35
+  },
+  "graph_edges_muldigraph_only": 354,
+  "runtime_s": 774.9
+}

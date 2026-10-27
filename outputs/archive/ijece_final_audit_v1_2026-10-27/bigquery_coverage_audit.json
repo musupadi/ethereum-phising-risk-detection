@@ -1,0 +1,22 @@
+{
+  "query_source": "ml/enrich_real_addresses_bigquery.py",
+  "table_default": "bigquery-public-data.crypto_ethereum.transactions",
+  "window_clause_in_sql": "WHERE block_timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL @days_window DAY)",
+  "days_window_default": 90,
+  "rows": 12815,
+  "rows_with_any_nonzero_bq_value": 126,
+  "coverage_pct": 0.98,
+  "nonzero_by_label": {
+    "0": 125,
+    "1": 1
+  },
+  "observed_bq_first_seen_min": "2026-01-22 04:04:59+00:00",
+  "observed_bq_last_seen_max": "2026-04-20 23:57:23+00:00",
+  "observed_span_days": 88.8,
+  "any_covered_activity_inside_muldigraph_period": false,
+  "muldigraph_edge_time_range_utc": [
+    "2015-08-07T05:01:09+00:00",
+    "2019-01-19T09:24:22+00:00"
+  ],
+  "conclusion": "Coverage is limited by the query window, not by missing history: the SQL restricts block_timestamp to the 90 days before the query date, every observed timestamp of the 126 covered wallets lies in 2026-01-22..2026-04-20 (span 89 days), and none overlaps the 2015-2019 MulDiGraph period. The full-history public table was never queried for 2015-2019, so this is a design limitation of the enrichment step."
+}

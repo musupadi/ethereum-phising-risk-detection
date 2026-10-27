@@ -1,0 +1,45 @@
+11:39:59  INFO      Features: graph=18 (GraphSAGE input) | etherscan=7 (tabular branch) | scenario2 ref=25
+11:39:59  INFO      Split: train=10252 (phish=932) test=2563 (phish=233)
+11:39:59  INFO      Loading MulDiGraph from C:\Kuliah\ethereum-phising-risk-detection\data\raw\MulDiGraph.pkl (this may take ~30s) ...
+11:40:42  INFO      MulDiGraph loaded: 2973489 nodes, 13551303 edges
+11:40:42  INFO      Edge audit (MulDiGraph only): 708 raw entries -> 354 unique directed edges (train-train=244, train-test=95, test-test=15)
+11:40:43  INFO      Initialized SAGE V2: hidden=128 layers=2 device=cpu
+11:40:43  INFO      Real-edge graph: 12815 nodes (10252 train / 2563 test), 354 transaction edges
+11:40:43  INFO      Training leakage-controlled GraphSAGE encoder (graph-only features) ...
+11:40:43  INFO      Class weights: normal=0.550  phishing=5.497
+11:40:47  INFO      [Epoch  20] loss=0.3251  test_f1=0.7133  best=0.7250  patience=1/25
+11:40:51  INFO      [Epoch  40] loss=0.2306  test_f1=0.7889  best=0.8119  patience=3/25
+11:40:55  INFO      [Epoch  60] loss=0.2018  test_f1=0.7896  best=0.8168  patience=10/25
+11:40:57  INFO      Early stopping at epoch 75 (best F1=0.8168)
+11:40:57  INFO      Restored best weights (F1=0.8168)
+11:40:58  INFO      Fused vector: 128 + 7 = 135
+11:40:58  INFO      Training late-fusion XGBoost V2 ...
+11:40:58  INFO      Initialized XGBoost: estimators=250, depth=6, lr=0.050
+11:40:58  INFO      Training XGBoost with scale_pos_weight=9.99
+[0]	train-logloss:0.64850	val-logloss:0.64886
+[50]	train-logloss:0.07741	val-logloss:0.09963
+[100]	train-logloss:0.03464	val-logloss:0.07088
+[148]	train-logloss:0.02533	val-logloss:0.07072
+11:40:59  INFO      Training complete. Best iteration: 108
+11:40:59  INFO      Reproducing the published XGBoost Scenario 2 tabular baseline ...
+11:40:59  INFO      Initialized XGBoost: estimators=250, depth=6, lr=0.050
+11:40:59  INFO      Training XGBoost with scale_pos_weight=9.99
+[0]	train-logloss:0.64799	val-logloss:0.64869
+[50]	train-logloss:0.07812	val-logloss:0.09194
+[100]	train-logloss:0.03592	val-logloss:0.05780
+[150]	train-logloss:0.02511	val-logloss:0.05197
+[200]	train-logloss:0.01820	val-logloss:0.04943
+[249]	train-logloss:0.01393	val-logloss:0.04842
+11:41:00  INFO      Training complete. Best iteration: 249
+11:41:00  INFO      Fused-model gain: etherscan=1.8% embedding=98.2% (129 features used)
+
+=== Comparison V2 (held-out test set, n=2563) ===
+                                    Model  Accuracy  Precision  Recall     F1  ROC-AUC  PR-AUC   TN  FP  FN  TP
+             XGBoost tabular (Scenario 2)    0.9789     0.8403  0.9485 0.8911   0.9938  0.9582 2288  42  12 221
+GraphSAGE graph-only (leakage-controlled)    0.9516     0.6823  0.8755 0.7669   0.9714  0.8161 2235  95  29 204
+       GraphSAGE-Etherscan Late Fusion V2    0.9735     0.8113  0.9227 0.8635   0.9912  0.9375 2280  50  18 215
+
+Embedding 128 + Etherscan 7 = fused 135
+F1 vs XGBoost S2 : -2.77 pp
+F1 vs GraphSAGE  : +9.65 pp
+Report -> C:\Kuliah\ethereum-phising-risk-detection\outputs\late_fusion_report_v2.md
