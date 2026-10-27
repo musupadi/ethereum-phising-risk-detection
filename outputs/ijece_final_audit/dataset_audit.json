@@ -1,0 +1,65 @@
+{
+  "source_file": "data/processed/hybrid_dataset.csv",
+  "rows": 12815,
+  "unique_addresses_lowercase": 12815,
+  "duplicate_addresses": 0,
+  "all_addresses_lowercase_0x40hex": true,
+  "label_counts": {
+    "0": 11650,
+    "1": 1165
+  },
+  "class_ratio_normal_per_phishing": 10.0,
+  "matches_expected_12815_1165_11650": true,
+  "label_integrity": {
+    "label_mismatch_vs_data_raw_addresses_csv": 0,
+    "addresses_found_in_muldigraph": 12815,
+    "label_mismatch_vs_muldigraph_isp": 0,
+    "isp1_nodes_in_full_muldigraph": 1165,
+    "all_isp1_nodes_included": true
+  },
+  "sampling_reproducibility": {
+    "procedure": "ml/extract_addresses_from_graph.py: all isp=1 nodes; normals = random.sample over the address-sorted list of valid isp=0 hex nodes, random.seed(42), n = 10 x phishing",
+    "valid_normal_nodes_in_graph": 2972324,
+    "reproduced_sample_size": 11650,
+    "identical_to_committed_addresses_normal_csv": true,
+    "committed_phishing_csv_rows": 1165
+  },
+  "graph_present": {
+    "unique_values": [
+      1
+    ],
+    "role": "audit flag only; excluded from every scenario and from prod schema",
+    "in_any_scenario": false,
+    "in_prod_schema_features": false
+  },
+  "feature_joins": {
+    "etherscan_rows": 12815,
+    "etherscan_addresses_matched": 12815,
+    "etherscan_rows_with_error": 3,
+    "etherscan_transaction_count_zero": 96,
+    "etherscan_transaction_count_at_10000_cap": 8,
+    "bigquery_rows_with_any_nonzero_value": 126
+  },
+  "missing_values_in_hybrid_dataset_before_fillna": {},
+  "missing_value_policy": "all model inputs use .fillna(0) (scenario scripts, revision_ijece.py, train_production_model.py, predict.py defaults absent keys to 0.0)",
+  "constant_predictors": [
+    "created_at_ts"
+  ],
+  "scenario_feature_counts": {
+    "muldigraph_only": 18,
+    "muldigraph_plus_etherscan": 25,
+    "muldigraph_plus_bigquery": 28,
+    "muldigraph_plus_etherscan_plus_bigquery": 35
+  },
+  "feature_group_counts": {
+    "graph": 18,
+    "etherscan": 7,
+    "bigquery": 10
+  },
+  "graph_feature_count": 18,
+  "scenarios_match_expected_18_25_28_35": true,
+  "graph_time_range_utc": [
+    "2015-08-07T05:01:09+00:00",
+    "2019-01-19T09:24:22+00:00"
+  ]
+}

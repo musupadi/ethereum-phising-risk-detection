@@ -6,6 +6,7 @@
 > - **Bagian 1** = *Revision declaration* + *Response to reviewers*. Taruh sebelum naskah (sesuai permintaan editor), dan kirim juga ke ijece@iaesjournal.com.
 > - **Bagian 2** = teks/tabel baru yang ditempel ke naskah, diurutkan per subbab.
 > - **Bagian 3** = yang harus kamu isi atau kerjakan sendiri (data pribadi, gambar, biografi).
+> - **Diaudit ulang 27 Okt 2026**: lihat `outputs/ijece_final_audit/reviewer_compliance_matrix.md`. Bagian bertanda ⟨PENULIS⟩ wajib kamu isi sendiri.
 > - Semua angka berasal dari `experiments/revision_ijece.py` dan `experiments/revision_ops.py`. Output mentahnya ada di `outputs/revision/`.
 > - Nomor tabel dan gambar mengikuti naskah lama. Sesuaikan kalau penomorannya bergeser.
 
@@ -46,16 +47,16 @@ All five sections were added according to the template.
 ### Response to Reviewer A
 
 **A1 (Sec. 2.1). Rationale for the majority-class sample size; stability across seeds.**
-*Rationale.* All 1,165 labelled phishing wallets were kept. Normal wallets were sampled at 1:10 because this is the largest ratio we could fully enrich within the Etherscan quota, and because it is the most conservative of the ratios we tested: it is closest to the real (extremely low) phishing prevalence and makes precision hardest to achieve.
+*Rationale.* All 1,165 labelled phishing wallets were kept. Normal wallets were sampled uniformly at random at 1:10 (`random.seed(42)`; the sample is exactly reproducible). Among the ratios we tested, 1:10 is the most conservative: it is closest to the real (extremely low) phishing prevalence and makes precision hardest to achieve. ⟨PENULIS: tambahkan alasan asli pemilihan 1:10 bila ada, misalnya kuota enrichment — repo tidak mendokumentasikannya⟩
 
 *Ratio sensitivity (new Table A).* For XGBoost S2 over 5 seeds, F1 falls from 0.9476 (1:2) to 0.9287 (1:5) and 0.9018 (1:10). ROC-AUC stays constant at about 0.994. The F1 drop is therefore an effect of prevalence on precision, not a loss of ranking ability.
 
 *Seed stability (new Table 3).* Every model × scenario was re-run on 10 independent splits. XGBoost S2 reaches F1 = 0.9003 ± 0.0128 and ROC-AUC = 0.9943 ± 0.0020. For both XGBoost and random forest, the Etherscan-enriched scenarios (S2, S4) beat S1 and S3 in 10 out of 10 seeds.
 
 **A2 (Sec. 2.2). Is one-hop extraction restricted to the training split?**
-The one-hop features are computed once from the full MulDiGraph, before the split. They are *label-free* aggregates of edge counts, amounts and timestamps, and the label of a neighbour is never read. Feature extraction therefore cannot transmit label information from test to training wallets. All fitted transformations (scalers, capping thresholds, early stopping, threshold selection, calibration) are fitted on training wallets only.
+The one-hop features are computed once from the full MulDiGraph, before the split. Feature construction is therefore *transductive*: a test wallet's transactions with other wallets are visible when features are computed. The features are, however, *label-free* aggregates of edge counts, amounts and timestamps; the `isp` label is read only to build the target column, and a neighbour's label is never used, so feature extraction cannot transmit label information. All fitted steps of the reported models (feature scaling, early stopping, threshold selection, calibration) are fitted on training wallets only; no outlier capping is applied in the reported models.
 
-For GraphSAGE, which uses the topology directly, we added an explicit check. An *inductive* variant was trained with every edge touching a test wallet removed, and was then applied to the full graph. Its F1 (0.862 ± 0.020 over 10 seeds) is indistinguishable from the transductive model (0.858 ± 0.040), so the topology does not leak structural information. One reason is that the induced graph is very sparse: there are only 354 directed edges among the 12,815 wallets.
+For GraphSAGE, which uses the topology directly, we added an explicit check. An *inductive* variant was trained with every edge touching a test wallet removed, and was then applied to the full graph. Its F1 (0.862 ± 0.020 over 10 seeds) does not differ from the transductive model (0.858 ± 0.040; paired difference +0.004 ± 0.029, Wilcoxon p = 0.77), so we find no evidence that the transductive topology inflates the results. This check has limited power because the induced graph is very sparse: there are only 354 directed edges among the 12,815 wallets, and 96.6% of wallets have no neighbour in it. We note one further, non-leakage bias: the population was formed from all phishing nodes plus randomly sampled normal nodes, and the two groups differ strongly in MulDiGraph degree (median 13 for phishing vs 1 for normal wallets in this population).
 
 **A3 (Secs. 2.2, 3.1). Cause of the low BigQuery coverage.**
 The low coverage comes from the query timeframe, not from the public dataset. `bigquery-public-data.crypto_ethereum.transactions` contains the full chain history. Our enrichment query, however, only aggregated a rolling window of the 90 days before the query date (2026), while the EPTransNet wallets were active between August 2015 and January 2019. Only 126 of 12,815 wallets (0.98%) transacted in that window (125 normal, 1 phishing). The manuscript now states this explicitly. A full-history BigQuery enrichment is listed as future work.
@@ -68,10 +69,10 @@ The two numbers came from different protocols:
 (i) early stopping on test F1 (Table 3) versus a training-internal validation slice (Table 4);
 (ii) 26 versus 19 input features;
 (iii) MulDiGraph + Etherscan edges versus MulDiGraph edges only.
-Monitoring test F1 selects the best test epoch and therefore inflates the score. We have corrected this: every GraphSAGE model in the revised manuscript uses validation-based early stopping. New Table B isolates each factor on the same split. Monitoring test F1 adds 2.1 F1 points (0.853 → 0.874). Feeding the 7 Etherscan features to GraphSAGE adds 6.5 points (0.788 → 0.853). The Etherscan-derived edges add nothing (0.873 vs 0.874). The original gap is therefore mainly due to the input feature set and, secondarily, to the stopping protocol. Over 10 seeds, the corrected GraphSAGE reaches F1 = 0.858 ± 0.040 (S2) and 0.780 ± 0.032 (S1), below XGBoost in every scenario.
+In the submitted manuscript, 0.8184 was the embedding-only XGBoost ablation and 0.8189 the graph-only GraphSAGE; both used validation-based early stopping, 19 graph inputs and MulDiGraph edges. The 0.8960 GraphSAGE of Table 3 used early stopping on test F1, 26 inputs, and MulDiGraph plus Etherscan edges. Monitoring test F1 selects the best test epoch and therefore inflates the score. We have corrected this: every GraphSAGE model in the revised manuscript uses validation-based early stopping. New Table B isolates each factor on one split of the revised data. Monitoring test F1 adds 2.1 F1 points (0.853 → 0.874). Feeding the 7 Etherscan features to GraphSAGE adds 6.5 points (0.788 → 0.853). The Etherscan-derived edges add nothing (0.873 vs 0.874). On the revised data, the gap is therefore mainly due to the input feature set and, secondarily, to the stopping protocol; the original 8,595-wallet runs cannot be re-executed. Over 10 seeds, the corrected GraphSAGE reaches F1 = 0.858 ± 0.040 (S2) and 0.780 ± 0.032 (S1), below XGBoost in every scenario.
 
 **A6 (Sec. 3.3). Formula of the combined feature ranking; FP in Table 6.**
-The ranking is `combined(f) = ½ · [ gain_XGB(f) / Σ gain_XGB + MDI_RF(f) / Σ MDI_RF ]`. Correlation is *not* part of the score. It is applied afterwards as a filter: for every feature pair with |Pearson r| > 0.95, the feature with the lower combined score is dropped (this removed `in_degree` and `tx_frequency`). Table 6 now reports TN, FP, FN and TP together.
+The ranking is `combined(f) = ½ · [ gain_XGB(f) / Σ gain_XGB + MDI_RF(f) / Σ MDI_RF ]`. Correlation is *not* part of the score. It is applied afterwards as a filter: for every feature pair with |Pearson r| ≥ 0.95 (computed on the capped training split), the feature with the lower combined score is dropped. This removed `in_degree` (r = 0.954 with `unique_senders`) and `tx_frequency` (r = 1.000 with `activity_score`, of which it is a constant multiple). `in_degree` keeps rank 2 because ranking precedes the filter. The ranking is an analysis only: the deployed model uses all 25 S2 features. Table 6 now reports TN, FP, FN and TP together.
 
 ---
 
@@ -91,7 +92,7 @@ There are two cases.
 - *Live wallets:* if Etherscan `txlist` returns no transactions, the service returns "wallet not found" with no risk score instead of scoring an all-zero vector. Wallets with fewer than the minimum number of transactions are scored but flagged `insufficient_data`. All live scores are flagged `out_of_distribution`.
 
 **B3 (Sec. 2.2). Etherscan rate limits and FastAPI throughput.**
-The Etherscan free tier allows 3 calls/s and 100,000 calls/day per account. At 5 calls per wallet, live scanning is bounded by about 0.6 wallets/s and about 20,000 wallets/day per API key, whatever the FastAPI concurrency. The model itself is not the bottleneck (3.5 ms per wallet; 2 µs per wallet in batch). Dataset wallets are served from a lookup without any external call. For production we propose response caching per address, a request queue, and a paid API tier or a self-hosted node.
+The Etherscan free tier allows 3 calls/s and 100,000 calls/day per account. At 5 calls per wallet, live scanning is bounded by about 0.6 wallets/s and about 20,000 wallets/day per API key, whatever the FastAPI concurrency. The model itself is not the bottleneck (3.5 ms per wallet; 2 µs per wallet in batch). Dataset wallets are served from a lookup without any external call (their scores include training wallets and are therefore in-sample; they are not used as evaluation). The rate limits are taken from the Etherscan documentation and the resulting throughput bounds were not load-tested; Etherscan also announced a 1,000-record page cap for free keys from July 2026, which the current pagination (10,000 records per page) has not been tested against. For production we propose response caching per address, a request queue, and a paid API tier or a self-hosted node.
 
 **B4 (Sec. 2.5). Probability calibration.**
 We evaluated calibration in this revision (new Table C). Both calibrators were fitted on the training-internal validation slice:
@@ -120,7 +121,7 @@ Platt scaling halves the expected calibration error and leaves ROC-AUC unchanged
 | 10 | 0.00035 | 0.82 |
 | 30 | 0.00106 | 2.46 |
 
-\*ETH = USD 2,313.76 (CoinDesk, 26 Oct 2026). Ethereum mainnet base fees in late 2026 were mostly below 1 gwei. The local commit latency of 13.6 ms becomes one block time (about 12 s) on mainnet.
+\*ETH = USD 2,313.76 (CoinDesk, 26 Oct 2026). On 26 Oct 2026 public gas trackers showed mainnet gas prices below 1 gwei; the range up to 30 gwei covers congestion. These costs are derived from the locally measured gas, not measured on a public network. Likewise, the 13.6 ms local commit latency would become about one block interval (≈ 12 s) on mainnet; this was not measured.
 
 **B7 (Sec. 3.3). Threshold against a cost matrix.**
 We added a cost-sensitive analysis (new Table D). For each cost ratio *c* = C_FN / C_FP, the threshold minimising *c*·FN + FP was selected on the validation slice and applied once to the test set:
@@ -133,7 +134,7 @@ We added a cost-sensitive analysis (new Table D). For each cost ratio *c* = C_FN
 | 10 | 0.17 | 179.8 | 164.5 | 8.8 / 76.5 |
 | 20 | 0.08 | 325.8 | 226.4 | 6.8 / 90.4 |
 
-The default threshold of 0.5 is effectively cost-optimal when a missed phishing wallet costs up to 5× a false alarm. When a miss costs 10× or 20× more, lowering the threshold cuts total cost by 8.5% and 30.5% respectively. The threshold is therefore exposed as a deployment parameter.
+For cost ratios 2 and 5 the validation-selected threshold is slightly *worse* than 0.5 on the test sets (+1.8% mean cost; worse in 4 and 5 of 10 seeds), so 0.5 is retained up to 5×. When a miss costs 10× or 20× more, lowering the threshold cuts total cost by 8.5% and 30.5% respectively (worse than 0.5 in 1 and 0 of 10 seeds). The threshold is therefore exposed as a deployment parameter.
 
 ---
 
@@ -141,7 +142,7 @@ The default threshold of 0.5 is effectively cost-optimal when a missed phishing 
 
 **C1. Figures and tables cited before they appear.** Every figure and table is now introduced and explained in the text before it appears.
 
-**C2. Selection criteria for the 28 verified studies (Table 1).** A selection protocol paragraph was added to Section 1 (text in Part 2).
+**C2. Selection criteria for the 28 verified studies (Table 1).** ⟨PENULIS: tulis protokol pemilihan yang benar-benar dipakai (database, kata kunci, rentang tahun, kriteria inklusi/eksklusi). Repo tidak menyimpan bukti apa pun tentang ini — jangan pakai contoh di Part 2 kalau tidak sesuai.⟩
 
 **C3. S1–S4 labels in Figure 1.** The "Hybrid feature construction" block now labels S1 (MulDiGraph, 18), S2 (+Etherscan, 25), S3 (+BigQuery, 28) and S4 (+Etherscan +BigQuery, 35).
 
@@ -185,7 +186,7 @@ The default threshold of 0.5 is effectively cost-optimal when a missed phishing 
 
 ### §2.1 Dataset — tambahan
 
-> The population contains all 1,165 phishing-labelled nodes of EPTransNet and 11,650 normal nodes sampled uniformly at random (ratio 1:10, seed 42), for 12,815 wallets in total. The ratio 1:10 was chosen as the most conservative setting we could fully enrich: Table A shows that increasing the share of normal wallets lowers precision and F1 while ROC-AUC stays constant (≈ 0.994), so 1:10 gives the least optimistic estimate. Every experiment is repeated over 10 independent stratified 80:20 splits (seeds 42, 0–8), and results are reported as mean ± standard deviation.
+> The population contains all 1,165 phishing-labelled nodes of EPTransNet and 11,650 normal nodes sampled uniformly at random (ratio 1:10, seed 42; exactly reproducible), for 12,815 wallets in total. The ratio 1:10 is the most conservative of the settings tested: Table A shows that increasing the share of normal wallets lowers precision and F1 while ROC-AUC stays constant (≈ 0.994), so 1:10 gives the least optimistic estimate. Every experiment is repeated over 10 independent stratified 80:20 splits (seeds 42, 0–8), and results are reported as mean ± standard deviation.
 
 **Table A. Majority-class ratio sensitivity (XGBoost, S2, 5 seeds)**
 
@@ -197,7 +198,7 @@ The default threshold of 0.5 is effectively cost-optimal when a missed phishing 
 
 ### §2.2 Feature transformation — tambahan
 
-> **Leakage control.** The 18 one-hop statistics are computed from the full MulDiGraph before splitting; they aggregate edge counts, amounts and timestamps only and never read a neighbour's label. All fitted steps — scaling, capping, early stopping, threshold selection and calibration — are fitted on training wallets only. GraphSAGE additionally uses the induced topology among the 12,815 wallets (354 directed edges); an inductive variant trained without any edge incident to a test wallet performs the same as the transductive model (Table 3), confirming that the topology does not leak test information.
+> **Leakage control.** The 18 one-hop statistics are computed from the full MulDiGraph before splitting; they aggregate edge counts, amounts and timestamps only and never read a neighbour's label. Feature construction is therefore transductive but label-free. All fitted steps of the reported models — scaling, early stopping, threshold selection and calibration — are fitted on training wallets only. GraphSAGE additionally uses the induced topology among the 12,815 wallets (354 directed edges); an inductive variant trained without any edge incident to a test wallet performs the same as the transductive model (0.862 ± 0.020 vs 0.858 ± 0.040, Table 3). We therefore find no evidence of structural leakage, although the sparse graph limits the power of this check.
 >
 > **Isolated wallets.** Every dataset wallet has at least one transaction in MulDiGraph, so all 18 statistics are defined. In the induced GNN graph, however, 96.6% of wallets (98.4% of normal, 78.8% of phishing) have no neighbour inside the population; for them GraphSAGE reduces to a self-loop MLP. In live mode, a wallet with an empty Etherscan transaction list is reported as "not found" and is not scored.
 >
@@ -281,7 +282,7 @@ The default threshold of 0.5 is effectively cost-optimal when a missed phishing 
 | XGBoost | 0.867 ± 0.021 | **0.937 ± 0.015** | **0.994 ± 0.002** | **0.963 ± 0.009** | 33.8 | **14.6** |
 | GraphSAGE | 0.817 ± 0.030 | 0.904 ± 0.060 | 0.986 ± 0.007 | 0.886 ± 0.053 | 47.1 | 22.3 |
 
-> Discussion paragraph: Etherscan enrichment adds 1.9 F1 points to XGBoost (0.881 → 0.900) and 2.2 to random forest, consistently across all 10 splits, whereas BigQuery adds nothing (S3 ≈ S1, S4 ≈ S2) because of its 0.98% coverage. Random forest and XGBoost are statistically indistinguishable in F1 (0.904 ± 0.011 vs 0.900 ± 0.013); XGBoost is retained for deployment because it gives the highest recall, ROC-AUC and PR-AUC and the fewest missed phishing wallets (14.6 vs 19.8 per test split), which is the costlier error (Table D). GraphSAGE trails both tree models in every scenario (0.780–0.858 F1) and shows the largest variance across splits (std up to 0.040). This is consistent with the sparsity of the induced graph: 96.6% of wallets have no neighbour inside the population, so message passing has little to aggregate, and the model effectively becomes a less regularized MLP on the same tabular features.
+> Discussion paragraph: Etherscan enrichment adds 1.9 F1 points to XGBoost (0.881 → 0.900) and 2.2 to random forest, consistently across all 10 splits, whereas BigQuery adds nothing (S3 ≈ S1, S4 ≈ S2) because of its 0.98% coverage. Random forest has the highest mean F1 (0.904 ± 0.011 vs 0.900 ± 0.013 for XGBoost; higher in 7 of 10 seeds), but the difference is not significant (paired Wilcoxon p = 0.16). XGBoost is retained for deployment because it gives higher recall and PR-AUC in 10 of 10 seeds and fewer missed phishing wallets in 10 of 10 seeds (14.6 vs 19.8 per test split), which is the costlier error (Table D). GraphSAGE trails both tree models in every scenario (0.780–0.858 F1) and shows the largest variance across splits (std up to 0.040). This is consistent with the sparsity of the induced graph: 96.6% of wallets have no neighbour inside the population, so message passing has little to aggregate (interpretation: for most nodes GraphSAGE behaves like an MLP on the same tabular features).
 
 ### §3 — Table 4 baru (fusion, 10 seeds)
 
@@ -303,7 +304,7 @@ The default threshold of 0.5 is effectively cost-optimal when a missed phishing 
 | C — revised Table 3 | validation F1 | 25 features | MulDiGraph | 0.853 | 0.985 |
 | D — revised Table 4 encoder | validation F1 | 18 graph features | MulDiGraph | 0.788 | 0.972 |
 
-> On the same split, early stopping on test F1 inflates GraphSAGE F1 by 2.1 points (B → C), the 7 Etherscan inputs account for 6.5 points (D → C), and the Etherscan-derived edges have no measurable effect (A ≈ B). The original 0.8960 vs 0.8184 gap is therefore mainly explained by the input feature set and, secondarily, by the stopping protocol.
+> On the same split, early stopping on test F1 inflates GraphSAGE F1 by 2.1 points (B → C), the 7 Etherscan inputs account for 6.5 points (D → C), and the Etherscan-derived edges have no measurable effect (A ≈ B). On the revised data, the gap between the old Table 3 and Table 4 protocols is therefore mainly explained by the input feature set and, secondarily, by the stopping protocol.
 
 ### §3.3 — Table 6 baru (dipisah dua panel)
 
@@ -339,7 +340,7 @@ The default threshold of 0.5 is effectively cost-optimal when a missed phishing 
 
 **Feature ranking (tambahkan rumus di §3.3):**
 
-> The combined importance is *I(f) = ½ [G(f)/Σ_j G(j) + M(f)/Σ_j M(j)]*, where *G* is XGBoost total gain and *M* is random-forest mean decrease in impurity, both computed on the training split. Correlation is used as a post-filter: for every pair with |r| > 0.95, the feature with lower *I* is removed (`in_degree`, `tx_frequency`). The top features are `unique_senders` (I = 0.311), `in_degree` (0.101), `timestamp_spread_in` (0.080), `sent_received_ratio` (0.058) and `total_sent` (0.051).
+> The combined importance is *I(f) = ½ [G(f)/Σ_j G(j) + M(f)/Σ_j M(j)]*, where *G* is XGBoost total gain and *M* is random-forest mean decrease in impurity, both computed on the training split. Correlation is used as a post-filter: for every pair with |r| ≥ 0.95 on the training split, the feature with lower *I* is removed (`in_degree`, r = 0.954 with `unique_senders`; `tx_frequency`, r = 1.000 with `activity_score`). The ranking informs the analysis only; the deployed model uses all 25 S2 features. The top features are `unique_senders` (I = 0.311), `in_degree` (0.101), `timestamp_spread_in` (0.080), `sent_received_ratio` (0.058) and `total_sent` (0.051).
 
 ### §4 Conclusion — paragraf future impact
 

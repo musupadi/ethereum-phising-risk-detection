@@ -31,7 +31,7 @@ git clone https://github.com/musupadi/ethereum-phising-risk-detection.git share-
 | File / folder | Kenapa | Status di git |
 |---|---|---|
 | `.env` | Berisi **API key Etherscan** kamu | di-ignore ✅ |
-| `primal-library-239611-b6941382db9f.json` | **Kunci service account Google Cloud** — orang lain bisa memakai BigQuery atas tagihanmu | di-ignore ✅ |
+| file JSON service account Google Cloud di root repo | **Kunci service account Google Cloud** — orang lain bisa memakai BigQuery atas tagihanmu | di-ignore ✅ |
 | `data/raw/MulDiGraph.pkl` | Dataset pihak ketiga (XBlock), sekitar 1,3 GB; arahkan reviewer ke sumber resminya, jangan disebar ulang dari repo | di-ignore ✅ |
 | `Ethereum Phishing Transaction Network/` | Sama (lokasi alternatif MulDiGraph) | di-ignore ✅ |
 | `.venv/` | Environment lokal Windows-mu, ratusan MB, tidak portabel | di-ignore ✅ |
@@ -79,7 +79,23 @@ Aman dihapus — tidak ada script yang membaca file-file ini:
 Diuji dari `git clone` bersih + perubahan revisi, tanpa `.env`, dengan `MulDiGraph.pkl`
 disalin manual (seperti yang akan dilakukan reviewer).
 
-<!-- SMOKE_RESULTS -->
+| Langkah | Perintah | Hasil | Waktu |
+|---|---|---|---|
+| Inferensi | `python ml/predict.py` | ✅ lolos | 4 s |
+| Bangun dataset 12.815 | `python ml/build_hybrid_dataset.py` | ✅ `hybrid_dataset.csv` **identik byte-per-byte** dengan versi ter-commit | 56 s |
+| Model produksi | `python ml/train_production_model.py` | ✅ `model_prod_xgb.json` **identik byte-per-byte**; F1 = 0,8911 | 8 s |
+| 4 × 4 skenario | `ml/train_dataset_scenarios.py` | ✅ LR/RF/XGB sama persis dengan tabel seed 42 | 102 s |
+| Late fusion V2 | `experiments/run_graphsage_etherscan_late_fusion_v2.py` | ✅ (sebelumnya **gagal**, assert terkunci ke 8.595 — sudah diperbaiki) | 58 s |
+| Embedding ablation | `experiments/run_embedding_only_ablation.py` | ✅ lolos | 49 s |
+| Ops (model, latensi, gas) | `experiments/revision_ops.py --no-live` | ✅ lolos | 6 s |
+| Semua tabel paper (10 seed) | `experiments/revision_ijece.py` | ✅ ke-190 run memberi F1 **sama persis** dengan run di repo utama | 836 s |
+| API | `uvicorn api.main:app` → `/health`, `POST /analyze` | ✅ HTTP 200, skor keluar; tulis chain gagal (non-fatal) karena node Hardhat tidak dinyalakan — memang perilaku yang benar | — |
+
+**Belum diuji di smoke test:** `npm install` + Hardhat (butuh Node.js; sudah pernah jalan di
+Mode B), Streamlit UI, scan live (butuh API key; sudah diuji terpisah pada 11 wallet),
+enrichment ulang Etherscan/BigQuery, dan instalasi `pip` dari nol (smoke test memakai `.venv`
+yang sama). Penerima di Linux/macOS: perintah PowerShell di README perlu disesuaikan
+(`source .venv/bin/activate`).
 
 ## E. Yang tetap harus disiapkan sendiri oleh penerima
 

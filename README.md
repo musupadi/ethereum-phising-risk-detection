@@ -182,7 +182,7 @@ curl http://localhost:8000/risk/0x4dad23689bef624af5d1757a56135901c915fcfd
 │   ├── train.py              # Baseline only: LR + Random Forest
 │   ├── train_dataset_scenarios.py # Full thesis comparison: LR + RF + XGBoost + GNN
 │   ├── predict.py            # Inference helper
-│   └── artifacts/            # model.pkl, scaler.pkl, feature_schema.json, plots
+│   └── artifacts/            # model_prod_xgb.json, prod_feature_schema.json, plots
 ├── api/
 │   ├── main.py               # FastAPI app
 │   ├── schemas.py            # Pydantic models
@@ -613,7 +613,7 @@ This step appends real on-chain summary features (balance, tx count, activity pr
 for addresses in `data/raw/addresses.csv` to:
 - `data/raw/addresses_etherscan_enriched.csv`
 
-> **Status:** All 8,595 hybrid-dataset addresses are already enriched. You only need to re-run this if you change the address list.
+> **Status:** All 12,815 dataset addresses are already enriched (`data/raw/addresses_etherscan_enriched.csv` is committed). You only need to re-run this if you change the address list.
 
 Run one batch manually:
 
@@ -648,9 +648,14 @@ Notes:
 - `ETHERSCAN_PER_RUN_LIMIT=0` means process all remaining addresses.
 - Script is resumable: it skips addresses already present in `addresses_etherscan_enriched.csv`.
 
-### Step 6b - Etherscan edge extraction (GNN graph enrichment)
+### Step 6b - Etherscan edge extraction (optional, not used in the paper)
 
-This step fetches cross-transaction edges between the 8,595 hybrid-dataset addresses.
+> **Not used in the reported results.** `data/raw/etherscan_edges.csv` was crawled for an earlier
+> 8,595-address population and is disabled by default (`USE_ETHERSCAN_EDGES = False` in
+> `ml/train_dataset_scenarios.py`). The paper uses MulDiGraph edges only (354 directed edges among
+> the 12,815 wallets); Table B shows Etherscan edges had no measurable effect on GraphSAGE.
+
+This step fetches cross-transaction edges between the dataset addresses.
 For each address it queries **three** Etherscan sources — normal transactions
 (`txlist`), internal transactions (`txlistinternal`), and ERC-20 token transfers
 (`tokentx`) — and keeps every counterparty that is also in the dataset. Using all
@@ -666,7 +671,7 @@ python ml/fetch_etherscan_edges.py
 
 **Runtime estimate (free Etherscan key, 0.4s delay):**
 - Each address now queries up to 3 sources, so expect **~3×** the time of a
-  single-source run (~3 hours for all 8,595 addresses in 1 run).
+  single-source run (several hours for all 12,815 addresses).
 - Disable internal/token sources to go faster (see env vars below).
 - Script is **fully resumable** — safe to stop and restart.
 
@@ -685,14 +690,11 @@ python ml\fetch_etherscan_edges.py
 **How it works:**
 - For each address, queries up to `ETHERSCAN_MAX_PAGES` pages from each enabled
   source (normal + internal + token transfers).
-- Keeps only edges where the counterparty is ALSO in the 8,595-node dataset.
-- The edge list is automatically loaded by `train_dataset_scenarios.py` if the file exists.
-- Merges with MulDiGraph edges before GNN training (no code changes needed).
+- Keeps only edges where the counterparty is ALSO in the dataset.
+- Loaded by `train_dataset_scenarios.py` only if you set `USE_ETHERSCAN_EDGES = True`.
 
-**Expected improvement:**
-The current MulDiGraph provides 528 cross-edges for 8,595 nodes (~0.06 edges/node).
-Etherscan edges should add several hundred to a few thousand additional connections,
-potentially improving GNN F1 by 0.5–2 points depending on transaction overlap.
+**Observed effect:** none. On the seed-42 split GraphSAGE F1 was 0.873 with and 0.874 without
+Etherscan edges (`outputs/revision/graphsage_protocol_decomposition.csv`).
 
 ### Step 7 - BigQuery enrichment (additional transaction features)
 
@@ -789,7 +791,7 @@ Notes:
 - Keep the service-account JSON private and never commit it to git.
 - In `cmd`, do not use `$env:...`; that syntax only works in PowerShell.
 
-### Step 8 - Build combined dataset and compare scenarios
+### Step 8b - Build combined dataset and compare scenarios
 
 After Etherscan and BigQuery enrichment are available, rebuild the combined dataset:
 
@@ -920,7 +922,7 @@ Daftar semua wallet yang pernah dicatat ke smart contract (dari event `RiskUpdat
 | `RPC_URL` | `http://127.0.0.1:8545` | Hardhat RPC endpoint |
 | `CHAIN_ENABLED` | `true` | Set to `false` to skip chain writes |
 | `SIGNER_PRIVATE_KEY` | Hardhat account #0 | Tx signer private key |
-| `MODEL_VERSION` | `rf-v1` | Version tag stored on-chain |
+| `MODEL_VERSION` | `xgb-eth-v1` | Version tag stored on-chain |
 | `API_HOST` | `0.0.0.0` | FastAPI host |
 | `API_PORT` | `8000` | FastAPI port |
 | `BIGQUERY_PROJECT_ID` | `` | GCP project used by BigQuery enrichment script |
