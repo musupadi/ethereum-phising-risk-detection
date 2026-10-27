@@ -44,3 +44,8 @@ primal-library-239611-b6941382db9f.json
 
 # ── Thesis documents (jangan commit ke repo) ─────────────────────────────────
 *.docx
+
+# ── Local editor / assistant config ──────────────────────────────────────────
+.claude/
+CLAUDE.md
+**/CLAUDE.md

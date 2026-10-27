@@ -1,0 +1,123 @@
+11:05:10  INFO      Loading MulDiGraph from C:\Kuliah\ethereum-phising-risk-detection\data\raw\MulDiGraph.pkl (this may take ~30s) ...
+11:05:35  INFO      MulDiGraph loaded: 2973489 nodes, 13551303 edges
+11:05:35  INFO      Scenario muldigraph_only | train=10252 test=2563 features=18
+11:05:35  INFO      Edge extraction (MulDiGraph): 12815/12815 addresses found, 708 edges
+11:05:35  INFO      etherscan_edges.csv not found — run ml/fetch_etherscan_edges.py to enrich GNN edges
+11:05:35  INFO      Total edges for GNN: 708 (MulDiGraph + Etherscan)
+11:05:36  INFO      Initialized XGBoost: estimators=250, depth=6, lr=0.050
+11:05:36  INFO      Training XGBoost with scale_pos_weight=9.99
+[0]	train-logloss:0.64891	val-logloss:0.64952
+[50]	train-logloss:0.09388	val-logloss:0.10708
+[100]	train-logloss:0.05289	val-logloss:0.07447
+[150]	train-logloss:0.04108	val-logloss:0.06907
+[200]	train-logloss:0.03294	val-logloss:0.06694
+[249]	train-logloss:0.02753	val-logloss:0.06653
+11:05:37  INFO      Training complete. Best iteration: 228
+11:05:37  INFO      Confusion matrix saved → C:\Kuliah\ethereum-phising-risk-detection\ml\artifacts\cm_muldigraph_only_xgboost.png
+11:05:37  INFO      Initialized SAGE V2: hidden=128 layers=2 device=cpu
+11:05:37  INFO      GNN: using 708 real transaction edges
+11:05:37  INFO      Real-edge graph: 12815 nodes (10252 train / 2563 test), 354 transaction edges
+11:05:37  INFO      Class weights: normal=0.550  phishing=5.497
+11:05:39  INFO      [Epoch  20] loss=0.3090  test_f1=0.6991  best=0.7176  patience=7/25
+11:05:44  INFO      [Epoch  40] loss=0.2210  test_f1=0.8119  best=0.8141  patience=2/25
+11:05:46  INFO      [Epoch  60] loss=0.1868  test_f1=0.8075  best=0.8238  patience=7/25
+11:05:48  INFO      Early stopping at epoch 78 (best F1=0.8238)
+11:05:48  INFO      Restored best weights (F1=0.8238)
+11:05:48  INFO      Confusion matrix saved → C:\Kuliah\ethereum-phising-risk-detection\ml\artifacts\cm_muldigraph_only_gnn_v2.png
+11:05:48  INFO      Scenario muldigraph_plus_etherscan | train=10252 test=2563 features=25
+11:05:48  INFO      Edge extraction (MulDiGraph): 12815/12815 addresses found, 708 edges
+11:05:48  INFO      etherscan_edges.csv not found — run ml/fetch_etherscan_edges.py to enrich GNN edges
+11:05:48  INFO      Total edges for GNN: 708 (MulDiGraph + Etherscan)
+11:05:49  INFO      Initialized XGBoost: estimators=250, depth=6, lr=0.050
+11:05:49  INFO      Training XGBoost with scale_pos_weight=9.99
+[0]	train-logloss:0.64799	val-logloss:0.64869
+[50]	train-logloss:0.07812	val-logloss:0.09194
+[100]	train-logloss:0.03592	val-logloss:0.05780
+[150]	train-logloss:0.02511	val-logloss:0.05197
+[200]	train-logloss:0.01820	val-logloss:0.04943
+[249]	train-logloss:0.01393	val-logloss:0.04842
+11:05:50  INFO      Training complete. Best iteration: 249
+11:05:50  INFO      Confusion matrix saved → C:\Kuliah\ethereum-phising-risk-detection\ml\artifacts\cm_muldigraph_plus_etherscan_xgboost.png
+11:05:50  INFO      Initialized SAGE V2: hidden=128 layers=2 device=cpu
+11:05:50  INFO      GNN: using 708 real transaction edges
+11:05:50  INFO      Real-edge graph: 12815 nodes (10252 train / 2563 test), 354 transaction edges
+11:05:50  INFO      Class weights: normal=0.550  phishing=5.497
+11:05:52  INFO      [Epoch  20] loss=0.2386  test_f1=0.8161  best=0.8161  patience=0/25
+11:05:55  INFO      [Epoch  40] loss=0.1806  test_f1=0.8435  best=0.8900  patience=4/25
+11:05:57  INFO      [Epoch  60] loss=0.1219  test_f1=0.8837  best=0.8900  patience=24/25
+11:05:57  INFO      Early stopping at epoch 61 (best F1=0.8900)
+11:05:57  INFO      Restored best weights (F1=0.8900)
+11:05:58  INFO      Confusion matrix saved → C:\Kuliah\ethereum-phising-risk-detection\ml\artifacts\cm_muldigraph_plus_etherscan_gnn_v2.png
+11:05:58  INFO      Scenario muldigraph_plus_bigquery | train=10252 test=2563 features=28
+11:05:58  INFO      Edge extraction (MulDiGraph): 12815/12815 addresses found, 708 edges
+11:05:58  INFO      etherscan_edges.csv not found — run ml/fetch_etherscan_edges.py to enrich GNN edges
+11:05:58  INFO      Total edges for GNN: 708 (MulDiGraph + Etherscan)
+11:05:58  INFO      Initialized XGBoost: estimators=250, depth=6, lr=0.050
+11:05:58  INFO      Training XGBoost with scale_pos_weight=9.99
+[0]	train-logloss:0.64876	val-logloss:0.64947
+[50]	train-logloss:0.09367	val-logloss:0.10714
+[100]	train-logloss:0.05253	val-logloss:0.07473
+[150]	train-logloss:0.04138	val-logloss:0.06982
+[200]	train-logloss:0.03329	val-logloss:0.06792
+[249]	train-logloss:0.02775	val-logloss:0.06733
+11:05:59  INFO      Training complete. Best iteration: 218
+11:05:59  INFO      Confusion matrix saved → C:\Kuliah\ethereum-phising-risk-detection\ml\artifacts\cm_muldigraph_plus_bigquery_xgboost.png
+11:05:59  INFO      Initialized SAGE V2: hidden=128 layers=2 device=cpu
+11:05:59  INFO      GNN: using 708 real transaction edges
+11:05:59  INFO      Real-edge graph: 12815 nodes (10252 train / 2563 test), 354 transaction edges
+11:05:59  INFO      Class weights: normal=0.550  phishing=5.497
+11:06:01  INFO      [Epoch  20] loss=0.2744  test_f1=0.7871  best=0.7882  patience=1/25
+11:06:04  INFO      [Epoch  40] loss=0.2146  test_f1=0.8161  best=0.8221  patience=2/25
+11:06:06  INFO      [Epoch  60] loss=0.1914  test_f1=0.8127  best=0.8259  patience=6/25
+11:06:08  INFO      [Epoch  80] loss=0.1711  test_f1=0.8145  best=0.8267  patience=9/25
+11:06:10  INFO      Early stopping at epoch 96 (best F1=0.8267)
+11:06:10  INFO      Restored best weights (F1=0.8267)
+11:06:10  INFO      Confusion matrix saved → C:\Kuliah\ethereum-phising-risk-detection\ml\artifacts\cm_muldigraph_plus_bigquery_gnn_v2.png
+11:06:10  INFO      Scenario muldigraph_plus_etherscan_plus_bigquery | train=10252 test=2563 features=35
+11:06:10  INFO      Edge extraction (MulDiGraph): 12815/12815 addresses found, 708 edges
+11:06:10  INFO      etherscan_edges.csv not found — run ml/fetch_etherscan_edges.py to enrich GNN edges
+11:06:10  INFO      Total edges for GNN: 708 (MulDiGraph + Etherscan)
+11:06:11  INFO      Initialized XGBoost: estimators=250, depth=6, lr=0.050
+11:06:11  INFO      Training XGBoost with scale_pos_weight=9.99
+[0]	train-logloss:0.64795	val-logloss:0.64866
+[50]	train-logloss:0.07809	val-logloss:0.09101
+[100]	train-logloss:0.03543	val-logloss:0.05645
+[150]	train-logloss:0.02430	val-logloss:0.05085
+[200]	train-logloss:0.01778	val-logloss:0.04793
+[249]	train-logloss:0.01394	val-logloss:0.04685
+11:06:12  INFO      Training complete. Best iteration: 248
+11:06:12  INFO      Confusion matrix saved → C:\Kuliah\ethereum-phising-risk-detection\ml\artifacts\cm_muldigraph_plus_etherscan_plus_bigquery_xgboost.png
+11:06:12  INFO      Initialized SAGE V2: hidden=128 layers=2 device=cpu
+11:06:12  INFO      GNN: using 708 real transaction edges
+11:06:12  INFO      Real-edge graph: 12815 nodes (10252 train / 2563 test), 354 transaction edges
+11:06:12  INFO      Class weights: normal=0.550  phishing=5.497
+11:06:14  INFO      [Epoch  20] loss=0.2537  test_f1=0.8011  best=0.8011  patience=0/25
+11:06:17  INFO      [Epoch  40] loss=0.1767  test_f1=0.8677  best=0.8677  patience=0/25
+11:06:20  INFO      [Epoch  60] loss=0.1373  test_f1=0.8519  best=0.8906  patience=2/25
+11:06:23  INFO      [Epoch  80] loss=0.1624  test_f1=0.8542  best=0.8929  patience=7/25
+11:06:25  INFO      Early stopping at epoch 98 (best F1=0.8929)
+11:06:25  INFO      Restored best weights (F1=0.8929)
+11:06:25  INFO      Confusion matrix saved → C:\Kuliah\ethereum-phising-risk-detection\ml\artifacts\cm_muldigraph_plus_etherscan_plus_bigquery_gnn_v2.png
+11:06:25  INFO      Saved: C:\Kuliah\ethereum-phising-risk-detection\ml\artifacts\dataset_scenarios_comparison.csv
+11:06:25  INFO      Saved: C:\Kuliah\ethereum-phising-risk-detection\ml\artifacts\dataset_scenarios_summary.json
+
+Scenario Comparison:
+                               scenario              model  accuracy  precision  recall     f1
+                        muldigraph_only LogisticRegression    0.9458     0.7176  0.6652 0.6904
+                        muldigraph_only       RandomForest    0.9766     0.8531  0.8970 0.8745
+                        muldigraph_only            XGBoost    0.9754     0.8295  0.9185 0.8717
+                        muldigraph_only   GNN-GraphSAGE-V2    0.9508     0.6766  0.8798 0.7649
+              muldigraph_plus_etherscan LogisticRegression    0.9520     0.7500  0.7082 0.7285
+              muldigraph_plus_etherscan       RandomForest    0.9797     0.8635  0.9227 0.8921
+              muldigraph_plus_etherscan            XGBoost    0.9789     0.8403  0.9485 0.8911
+              muldigraph_plus_etherscan   GNN-GraphSAGE-V2    0.9707     0.7948  0.9142 0.8503
+               muldigraph_plus_bigquery LogisticRegression    0.9442     0.7027  0.6695 0.6857
+               muldigraph_plus_bigquery       RandomForest    0.9766     0.8474  0.9056 0.8755
+               muldigraph_plus_bigquery            XGBoost    0.9750     0.8314  0.9099 0.8689
+               muldigraph_plus_bigquery   GNN-GraphSAGE-V2    0.9504     0.6721  0.8884 0.7652
+muldigraph_plus_etherscan_plus_bigquery LogisticRegression    0.9583     0.7788  0.7554 0.7669
+muldigraph_plus_etherscan_plus_bigquery       RandomForest    0.9785     0.8560  0.9185 0.8861
+muldigraph_plus_etherscan_plus_bigquery            XGBoost    0.9785     0.8397  0.9442 0.8889
+muldigraph_plus_etherscan_plus_bigquery   GNN-GraphSAGE-V2    0.9727     0.7964  0.9399 0.8622
+
+Best: {'best_scenario': 'muldigraph_plus_etherscan', 'best_model': 'RandomForest', 'best_f1': 0.8921161825726142, 'note': 'Scenario comparison uses schema-defined feature groups on a single shared split.', 'scenarios': {'muldigraph_only': 18, 'muldigraph_plus_etherscan': 25, 'muldigraph_plus_bigquery': 28, 'muldigraph_plus_etherscan_plus_bigquery': 35}}

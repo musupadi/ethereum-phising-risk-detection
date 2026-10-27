@@ -1,0 +1,223 @@
+{
+  "host": {
+    "cpu": 12,
+    "python": "3.13.5"
+  },
+  "model": {
+    "model_file": "model_prod_xgb.json",
+    "model_file_size_kb": 878.3,
+    "n_trees": 250,
+    "n_features": 25,
+    "max_depth": null,
+    "deserialise_ms": 75.5,
+    "process_rss_before_load_mb": 151.3,
+    "process_rss_after_load_mb": 154.8,
+    "model_resident_increment_mb": 3.5,
+    "process_rss_after_inference_mb": 162.6,
+    "single_wallet_booster_predict_ms": {
+      "median": 0.723,
+      "p95": 1.829
+    },
+    "single_wallet_predict_full_ms": {
+      "median": 3.543,
+      "p95": 6.423
+    },
+    "batch": {
+      "n": 2563,
+      "total_ms": 5.1,
+      "per_wallet_us": 2.01
+    }
+  },
+  "gas": {
+    "gas_used_mean": 35462,
+    "gas_used_range": [
+      35452,
+      35464
+    ],
+    "local_commit_latency_ms": {
+      "min": 11.15,
+      "max": 38.44,
+      "mean": 13.57,
+      "median": 11.97,
+      "stdev": 5.93
+    },
+    "eth_usd_assumed": 2313.76,
+    "table": [
+      {
+        "gas_price_gwei": 0.1,
+        "cost_eth": 3.5462000000000005e-06,
+        "cost_usd": 0.008205055712000002
+      },
+      {
+        "gas_price_gwei": 0.5,
+        "cost_eth": 1.7731e-05,
+        "cost_usd": 0.04102527856
+      },
+      {
+        "gas_price_gwei": 1,
+        "cost_eth": 3.5462e-05,
+        "cost_usd": 0.08205055712
+      },
+      {
+        "gas_price_gwei": 5,
+        "cost_eth": 0.00017731000000000002,
+        "cost_usd": 0.4102527856000001
+      },
+      {
+        "gas_price_gwei": 10,
+        "cost_eth": 0.00035462000000000004,
+        "cost_usd": 0.8205055712000002
+      },
+      {
+        "gas_price_gwei": 30,
+        "cost_eth": 0.00106386,
+        "cost_usd": 2.4615167136000005
+      }
+    ],
+    "eth_usd_source": "CoinDesk, 26 Oct 2026"
+  },
+  "live": {
+    "request_delay_s": 0.25,
+    "runs": [
+      {
+        "address": "0x8196fa469bd2f8105bae01702c4b84b04cdf4a2c",
+        "kind": "phishing (dataset)",
+        "status": "ok",
+        "n_transactions": 3,
+        "risk_score": 100,
+        "etherscan_calls": 5,
+        "total_s": 8.49,
+        "network_s": 7.222,
+        "throttle_sleep_s": 1.25,
+        "compute_s": 0.018
+      },
+      {
+        "address": "0xeb71af7cd339832ff8d88d985035b2793042eca8",
+        "kind": "phishing (dataset)",
+        "status": "ok",
+        "n_transactions": 26,
+        "risk_score": 100,
+        "etherscan_calls": 5,
+        "total_s": 7.997,
+        "network_s": 6.729,
+        "throttle_sleep_s": 1.25,
+        "compute_s": 0.019
+      },
+      {
+        "address": "0x634cdd7ebeccccf517cd8f4eca959474bc1b58cc",
+        "kind": "phishing (dataset)",
+        "status": "ok",
+        "n_transactions": 8,
+        "risk_score": 100,
+        "etherscan_calls": 5,
+        "total_s": 8.445,
+        "network_s": 7.176,
+        "throttle_sleep_s": 1.25,
+        "compute_s": 0.019
+      },
+      {
+        "address": "0xf9f876a42fcb0d40759790781fdc886449f54008",
+        "kind": "phishing (dataset)",
+        "status": "ok",
+        "n_transactions": 21,
+        "risk_score": 100,
+        "etherscan_calls": 5,
+        "total_s": 10.122,
+        "network_s": 8.854,
+        "throttle_sleep_s": 1.25,
+        "compute_s": 0.018
+      },
+      {
+        "address": "0x7f2b4801c338a7b3cc322bfaf151afea8708e8e0",
+        "kind": "phishing (dataset)",
+        "status": "ok",
+        "n_transactions": 2,
+        "risk_score": 67,
+        "etherscan_calls": 5,
+        "total_s": 16.555,
+        "network_s": 15.286,
+        "throttle_sleep_s": 1.25,
+        "compute_s": 0.019
+      },
+      {
+        "address": "0x71dfe583fc56e239e1e20bab99a750d18c9851ca",
+        "kind": "normal (dataset)",
+        "status": "ok",
+        "n_transactions": 39,
+        "risk_score": 2,
+        "etherscan_calls": 5,
+        "total_s": 9.62,
+        "network_s": 8.352,
+        "throttle_sleep_s": 1.25,
+        "compute_s": 0.018
+      },
+      {
+        "address": "0xf6986f3b7e52683b458d2910743f1aaa0205e302",
+        "kind": "normal (dataset)",
+        "status": "ok",
+        "n_transactions": 77,
+        "risk_score": 83,
+        "etherscan_calls": 5,
+        "total_s": 14.304,
+        "network_s": 13.039,
+        "throttle_sleep_s": 1.25,
+        "compute_s": 0.015
+      },
+      {
+        "address": "0x57eb797c13439a26da645533d1d6a721d21ec5eb",
+        "kind": "normal (dataset)",
+        "status": "ok",
+        "n_transactions": 3,
+        "risk_score": 19,
+        "etherscan_calls": 5,
+        "total_s": 8.607,
+        "network_s": 7.341,
+        "throttle_sleep_s": 1.25,
+        "compute_s": 0.017
+      },
+      {
+        "address": "0xf2e908e54b10c9747da448e54fe5c493dcb9f64c",
+        "kind": "normal (dataset)",
+        "status": "ok",
+        "n_transactions": 25,
+        "risk_score": 56,
+        "etherscan_calls": 5,
+        "total_s": 9.067,
+        "network_s": 7.802,
+        "throttle_sleep_s": 1.25,
+        "compute_s": 0.015
+      },
+      {
+        "address": "0x982b3f3403274618d6db8ba63cb6f91be5e7bd9b",
+        "kind": "normal (dataset)",
+        "status": "ok",
+        "n_transactions": 9,
+        "risk_score": 90,
+        "etherscan_calls": 5,
+        "total_s": 13.052,
+        "network_s": 11.785,
+        "throttle_sleep_s": 1.25,
+        "compute_s": 0.017
+      },
+      {
+        "address": "0x00000000000000000000000000000000000000de",
+        "kind": "never-used address",
+        "status": "ok",
+        "n_transactions": 1,
+        "risk_score": 81,
+        "etherscan_calls": 5,
+        "total_s": 9.15,
+        "network_s": 7.882,
+        "throttle_sleep_s": 1.25,
+        "compute_s": 0.018
+      }
+    ],
+    "summary_found_wallets": {
+      "n": 11,
+      "total_s_median": 9.15,
+      "total_s_max": 16.555,
+      "calls_median": 5,
+      "compute_s_median": 0.018
+    }
+  }
+}

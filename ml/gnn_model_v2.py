@@ -311,8 +311,10 @@ class GraphPhiV2:
         """
         Train with class-balanced loss and best-weight restoration.
 
-        Early stopping monitors test F1; when patience is exhausted the model
-        is rolled back to the epoch with the highest F1 (not the last epoch).
+        Early stopping monitors F1 on `test_mask`; when patience is exhausted the
+        model is rolled back to the epoch with the highest F1 (not the last epoch).
+        Pass a train-internal VALIDATION mask here, never the held-out test mask,
+        otherwise the reported test score is optimistically biased.
         """
         if train_mask is not None:
             y_train = graph.y[train_mask].cpu().numpy()

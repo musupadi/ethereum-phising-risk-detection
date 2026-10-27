@@ -111,6 +111,9 @@ def load_transaction_graph():
 
 
 ETHERSCAN_EDGES_CSV = ROOT / "data" / "raw" / "etherscan_edges.csv"
+# Off: etherscan_edges.csv was crawled for the earlier 8,595-wallet population and
+# undercounts cross-edges for the 12,815 population; topology = MulDiGraph only.
+USE_ETHERSCAN_EDGES = False
 
 
 def extract_edges_for_addresses(
@@ -160,7 +163,7 @@ def extract_edges_for_addresses(
 
     # Source 2: Etherscan edges (if available)
     etherscan_edge_count = 0
-    if ETHERSCAN_EDGES_CSV.exists():
+    if USE_ETHERSCAN_EDGES and ETHERSCAN_EDGES_CSV.exists():
         try:
             ec_df = pd.read_csv(ETHERSCAN_EDGES_CSV)
             for _, row in ec_df.iterrows():
@@ -367,10 +370,21 @@ def train_gnn(
             X_train_scaled, y_train, X_test_scaled, y_test
         )
 
+    # Early stopping monitors a validation slice carved from the TRAIN wallets only.
+    # (Earlier versions monitored test F1, which inflated the reported GraphSAGE F1;
+    # see experiments/revision_ijece.py -> graphsage_protocol_decomposition.csv.)
+    train_idx = np.flatnonzero(train_mask)
+    fit_idx, val_idx = train_test_split(
+        train_idx, test_size=0.2, random_state=42, stratify=y_train
+    )
+    fit_mask = np.zeros_like(train_mask)
+    fit_mask[fit_idx] = True
+    val_mask = np.zeros_like(train_mask)
+    val_mask[val_idx] = True
     gnn.fit(
         graph,
-        train_mask=train_mask,
-        test_mask=test_mask,
+        train_mask=fit_mask,
+        test_mask=val_mask,  # GraphPhiV2.fit's monitoring mask
         epochs=200,
         early_stopping_patience=25,
     )

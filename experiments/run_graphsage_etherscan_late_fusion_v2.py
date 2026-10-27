@@ -19,7 +19,7 @@ Corrections over V1 (experiments/run_graphsage_etherscan_late_fusion.py, untouch
      from MulDiGraph.pkl. data/raw/etherscan_edges.csv is deliberately NOT read.
 
 Design
-    Same 8,595-wallet population, labels and stratified 80:20 split (random_state=42).
+    Same 12,815-wallet population, labels and stratified 80:20 split (random_state=42).
     Wallets and labels come only from EPTransNet/MulDiGraph.
     fused_i = [ graphsage_embedding_128 || scaled_etherscan_7 ]  ->  135-d
     XGBoost is trained on fused TRAIN vectors only.
@@ -78,10 +78,10 @@ MODELS = ROOT / "models"
 
 # Published reference (thesis, Scenario 2 tabular XGBoost) - asserted, never overwritten.
 PUBLISHED_XGB_S2 = {
-    "Accuracy": 0.9750,
-    "Precision": 0.8862,
-    "Recall": 0.9356,
-    "F1": 0.9102,
+    "Accuracy": 0.9789,
+    "Precision": 0.8403,
+    "Recall": 0.9485,
+    "F1": 0.8911,
 }
 
 logging.basicConfig(
@@ -302,11 +302,11 @@ def main() -> None:
         "Split: train=%d (phish=%d) test=%d (phish=%d)",
         n_train, int(y_train.sum()), n_test, int(y_test.sum()),
     )
-    assert (n_train, n_test) == (6876, 1719), "split differs from the published Scenario 2 split"
+    assert (n_train, n_test) == (10252, 2563), "split differs from the published Scenario 2 split"
     assert df["wallet_address"].is_unique
     assert set(train_addrs).isdisjoint(set(test_addrs))
-    assert n_total == len(df) == 8595
-    checks.append("wallet population = 8,595 unique lowercased EPTransNet addresses; no wallet added or dropped")
+    assert n_total == len(df) == 12815
+    checks.append("wallet population = 12,815 unique lowercased EPTransNet addresses; no wallet added or dropped")
     checks.append(f"stratified 80:20 split, random_state=42 -> train={n_train}, test={n_test} (identical to Scenario 2)")
 
     # ── 2. Topology: MulDiGraph edges only ────────────────────────────────────
@@ -424,7 +424,7 @@ def main() -> None:
     # The published reference must reproduce exactly; otherwise the split drifted.
     for k, v in PUBLISHED_XGB_S2.items():
         assert abs(xgb_m[k] - v) < 5e-4, f"Scenario 2 baseline drifted on {k}: {xgb_m[k]:.4f} vs published {v:.4f}"
-    checks.append("published XGBoost Scenario 2 baseline reproduced exactly (Acc 97.50 / Prec 88.62 / Rec 93.56 / F1 91.02)")
+    checks.append("published XGBoost Scenario 2 baseline reproduced exactly (Acc 97.89 / Prec 84.03 / Rec 94.85 / F1 89.11)")
 
     comp_df = pd.DataFrame(rows)
     comp_df.to_csv(OUTPUTS / "late_fusion_comparison_table_v2.csv", index=False)

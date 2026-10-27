@@ -5,6 +5,7 @@ pandas>=2.2
 scikit-learn>=1.5
 imbalanced-learn>=0.12   # SMOTE/oversampling (smote_experiment.py, catatan #8)
 joblib>=1.4
+psutil>=5.9               # experiments/revision_ops.py (memory footprint)
 matplotlib>=3.8
 xgboost>=2.0
 torch>=2.0

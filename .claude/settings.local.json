@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(python -c \"import networkx, matplotlib; print\\(networkx.__version__, matplotlib.__version__\\)\")",
-      "Bash(python scripts/profile_muldigraph.py)",
-      "PowerShell(Get-ChildItem data\\\\raw -ErrorAction SilentlyContinue | Select-Object Name,@{n='MB';e={[math]::Round\\($_.Length/1MB,1\\)}}; Write-Output \"---venv---\"; Test-Path .venv\\\\Scripts\\\\Activate.ps1; Write-Output \"---git---\"; git status --short)"
-    ]
-  }
-}

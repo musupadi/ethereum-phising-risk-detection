@@ -1,14 +1,66 @@
 # Ethereum Phishing Risk Registry
 
 AI + Blockchain risk scoring system that:
-1. Trains a Random Forest classifier on the **Ethereum Phishing Transaction Network** (XBlock / InPlusLab) dataset.
-2. Produces a `risk_score` (0–100) per wallet.
-3. Anchors results to a **Solidity smart contract** running on a local Hardhat node.
+1. Transforms each wallet's one-hop neighbourhood in the **Ethereum Phishing Transaction Network** (XBlock / InPlusLab) `MulDiGraph` into 18 tabular features, enriched with 7 Etherscan attributes.
+2. Scores wallets with an **XGBoost** model (25 predictors) and produces a `risk_score` (0–100).
+3. Anchors results to a **Solidity smart contract** (`RiskRegistry`) running on a local Hardhat node.
 4. Exposes a **FastAPI** REST API and a **Streamlit** demo UI.
 
-For thesis results, there are two different training paths:
-- `python ml/train.py` = baseline only (Logistic Regression + Random Forest) on the processed graph features.
-- `python ml/train_dataset_scenarios.py` = full thesis comparison (LR + RF + XGBoost + GNN) across the hybrid dataset scenarios.
+Training paths:
+- `python ml/train_production_model.py` = the deployed XGBoost model (`ml/artifacts/model_prod_xgb.json`).
+- `python ml/train_dataset_scenarios.py` = 4 scenarios × 4 models (LR, RF, XGBoost, GraphSAGE) on one split (seed 42).
+- `python experiments/revision_ijece.py` = the same comparison over 10 seeds plus all analyses reported in the paper.
+- `python ml/train.py` = legacy baseline (LR + RF) on graph features only.
+
+---
+
+## 📄 Reproducing the IJECE paper
+
+*"Data-centric Ethereum phishing detection through graph-to-tabular transformation"*. Tested from a clean `git clone` on Windows 11 with Python 3.13.
+
+**1. Install**
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+**2. Get the graph.** Download `MulDiGraph.pkl` (about 1.3 GB) from [XBlock](http://xblock.pro/ethereum/) or the [Kaggle mirror](https://www.kaggle.com/datasets/xblock/ethereum-phishing-transaction-network/data) and place it at `data/raw/MulDiGraph.pkl`. It is not redistributed in this repository.
+
+No API key is needed for reproduction: the Etherscan and BigQuery enrichment results for all 12,815 wallets are already committed in `data/raw/addresses_*_enriched.csv`.
+
+**3. Run, in order**
+
+| Step | Command | Time* | Produces |
+|---|---|---|---|
+| Build the 12,815-wallet dataset | `python ml/build_hybrid_dataset.py` | ~1 min | `data/processed/hybrid_dataset.csv` (byte-identical to the committed file) |
+| Production model | `python ml/train_production_model.py` | ~10 s | `ml/artifacts/model_prod_xgb.json`; test F1 = 0.8911 |
+| 4 × 4 comparison, seed 42 | `cd ml; python train_dataset_scenarios.py; cd ..` | ~2 min | `ml/artifacts/dataset_scenarios_comparison.csv` |
+| **All paper tables (10 seeds)** | `python experiments/revision_ijece.py` | ~13 min | `outputs/revision/*.csv`, `reliability_diagram.png` |
+| Model footprint, latency, gas cost | `python experiments/revision_ops.py --no-live --eth-usd 2313.76` | ~10 s | `outputs/revision/ops_metrics.json` |
+| Late fusion (single split) | `python experiments/run_graphsage_etherscan_late_fusion_v2.py` | ~1 min | `outputs/late_fusion_*_v2.*` |
+| Embedding-only ablation | `python experiments/run_embedding_only_ablation.py` | ~1 min | `outputs/embedding_only_*` |
+
+\*Measured on a 12-thread CPU without a GPU.
+
+**Mapping to the paper**
+
+| Paper | File in `outputs/revision/` |
+|---|---|
+| Table 3 (F1 mean ± std, 10 seeds) | `multiseed_summary.csv` |
+| Table 4 (late fusion, embedding ablation) | `multiseed_summary.csv`, rows with `scenario = late_fusion` |
+| Table 6(a) (TN/FP/FN/TP) | `seed42_table.csv`, `multiseed_summary.csv` |
+| Table 6(b) (latency, memory, gas) | `ops_metrics.json` |
+| Table A (majority-class ratio) | `majority_ratio_summary.csv` |
+| Table B (GraphSAGE protocol decomposition) | `graphsage_protocol_decomposition.csv` |
+| Table C (calibration) + reliability figure | `calibration_summary.csv`, `reliability_diagram.png` |
+| Table D (cost-sensitive threshold) | `cost_threshold_summary.csv` |
+| Isolated-wallet statistics | `isolated_wallets.json` |
+
+**Protocol.** Every split is a stratified 80:20 split. Scaling, early stopping (XGBoost and GraphSAGE), threshold selection and calibration are all fitted on a validation slice taken from the training wallets, and each test set is scored exactly once. Seeds: 42, 0–8.
+
+**Optional (needs your own credentials):** live scanning of wallets outside the dataset (`ETHERSCAN_API_KEY` in `.env`, `LIVE_SCAN_ENABLED=true`), re-running the enrichment (`ml/enrich_real_addresses_*.py`, which also needs a Google Cloud service account for BigQuery), and the blockchain demo (Node.js 18+, `cd chain; npm install`). Copy `.env.example` to `.env` to configure these.
 
 ---
 
@@ -150,6 +202,13 @@ curl http://localhost:8000/risk/0x4dad23689bef624af5d1757a56135901c915fcfd
 │   └── package.json
 ├── app/
 │   └── streamlit_app.py      # Streamlit UI
+├── experiments/
+│   ├── revision_ijece.py     # All paper tables: 10 seeds, fusion, calibration, cost, ratios
+│   ├── revision_ops.py       # Model footprint, latency, live Etherscan path, gas cost
+│   └── run_*.py              # Single-split late fusion / embedding ablation
+├── outputs/
+│   └── revision/             # Raw results behind every table of the paper
+├── models/                   # Trained fusion / ablation models
 ├── requirements.txt
 └── README.md
 ```
@@ -340,38 +399,44 @@ Catatan penting:
 - Halaman ini **tanpa library eksternal** (tidak ada ethers.js/CDN) — encoding & decoding
   ABI ditulis manual, jadi tetap jalan tanpa internet.
 
-### Mode scan wallet di luar dataset — SISTEM BARU (opsional, mati secara bawaan)
+### Mode scan wallet di luar dataset (opsional, mati secara bawaan)
 
-> 📌 Ini **tambahan di luar lingkup tesis**, disimpan terpisah di folder
-> **[`new_system/`](new_system/README.md)**. Dengan pengaturan bawaan
-> (`LIVE_SCAN_ENABLED=false`), aplikasi berperilaku persis seperti sistem tesis:
-> wallet di luar dataset menghasilkan HTTP 404. Angka-angka tesis tidak terpengaruh.
+> Dengan pengaturan bawaan (`LIVE_SCAN_ENABLED=false`), wallet di luar dataset
+> menghasilkan HTTP 404 dan angka-angka paper tidak terpengaruh.
 
-Bila dinyalakan, `POST /analyze` punya dua jalur:
+Bila dinyalakan, `POST /analyze` punya dua jalur. Keduanya memakai **model yang sama**
+(`ml/artifacts/model_prod_xgb.json`, XGBoost 25 fitur); yang berbeda hanya sumber fiturnya:
 
-| Wallet | Model | Fitur | Dicatat on-chain? |
-|---|---|---|---|
-| Ada di `hybrid_dataset.csv` (12.815 alamat) | **Model tesis** `ml/artifacts/model_prod_xgb.json` — XGBoost 25 fitur, F1 89,11% | precomputed | ✅ ya |
-| Di luar dataset | **Model perluasan** `new_system/artifacts/model_live_xgb.json` | diambil live dari Etherscan | ❌ tidak pernah |
+| Wallet | Sumber 25 fitur | Dicatat on-chain? |
+|---|---|---|
+| Ada di `hybrid_dataset.csv` (12.815 alamat) | precomputed (MulDiGraph + Etherscan) | ✅ ya |
+| Di luar dataset | dihitung live dari Etherscan `txlist` oleh `ml/live_features.py` | ❌ tidak pernah |
 
-Hasil mode live selalu ditandai `out_of_distribution: true` dan disertai `warning`.
+Ke-18 fitur graf bersifat lokal 1-hop, sehingga bisa dihitung dari daftar transaksi
+Etherscan dengan rumus yang sama persis seperti dari MulDiGraph. Wallet tanpa riwayat
+transaksi dibalas "wallet tidak ditemukan" (404) tanpa skor. Hasil mode live selalu
+ditandai `out_of_distribution: true` karena model dilatih pada snapshot 2015–2019.
+Butuh `ETHERSCAN_API_KEY` di `.env`.
 
 ```powershell
 # Menyalakan (bawaan: mati)
 $env:LIVE_SCAN_ENABLED = "true"
 python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+
+# Uji satu alamat langsung dari terminal
+python ml/live_features.py 0x<alamat>
 ```
 
 Variabel env terkait (`api/config.py`):
 
 | Variabel | Default | Fungsi |
 |---|---|---|
-| `LIVE_SCAN_ENABLED` | **`false`** | Nyalakan untuk mengaktifkan sistem baru |
-| `LIVE_MAX_PAGES` | `5` | Batas halaman txlist per alamat (1 halaman = 1.000 transaksi) |
-| `LIVE_REQUEST_DELAY` | `0.25` | Jeda antar panggilan Etherscan |
+| `LIVE_SCAN_ENABLED` | **`false`** | Nyalakan untuk mengaktifkan scan live |
+| `LIVE_MAX_PAGES` | `5` | Batas halaman `txlist` per alamat |
+| `LIVE_REQUEST_DELAY` | `0.25` | Jeda antar panggilan Etherscan (detik) |
 
-Latar belakang, hasil evaluasi, dan batasannya ada di
-**[`new_system/README.md`](new_system/README.md)**.
+Satu scan live butuh 5 panggilan Etherscan, sekitar 8–17 detik per wallet (lihat
+`outputs/revision/ops_metrics.json`).
 
 ### Cek cepat aplikasi sudah jalan
 
